@@ -1,4 +1,10 @@
+#include <chrono>
+#include <iostream>
+#include <thread>
 #include <Windows.h>
+
+#include "Graphic.h"
+
 
 LRESULT CALLBACK WndProc(HWND hWnd,UINT msg,WPARAM wParam,LPARAM lParam)
 {
@@ -6,35 +12,34 @@ LRESULT CALLBACK WndProc(HWND hWnd,UINT msg,WPARAM wParam,LPARAM lParam)
     {
         case WM_DESTROY:
             PostQuitMessage(0);
-            break;
-        default:
-            return DefWindowProc(hWnd,msg,wParam,lParam);
+            return 0;
     }
-    return 0;
+
+    return DefWindowProc(hWnd,msg,wParam,lParam);
 }
 
 
-int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR,int)
+int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR,int nCmdShow)
 {
-
-    // 注册窗口
     WNDCLASS wc = {};
-
     wc.lpfnWndProc = WndProc;
     wc.hInstance = hInstance;
-    wc.lpszClassName = reinterpret_cast<LPCSTR>(L"MyWindow");
+    wc.lpszClassName = "MyWindow";
 
     RegisterClass(&wc);
-    // 创建窗口
-    HWND hWnd = CreateWindow(
-        reinterpret_cast<LPCSTR>(L"MyWindow"),
-        reinterpret_cast<LPCSTR>(L"Hello Window"),
 
+    AllocConsole();
+    freopen("CONOUT$","w",stdout);
+    // std::cout << "开始图" << std::endl;
+
+
+    HWND hWnd = CreateWindow(
+        "MyWindow",
+        "GAME",
         WS_OVERLAPPEDWINDOW,
 
         100,
         100,
-
         800,
         600,
 
@@ -44,16 +49,51 @@ int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR,int)
         nullptr
     );
 
-    // 显示
-    ShowWindow(hWnd,SW_SHOW);
 
-    // 消息循环
+    ShowWindow(hWnd,nCmdShow);
+
+    // 创建Graphic
+    Graphic graphic;
+    graphic.Initialize(hWnd);
+
     MSG msg = {};
-    while(GetMessage(&msg,nullptr,0,0))
+    const double frameTime = 1.0 / 60.0;
+
+    while (true)
     {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
+        auto frameStart = std::chrono::high_resolution_clock::now();
+        // 处理窗口消息
+        while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+        {
+            if(msg.message == WM_QUIT)
+            {
+                return 0;
+            }
+
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
+
+
+        // 游戏循环
+        graphic.BeginFrame(
+            0.2f,
+            0.4f,
+            0.6f
+        );
+
+        graphic.EndFrame();
+
+        // 帧率控制
+        auto frameEnd = std::chrono::high_resolution_clock::now();
+        double elapsed = std::chrono::duration<double>(frameEnd - frameStart).count();
+
+        if(elapsed < frameTime)
+        {
+            std::this_thread::sleep_for(std::chrono::duration<double>(frameTime - elapsed));
+        }
     }
+
 
     return 0;
 }

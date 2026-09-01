@@ -7,24 +7,22 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include_directories(test)
 
+# 加入 DirectXTK
+add_subdirectory(DirectXTK)
+
 add_executable(base WIN32
-        test/common.cpp
-        test/common.h
         test/Graphic.cpp
         test/Graphic.h
         test/main.cpp
-        test/myHead.h
-        test/Singleton.h)
-
-target_include_directories(base PRIVATE
-        ${CMAKE_SOURCE_DIR}/thirdparty/DX/include
+        test/Global.cpp
+        test/Global.h
 )
 
-target_link_directories(base PRIVATE
-        ${CMAKE_SOURCE_DIR}/thirdparty/DX/lib
-)
 
 target_link_libraries(base PRIVATE
-        d3d9
-        d3dx9
+        d3d11
+        dxgi
+        d3dcompiler
+
+        DirectXTK
 )

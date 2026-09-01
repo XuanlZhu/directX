@@ -1,231 +1,498 @@
 #include "Graphic.h"
 
+#include <iostream>
+
+#include "Global.h"
 
 
-HWND CGraphic::InitWindow(pMainWndProc proc,WORD width,WORD height,TSTRING titelName,TSTRING className)
-{
-	//1、定义窗口类
-	WNDCLASS wc;
-	wc.style = CS_HREDRAW | CS_VREDRAW;
-	wc.lpfnWndProc = proc;
-	wc.cbClsExtra = 0;
-	wc.cbWndExtra = 0;
-	wc.hInstance = 0;
-	wc.hIcon = LoadIcon(0, IDI_APPLICATION);
-	wc.hCursor = LoadCursor(0, IDC_ARROW);
-	wc.hbrBackground = (HBRUSH)GetStockObject(NULL_BRUSH);
-	wc.lpszMenuName = 0;
-	wc.lpszClassName = className.c_str();//绑定一个类名
+// Graphic::Graphic() {
+//     test_texture = LoadTexture("PNG/first3.png");
+// }
 
-	//2、注册窗口类
-	if (!RegisterClass(&wc))
-	{
-		MessageBox(0, _T("RegisterClass Failed."), 0, 0);
-		return nullptr;
-	}
-
-	// Compute window rectangle dimensions based on requested client area dimensions.
-	RECT R = { 0, 0, width, height };
-	AdjustWindowRect(&R, WS_OVERLAPPEDWINDOW, false);
-	int newwidth = R.right - R.left;
-	int newheight = R.bottom - R.top;
-
-	//3、创建窗口
-	m_hMainWnd = CreateWindow(className.c_str(), titelName.c_str(), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, newwidth, newheight, 0, 0, 0, 0);
-	if (!m_hMainWnd)
-	{
-		MessageBox(0, _T("CreateWindow Failed."), 0, 0);
-		return nullptr;
-	}
-
-	//4、显示窗口
-	ShowWindow(m_hMainWnd, SW_SHOW);
-
-	//5、更新窗口
-	UpdateWindow(m_hMainWnd);
-
-	return m_hMainWnd;
+Graphic::Graphic() {
+    // std::cout << "开始资源加载" << std::endl;
+    // test_texture = LoadTexture("PNG/first3.png");
+    // std::cout << "开始资源加载结束" << std::endl;
 }
 
-void CGraphic::InitDX(HWND hwnd)
+Graphic::~Graphic()
 {
-	m_hMainWnd = hwnd;
+    if(m_renderTargetView)
+    {
+        m_renderTargetView->Release();
+        m_renderTargetView = nullptr;
+    }
 
-	m_pD3D = Direct3DCreate9(D3D_SDK_VERSION);
+    if(m_swapChain)
+    {
+        m_swapChain->Release();
+        m_swapChain = nullptr;
+    }
 
-	
-	//默认显卡
-	//使用显卡的加速功能
-	//窗口句柄
-	//使用硬件加速处理顶点
-	D3DPRESENT_PARAMETERS d3dpp;//定义后台缓存的相关设置
-	ZeroMemory(&d3dpp, sizeof(d3dpp));
-	d3dpp.Windowed = true;//可以支持全屏
-	d3dpp.BackBufferFormat = D3DFMT_X8R8G8B8;//32位颜色
-	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;//前后台的交换方式为丢弃
-	//设置深度的格式和激活深度计算
-	d3dpp.AutoDepthStencilFormat = D3DFMT_D24X8;//设置深度缓存的精度（8，16，24，32）
-	d3dpp.EnableAutoDepthStencil = true;//激活深度运算
-	m_pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, m_hMainWnd, D3DCREATE_HARDWARE_VERTEXPROCESSING, &d3dpp, &m_pDevice);
-	//D3DCLEAR
-	if (!m_pDevice)
-		return;
-	////比较深度，进行测试（相同的x,y坐标，深度值小的通过测试，则绘制出来）
-	m_pDevice->SetRenderState(D3DRS_ZENABLE, true);//激活深度测试
-	m_pDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_LESS);//小于通过测试
+    if(m_context)
+    {
+        m_context->Release();
+        m_context = nullptr;
+    }
 
-	D3DXCreateSprite(m_pDevice, &m_pSprite);
-
-	D3DXCreateLine(m_pDevice, &m_pLine);
-
-	D3DXCreateFont(m_pDevice, 20,20, 0, 0, 0, DEFAULT_CHARSET, 0, 0, 0, _T("宋体"), &m_pFont);
-
+    if(m_device)
+    {
+        m_device->Release();
+        m_device = nullptr;
+    }
 }
 
-HRESULT CGraphic::LoadTex(LPCTSTR fileName, MyImageInfo& info,DWORD color)
+bool Graphic::Initialize(HWND hWnd)
 {
-	if (FAILED(D3DXCreateTextureFromFileEx(m_pDevice, fileName, D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT_NONPOW2,
-		0, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, D3DX_DEFAULT, 0, color, 0, 0, &info.pTex)))
-	{
-		info.pTex = nullptr;
-		return E_FAIL;
-	}
-	D3DSURFACE_DESC desc;
-	info.pTex->GetLevelDesc(0, &desc);
-	info.width = desc.Width;
-	info.height = desc.Height;
+    m_hWnd = hWnd;
 
-	return S_OK;
-}
+    RECT rc;
+    GetClientRect(hWnd, &rc);
 
-void CGraphic::BeginDraw()
-{
-	if (m_pDevice)
-	{
-		//清空（颜色缓存target，深度缓存）
-		m_pDevice->Clear(0, 0, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(128, 128, 128), 1, 0);
+    UINT width = rc.right - rc.left;
+    UINT height = rc.bottom - rc.top;
 
-		m_pDevice->BeginScene();
-	}
-}
+    DXGI_SWAP_CHAIN_DESC swapDesc = {};
 
-void CGraphic::EndDraw()
-{
-	m_pDevice->EndScene();
+    swapDesc.BufferCount = 1;
+    swapDesc.BufferDesc.Width = width;
+    swapDesc.BufferDesc.Height = height;
+    swapDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    swapDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+    swapDesc.OutputWindow = hWnd;
+    swapDesc.SampleDesc.Count = 1;
+    swapDesc.Windowed = TRUE;
 
-	//展现到屏幕上
-	m_pDevice->Present(0, 0, 0, 0);
-}
+    D3D_FEATURE_LEVEL featureLevel;
 
-void CGraphic::CloseDX()
-{
+    HRESULT hr = D3D11CreateDeviceAndSwapChain(
+        nullptr,
+        D3D_DRIVER_TYPE_HARDWARE,
+        nullptr,
+        0,
+        nullptr,
+        0,
+        D3D11_SDK_VERSION,
+        &swapDesc,
+        &m_swapChain,
+        &m_device,
+        &featureLevel,
+        &m_context
+    );
 
-}
-void CGraphic::DrawTex(LPDIRECT3DTEXTURE9 tex, D3DXVECTOR2 srcPos, D3DXVECTOR2 size, D3DXVECTOR3 pos, D3DXVECTOR3 center /*= D3DXVECTOR3(0.0f, 0, 0)*/, D3DXVECTOR3 rot /*= D3DXVECTOR3(0.0f, 0, 0)*/, D3DXVECTOR3 scale /*= D3DXVECTOR3(0.0f, 0, 0)*/)
-{
-	m_pSprite->Begin(D3DXSPRITE_ALPHABLEND);
+    if(FAILED(hr))
+        return false;
 
-	RECT rc = { srcPos.x,srcPos.y,srcPos.x+size.x,srcPos.y+size.y };
-	D3DXMATRIX matWorld, matT, matR, matS;
-	D3DXMatrixTranslation(&matT, pos.x, pos.y, pos.z);
-	D3DXMatrixRotationZ(&matR, rot.z);
-	D3DXMatrixScaling(&matS, scale.x, scale.y, scale.z);
 
-	matWorld = matS * matR * matT;
-	m_pSprite->SetTransform(&matWorld);
-	m_pSprite->Draw(tex, &rc, &center, nullptr, 0xffffffff);
+    ID3D11Texture2D* backBuffer = nullptr;
 
-	m_pSprite->End();
-}
-void CGraphic::DrawTex(MyImageInfo& info, D3DXVECTOR3 pos, D3DXVECTOR3 center /*= D3DXVECTOR3(0.0f, 0, 0)*/, D3DXVECTOR3 rot /*= D3DXVECTOR3(0.0f, 0, 0)*/, D3DXVECTOR3 scale /*= D3DXVECTOR3(0.0f, 0, 0)*/)
-{
-	m_pSprite->Begin(D3DXSPRITE_ALPHABLEND);
+    hr = m_swapChain->GetBuffer(
+        0,
+        __uuidof(ID3D11Texture2D),
+        (void**)&backBuffer
+    );
 
-	RECT rc = {0,0,info.width,info.height};
-	D3DXMATRIX matWorld, matT, matR, matS;
-	D3DXMatrixTranslation(& matT, pos.x, pos.y, pos.z);
-	D3DXMatrixRotationZ(&matR, rot.z);
-	D3DXMatrixScaling(&matS, scale.x, scale.y, scale.z);
+    if(FAILED(hr))
+        return false;
 
-	matWorld = matS * matR * matT;
-	m_pSprite->SetTransform(&matWorld);
-	if(info.pTex)
-		m_pSprite->Draw(info.pTex, &rc, &center, nullptr, 0xffffffff);
 
-	m_pSprite->End();
-}
+    hr = m_device->CreateRenderTargetView(
+        backBuffer,
+        nullptr,
+        &m_renderTargetView
+    );
+    // 设置 Viewport
+    D3D11_VIEWPORT viewport{};
 
-void CGraphic::DrawTex(MyImageInfo& info, D3DXVECTOR3 center /*= D3DXVECTOR3(0.0f, 0, 0)*/, D3DXMATRIX matWorld)
-{
-	m_pSprite->Begin(D3DXSPRITE_ALPHABLEND);
+    viewport.Width  = (float)width;
+    viewport.Height = (float)height;
 
-	RECT rc = { 0,0,info.width,info.height };
-	/*D3DXMATRIX matWorld, matT, matR, matS;
-	D3DXMatrixTranslation(&matT, pos.x, pos.y, pos.z);
-	D3DXMatrixRotationZ(&matR, rot.z);
-	D3DXMatrixScaling(&matS, scale.x, scale.y, scale.z);
+    viewport.MinDepth = 0.0f;
+    viewport.MaxDepth = 1.0f;
 
-	matWorld = matS * matR * matT;*/
-	m_pSprite->SetTransform(&matWorld);
-	if (info.pTex)
-		m_pSprite->Draw(info.pTex, &rc, &center, nullptr, 0xffffffff);
+    viewport.TopLeftX = 0;
+    viewport.TopLeftY = 0;
 
-	m_pSprite->End();
-}
 
-void CGraphic::DrawText(TSTRING text, RECT rc,DWORD style,DWORD color)
-{
-	m_pFont->DrawText(nullptr, text.c_str(), _tcslen(text.c_str()), &rc, style,color);
-}
+    m_context->RSSetViewports(
+        1,
+        &viewport
+    );
 
-void CGraphic::DrawLine(D3DXVECTOR3 start, D3DXVECTOR3 end, DWORD color /*= 0xffff0000*/)
-{
-	m_pLine->Begin();
+    backBuffer->Release();
 
-	D3DXVECTOR2 line[2];
-	line[0] = D3DXVECTOR2(start.x, start.y);
-	line[1] = D3DXVECTOR2(end.x, end.y);
-	m_pLine->Draw(line,2,color);
-	
-	m_pLine->End();
+    if(FAILED(hr))
+        return false;
+
+    CreateVertexBuffer();
+    CreatePixelShader();
+    CreateVertexShader();
+    CreateSampler();
+    test_texture = LoadTexture("PNG/first3.png");
+    return true;
 }
 
 
-//物体的颜色值=贴图Texture+光照颜色Lighting
+void Graphic::BeginFrame(float r,float g,float b)
+{
+    // assert(m_context);
+    // assert(m_renderTargetView);
+    //设置渲染目标视图
+    m_context->OMSetRenderTargets(
+        1,
+        &m_renderTargetView,
+        nullptr
+    );
 
-//光照颜色=环境光颜色Ambient+漫反射颜色Diffuse+镜面反射颜色Specular+自发光颜色Emmisive
 
-//光照计算模型：ambient+diffuse+specular
-//一个光源可以有多种计算模型，同时叠加。
+    float color[4] ={r,g,b,1.0f};
 
-//环境光：ambient=环境光颜色*环境光强度（物体的反射效果）
-//漫反射：diffuse=漫反射颜色*漫反射强度*cos(光源方向，物体法向量)
-//镜面反射：specular=镜面反射颜色*镜面反射强度*pow(cos(观察方向，反射向量), 镜面指数)
-//自发光：emmisive=自发光颜色*物体颜色
-// 
-//光源的种类有3种：平行光、点光源、聚光灯
-//typedef struct _D3DLIGHT9 {
-//	D3DLIGHTTYPE    Type;            /* Type of light source */
-//	D3DCOLORVALUE   Diffuse;         /* Diffuse color of light */
-//	D3DCOLORVALUE   Specular;        /* Specular color of light */
-//	D3DCOLORVALUE   Ambient;         /* Ambient color of light */
-//	D3DVECTOR       Position;         /* Position in world space */
-//	D3DVECTOR       Direction;        /* Direction in world space */
-//	float           Range;            /* Cutoff range */
-//	float           Falloff;          /* Falloff */
-//	float           Attenuation0;     /* Constant attenuation */
-//	float           Attenuation1;     /* Linear attenuation */
-//	float           Attenuation2;     /* Quadratic attenuation */
-//	float           Theta;            /* Inner angle of spotlight cone */
-//	float           Phi;              /* Outer angle of spotlight cone */
-//} D3DLIGHT9;
-//
-//typedef struct _D3DMATERIAL9 {
-//	D3DCOLORVALUE   Diffuse;        /* Diffuse color RGBA */
-//	D3DCOLORVALUE   Ambient;        /* Ambient color RGB */
-//	D3DCOLORVALUE   Specular;       /* Specular 'shininess' */
-//	D3DCOLORVALUE   Emissive;       /* Emissive color RGB */
-//	float           Power;          /* Sharpness if specular highlight */
-//} D3DMATERIAL9;
+    m_context->ClearRenderTargetView(
+        m_renderTargetView,
+        color
+    );
+    DrawTexture(test_texture,10,10,100,100);
+}
 
-//法线的定义属于顶点的属性
+void Graphic::CreateVertexBuffer()
+{
+    D3D11_BUFFER_DESC desc{};
+
+    desc.ByteWidth =
+        sizeof(Vertex) * 4;   // 四个顶点
+
+
+    //允许CPU频繁修改
+    desc.Usage =
+        D3D11_USAGE_DYNAMIC;
+
+
+    //这个Buffer作为顶点Buffer
+    desc.BindFlags =
+        D3D11_BIND_VERTEX_BUFFER;
+
+
+    //允许CPU写入
+    desc.CPUAccessFlags =
+        D3D11_CPU_ACCESS_WRITE;
+
+
+    HRESULT hr =
+        m_device->CreateBuffer(
+            &desc,
+            nullptr,
+            &m_vertexBuffer
+        );
+
+
+    if(FAILED(hr))
+    {
+        std::cout << "m_vertexBuffer加载失败" << std::endl;
+    }
+}
+void Graphic::CreatePixelShader()
+{
+    ID3DBlob* psBlob = nullptr;
+
+    HRESULT hr =
+        D3DCompileFromFile(
+            L"PixelShader.hlsl",
+            nullptr,
+            nullptr,
+            "main",
+            "ps_5_0",
+            0,
+            0,
+            &psBlob,
+            nullptr
+        );
+
+
+    if(FAILED(hr))
+    {
+        std::cout << "m_pixelShader加载失败" << std::endl;
+        return;
+    }
+
+
+    hr = m_device->CreatePixelShader(
+        psBlob->GetBufferPointer(),
+        psBlob->GetBufferSize(),
+        nullptr,
+        &m_pixelShader
+    );
+
+
+    psBlob->Release();
+}
+void Graphic::CreateVertexShader() {
+    ID3DBlob* vsBlob = nullptr;
+
+    HRESULT hr = D3DCompileFromFile(
+        L"VertexShader.hlsl",
+        nullptr,
+        nullptr,
+        "main",
+        "vs_5_0",
+        0,
+        0,
+        &vsBlob,
+        nullptr
+    );
+    if (FAILED(hr))
+    {
+        std::cout << "VertexShader编译失败" << std::endl;
+        return;
+    }
+    // 创建 Vertex Shader
+    hr = m_device->CreateVertexShader(
+        vsBlob->GetBufferPointer(),
+        vsBlob->GetBufferSize(),
+        nullptr,
+        &m_vertexShader
+    );
+    if (FAILED(hr))
+    {
+        std::cout << "VertexShader创建失败" << std::endl;
+        vsBlob->Release();
+        return;
+    }
+    // 创建 Input Layout
+    D3D11_INPUT_ELEMENT_DESC layout[] =
+    {
+        {
+            "POSITION",
+            0,
+            DXGI_FORMAT_R32G32B32_FLOAT,
+            0,
+            0,
+            D3D11_INPUT_PER_VERTEX_DATA,
+            0
+        },
+
+        {
+            "TEXCOORD",
+            0,
+            DXGI_FORMAT_R32G32_FLOAT,
+            0,
+            12,  // position占3个float = 12字节
+            D3D11_INPUT_PER_VERTEX_DATA,
+            0
+        }
+    };
+    hr = m_device->CreateInputLayout(
+        layout,
+        2,
+        vsBlob->GetBufferPointer(),
+        vsBlob->GetBufferSize(),
+        &m_inputLayout
+    );
+    vsBlob->Release();
+    if (FAILED(hr))
+    {
+        std::cout << "InputLayout创建失败" << std::endl;
+        return;
+    }
+    std::cout << "VertexShader创建成功" << std::endl;
+}
+void Graphic::CreateSampler()
+{
+    D3D11_SAMPLER_DESC desc{};
+
+
+    // 纹理缩放时使用线性过滤
+    desc.Filter =
+        D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+
+
+    // UV超过0~1时，使用边缘颜色
+    desc.AddressU =
+        D3D11_TEXTURE_ADDRESS_CLAMP;
+
+    desc.AddressV =
+        D3D11_TEXTURE_ADDRESS_CLAMP;
+
+    desc.AddressW =
+        D3D11_TEXTURE_ADDRESS_CLAMP;
+
+
+    // 不使用比较采样
+    desc.ComparisonFunc =
+        D3D11_COMPARISON_NEVER;
+
+
+    // 允许最大各向异性
+    desc.MaxLOD = D3D11_FLOAT32_MAX;
+
+
+    HRESULT hr =
+        m_device->CreateSamplerState(
+            &desc,
+            &m_sampler
+        );
+
+
+    if(FAILED(hr))
+    {
+        std::cout
+            << "Sampler创建失败"
+            << std::endl;
+    }
+    else
+    {
+        std::cout
+            << "Sampler创建成功"
+            << std::endl;
+    }
+}
+
+void Graphic::EndFrame()
+{
+    assert(m_swapChain);
+    //将缓冲区显示到屏幕
+    m_swapChain->Present(
+        1,
+        0
+    );
+}
+
+void Graphic::DrawTexture(ID3D11ShaderResourceView* texture,float x,float y,float width,float height)
+{
+    float left   = x;
+    float right  = x + width;
+    float top    = y;
+    float bottom = y + height;
+
+
+    // 屏幕坐标 -> NDC
+    float l = left   / screenWidth  * 2.0f - 1.0f;
+    float r = right  / screenWidth  * 2.0f - 1.0f;
+
+    float t = 1.0f - top    / screenHeight * 2.0f;
+    float b = 1.0f - bottom / screenHeight * 2.0f;
+
+    Vertex vertices[] =
+    {
+        {
+            {x, t, 0},
+            {0,0}
+        },
+
+        {
+            {y, t, 0},
+            {1,0}
+        },
+
+        {
+            {l, b, 0},
+            {0,1}
+        },
+
+        {
+            {r, b, 0},
+            {1,1}
+        }
+    };
+    // std::cout << "1" << std::endl;
+    // 更新顶点数据
+    D3D11_MAPPED_SUBRESOURCE mapped{};
+    //让 CPU 可以修改 m_vertexBuffer 里的顶点数据
+    m_context->Map(
+        m_vertexBuffer,
+        0,
+        D3D11_MAP_WRITE_DISCARD,
+        0,
+        &mapped
+    );
+    // std::cout << "2" << std::endl;
+    //把准备好的顶点数据上传给GPU
+    memcpy(
+        mapped.pData,
+        vertices,
+        sizeof(vertices)
+    );
+    //结束 CPU 对 GPU Buffer 的访问
+    m_context->Unmap(
+        m_vertexBuffer,
+        0
+    );
+    // std::cout << "3" << std::endl;
+    // 设置输入布局
+    m_context->IASetInputLayout(
+        m_inputLayout
+    );
+
+    // 设置顶点buffer
+    UINT stride = sizeof(Vertex);
+    UINT offset = 0;
+    //把顶点缓冲区（Vertex Buffer）绑定到 DirectX 11 的输入装配阶段（Input Assembler），让 GPU 知道从哪里读取顶点数据。
+    m_context->IASetVertexBuffers(
+        0,
+        1,
+        &m_vertexBuffer,
+        &stride,
+        &offset
+    );
+
+    // 三角形列表
+    m_context->IASetPrimitiveTopology(
+        D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP
+    );
+
+
+    // shader
+    m_context->VSSetShader(
+        m_vertexShader,
+        nullptr,
+        0
+    );
+    //把顶点着色器（Vertex Shader）绑定到 Direct3D 11 的渲染管线中，让 GPU 在处理顶点时使用这个 Shader
+    m_context->PSSetShader(
+        m_pixelShader,
+        nullptr,
+        0
+    );
+
+
+    // 绑定图片
+    //把像素着色器（Pixel Shader）绑定到 DirectX 11 渲染管线，让 GPU 在生成每个像素颜色时使用这个 Shader。
+    m_context->PSSetShaderResources(
+        0,
+        1,
+        &texture
+    );
+    //取样器
+    m_context->PSSetSamplers(
+        0,
+        1,
+        &m_sampler
+    );
+    // 绘制
+    std::cout<<"Draw"<<std::endl;
+    m_context->Draw(
+        4,
+        0
+    );
+
+}
+
+ID3D11ShaderResourceView*
+Graphic::LoadTexture(std::string _path)
+{
+    std::wstring wpath = StringToWString(_path);
+
+    ID3D11ShaderResourceView* texture = nullptr;
+    HRESULT hr = DirectX::CreateWICTextureFromFile(
+        m_device,
+        m_context,
+        L"PNG/enemy.png",
+        nullptr,
+        &texture
+    );
+    if (FAILED(hr))
+    {
+        std::cout << "资源加载错误" << std::endl;
+        return nullptr;
+    }
+    return texture;
+}

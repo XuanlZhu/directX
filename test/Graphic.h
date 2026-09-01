@@ -1,47 +1,48 @@
 #pragma once
-#include "myHead.h"
-#include "Singleton.h"
 
-//IMAGE
+#include <Windows.h>
+#include <d3d11.h>
+#include <dxgi.h>
+#include <d3dcompiler.h>
+#include <DirectXMath.h>
+#include <string>
+#include <WICTextureLoader.h>
 
-struct MyImageInfo
+#pragma comment(lib,"d3d11.lib")
+#pragma comment(lib,"dxgi.lib")
+
+struct Vertex
 {
-	LPDIRECT3DTEXTURE9 pTex;//具体的图片   
-	WORD width;//图片的宽度
-	WORD height;//图片的高度
+    DirectX::XMFLOAT3 position;
+    DirectX::XMFLOAT2 uv;
 };
 
-//函数指针-----专门用来处理消息的函数（窗口句柄，消息类型，消息附加值1，消息的附加值2）
-typedef LRESULT(*pMainWndProc)(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
-
-class CGraphic :public CSingleton<CGraphic>
+class Graphic
 {
-    friend CSingleton<CGraphic>;
 public:
-	HWND InitWindow(pMainWndProc proc, WORD width=800, WORD height=600, TSTRING titelName=_T("Game"), TSTRING className=_T("MyClass"));
-	void InitDX(HWND hwnd);
-	HRESULT LoadTex(LPCTSTR fileName, MyImageInfo& info,DWORD color=0xff000000);
-	void BeginDraw();
-	void EndDraw();
-	void CloseDX();
-	void DrawTex(LPDIRECT3DTEXTURE9 tex, D3DXVECTOR2 srcPos, D3DXVECTOR2 size, D3DXVECTOR3 pos, D3DXVECTOR3 center = D3DXVECTOR3(0.0f, 0, 0), D3DXVECTOR3 rot = D3DXVECTOR3(0.0f, 0, 0), D3DXVECTOR3 scale = D3DXVECTOR3(1.0f, 1, 1));
-	void DrawTex(MyImageInfo& info, D3DXVECTOR3 pos, D3DXVECTOR3 center = D3DXVECTOR3(0.0f, 0, 0), D3DXVECTOR3 rot = D3DXVECTOR3(0.0f, 0, 0), D3DXVECTOR3 scale = D3DXVECTOR3(1.0f, 1, 1));
-	void DrawTex(MyImageInfo& info, D3DXVECTOR3 center,D3DXMATRIX matWorld);//matWorld代表最终的复合矩阵
-	void DrawText(TSTRING text, RECT rc, DWORD style=DT_LEFT|DT_TOP, DWORD color=0xffff0000);//默认左上对齐的红色文字
-
-	void DrawLine(D3DXVECTOR3 start, D3DXVECTOR3 end, DWORD color = 0xffff0000);//画线函数
-
-	LPDIRECT3DDEVICE9 m_pDevice;//DX设备接口---代表显卡设备
-	HWND m_hMainWnd;//窗口句柄
+    Graphic();
+    ~Graphic();
+    bool Initialize(HWND hWnd);
+    void BeginFrame(float r,float g,float b);
+    void EndFrame();
+    void DrawTexture(ID3D11ShaderResourceView* texture,float x,float y,float width,float height);
+    ID3D11ShaderResourceView* LoadTexture(std::string path);
+    void Graphic::CreateVertexBuffer();
+    void Graphic::CreatePixelShader();
+    void Graphic::CreateVertexShader();
+    void Graphic::CreateSampler();
 private:
-	LPDIRECT3DTEXTURE9 m_pTex;//图片接口
-	IDirect3D9* m_pD3D;
-	//LPDIRECT3D9 m_pD3D;//DX入口接口
-	
-	LPD3DXLINE m_pLine;//画线的接口
-	LPD3DXSPRITE m_pSprite;//画2D图形的接口
-	LPD3DXFONT m_pFont;//绘制文字的接口
+    HWND m_hWnd = nullptr;
+    IDXGISwapChain* m_swapChain = nullptr;//交换链
+    ID3D11Device* m_device = nullptr;//设备
+    ID3D11DeviceContext* m_context = nullptr;//设备上下文
+    ID3D11RenderTargetView* m_renderTargetView = nullptr;//渲染目标视图
 
-	
+    ID3D11Buffer* m_vertexBuffer = nullptr;//顶点缓冲区
+    ID3D11InputLayout* m_inputLayout = nullptr;//输入布局
+    ID3D11VertexShader* m_vertexShader = nullptr;//顶点Shader
+    ID3D11PixelShader* m_pixelShader = nullptr;//着色器
+    ID3D11SamplerState* m_sampler = nullptr;//取样器
+
+    ID3D11ShaderResourceView* test_texture;
 };
-
