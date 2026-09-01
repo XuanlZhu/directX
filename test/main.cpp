@@ -1,75 +1,59 @@
-#include "myHead.h"
+#include <Windows.h>
 
-
-//默认的窗口消息处理函数
-LRESULT WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK WndProc(HWND hWnd,UINT msg,WPARAM wParam,LPARAM lParam)
 {
-    switch (message)
+    switch(msg)
     {
-    case WM_KEYDOWN:
-        switch (wParam)
-        {
-        case VK_ESCAPE:
+        case WM_DESTROY:
             PostQuitMessage(0);
             break;
-        }
-        break;
-    case WM_MOUSEMOVE:  
-        
-        break;
-        case WM_LBUTTONDOWN:
-			
-            break;
-        case WM_LBUTTONUP:
-            
-            
-            break;
-        case WM_RBUTTONDOWN:
-			
-            break;
-        case WM_RBUTTONUP:
-           
-            break;
-        case WM_MBUTTONDOWN:
-        case WM_MBUTTONUP:
-        case WM_MOUSEWHEEL:
-        /*case WM_MOUSEHWHEEL:*/
-            break;
-    case WM_DESTROY:
-        PostQuitMessage(0);
-        break;
-    default:
-        return DefWindowProc(hWnd, message, wParam, lParam);
+        default:
+            return DefWindowProc(hWnd,msg,wParam,lParam);
     }
     return 0;
 }
 
-int WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nShowCmd)
+
+int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR,int)
 {
-    HWND hwnd= CGraphic::GetSingleObjPtr()->InitWindow(WndProc);
 
-    //加入dx环境
-    CGraphic::GetSingleObjPtr()->InitDX(hwnd);
+    // 注册窗口
+    WNDCLASS wc = {};
 
-	
-    MSG msg;
-    
-    while (true)
+    wc.lpfnWndProc = WndProc;
+    wc.hInstance = hInstance;
+    wc.lpszClassName = reinterpret_cast<LPCSTR>(L"MyWindow");
+
+    RegisterClass(&wc);
+    // 创建窗口
+    HWND hWnd = CreateWindow(
+        reinterpret_cast<LPCSTR>(L"MyWindow"),
+        reinterpret_cast<LPCSTR>(L"Hello Window"),
+
+        WS_OVERLAPPEDWINDOW,
+
+        100,
+        100,
+
+        800,
+        600,
+
+        nullptr,
+        nullptr,
+        hInstance,
+        nullptr
+    );
+
+    // 显示
+    ShowWindow(hWnd,SW_SHOW);
+
+    // 消息循环
+    MSG msg = {};
+    while(GetMessage(&msg,nullptr,0,0))
     {
-        if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-        {
-            if (msg.message == WM_QUIT)
-                break;
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
-        }
-        else
-        {
-           
-            CGraphic::GetSingleObjPtr()->BeginDraw();
-           
-            CGraphic::GetSingleObjPtr()->EndDraw();
-        }
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
     }
+
     return 0;
 }

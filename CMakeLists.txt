@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 4.2)
 project(base)
+add_compile_options(/utf-8)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
