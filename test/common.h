@@ -13,8 +13,6 @@ float RandInRange(float min, float max);
 //字符集转化函数(ANSI->Unicode）
 
 
-
-
 // 内部工具函数：多字节转宽字符
 std::wstring multi_byte_to_wide_char(const std::string& str, UINT code_page) ;
 
