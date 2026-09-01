@@ -1,6 +1,7 @@
 #include "Graphic.h"
 
 #include <iostream>
+#include <d3dcompiler.h>
 
 #include "Global.h"
 
@@ -8,12 +9,6 @@
 // Graphic::Graphic() {
 //     test_texture = LoadTexture("PNG/first3.png");
 // }
-
-Graphic::Graphic() {
-    // std::cout << "开始资源加载" << std::endl;
-    // test_texture = LoadTexture("PNG/first3.png");
-    // std::cout << "开始资源加载结束" << std::endl;
-}
 
 Graphic::~Graphic()
 {
@@ -128,7 +123,11 @@ bool Graphic::Initialize(HWND hWnd)
     CreatePixelShader();
     CreateVertexShader();
     CreateSampler();
+    CreateBlendState();
     test_texture = LoadTexture("PNG/first3.png");
+    texture1 = LoadTexture("PNG/role1.png");
+    texture2 = LoadTexture("PNG/line.png");
+    texture3 = LoadTexture("PNG/grad.png");
     return true;
 }
 
@@ -151,7 +150,12 @@ void Graphic::BeginFrame(float r,float g,float b)
         m_renderTargetView,
         color
     );
-    DrawTexture(test_texture,10,10,100,100);
+    DrawTexture(test_texture,0,0,800,600);
+    DrawTexture(texture1,350,0,100,100);
+    DrawTexture(texture2,378,77,5,50);
+    DrawTexture(texture3,365,120,32,19);
+
+
 }
 
 void Graphic::CreateVertexBuffer()
@@ -345,6 +349,44 @@ void Graphic::CreateSampler()
             << std::endl;
     }
 }
+void Graphic::CreateBlendState()
+{
+    D3D11_BLEND_DESC desc = {};
+
+    desc.RenderTarget[0].BlendEnable = TRUE;
+
+    desc.RenderTarget[0].SrcBlend =
+        D3D11_BLEND_SRC_ALPHA;
+
+    desc.RenderTarget[0].DestBlend =
+        D3D11_BLEND_INV_SRC_ALPHA;
+
+    desc.RenderTarget[0].BlendOp =
+        D3D11_BLEND_OP_ADD;
+
+
+    desc.RenderTarget[0].SrcBlendAlpha =
+        D3D11_BLEND_ONE;
+
+    desc.RenderTarget[0].DestBlendAlpha =
+        D3D11_BLEND_ZERO;
+
+    desc.RenderTarget[0].BlendOpAlpha =
+        D3D11_BLEND_OP_ADD;
+
+
+    desc.RenderTarget[0].RenderTargetWriteMask =
+        D3D11_COLOR_WRITE_ENABLE_ALL;
+
+
+    HRESULT hr = m_device->CreateBlendState(
+        &desc,
+        &m_alphaBlendState
+    );
+
+
+    assert(SUCCEEDED(hr));
+}
 
 void Graphic::EndFrame()
 {
@@ -365,21 +407,22 @@ void Graphic::DrawTexture(ID3D11ShaderResourceView* texture,float x,float y,floa
 
 
     // 屏幕坐标 -> NDC
-    float l = left   / screenWidth  * 2.0f - 1.0f;
-    float r = right  / screenWidth  * 2.0f - 1.0f;
+    float l = left   / 800  * 2.0f - 1.0f;
+    float r = right  / 800  * 2.0f - 1.0f;
 
-    float t = 1.0f - top    / screenHeight * 2.0f;
-    float b = 1.0f - bottom / screenHeight * 2.0f;
+    float t = 1.0f - top    / 600 * 2.0f;
+    float b = 1.0f - bottom / 600 * 2.0f;
+
 
     Vertex vertices[] =
     {
         {
-            {x, t, 0},
+            {l, t, 0},
             {0,0}
         },
 
         {
-            {y, t, 0},
+            {r, t, 0},
             {1,0}
         },
 
@@ -467,8 +510,16 @@ void Graphic::DrawTexture(ID3D11ShaderResourceView* texture,float x,float y,floa
         1,
         &m_sampler
     );
+
+    float blendFactor[4] = {0,0,0,0};
+
+    m_context->OMSetBlendState(
+        m_alphaBlendState,
+        blendFactor,
+        0xffffffff
+    );
     // 绘制
-    std::cout<<"Draw"<<std::endl;
+    // std::cout<<"Draw"<<std::endl;
     m_context->Draw(
         4,
         0
@@ -485,7 +536,7 @@ Graphic::LoadTexture(std::string _path)
     HRESULT hr = DirectX::CreateWICTextureFromFile(
         m_device,
         m_context,
-        L"PNG/enemy.png",
+        wpath.c_str(),
         nullptr,
         &texture
     );

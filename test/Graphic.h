@@ -1,9 +1,9 @@
 #pragma once
 
-#include <Windows.h>
-#include <d3d11.h>
-#include <dxgi.h>
-#include <d3dcompiler.h>
+// #include <Windows.h>
+// #include <d3d11.h>
+// #include <dxgi.h>
+// #include <d3dcompiler.h>
 #include <DirectXMath.h>
 #include <string>
 #include <WICTextureLoader.h>
@@ -20,17 +20,17 @@ struct Vertex
 class Graphic
 {
 public:
-    Graphic();
     ~Graphic();
     bool Initialize(HWND hWnd);
     void BeginFrame(float r,float g,float b);
     void EndFrame();
     void DrawTexture(ID3D11ShaderResourceView* texture,float x,float y,float width,float height);
     ID3D11ShaderResourceView* LoadTexture(std::string path);
-    void Graphic::CreateVertexBuffer();
-    void Graphic::CreatePixelShader();
-    void Graphic::CreateVertexShader();
-    void Graphic::CreateSampler();
+    void CreateVertexBuffer();
+    void CreatePixelShader();
+    void CreateVertexShader();
+    void CreateSampler();
+    void CreateBlendState();
 private:
     HWND m_hWnd = nullptr;
     IDXGISwapChain* m_swapChain = nullptr;//交换链
@@ -43,6 +43,11 @@ private:
     ID3D11VertexShader* m_vertexShader = nullptr;//顶点Shader
     ID3D11PixelShader* m_pixelShader = nullptr;//着色器
     ID3D11SamplerState* m_sampler = nullptr;//取样器
+    ID3D11BlendState* m_alphaBlendState = nullptr;// Alpha混合状态
 
     ID3D11ShaderResourceView* test_texture;
+    ID3D11ShaderResourceView* texture1;
+    ID3D11ShaderResourceView* texture2;
+    ID3D11ShaderResourceView* texture3;
+    ID3D11ShaderResourceView* texture4;
 };
