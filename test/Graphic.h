@@ -14,11 +14,9 @@ struct MyImageInfo
 //函数指针-----专门用来处理消息的函数（窗口句柄，消息类型，消息附加值1，消息的附加值2）
 typedef LRESULT(*pMainWndProc)(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-class CGraphic :
-    public CSingleton<CGraphic>
+class CGraphic :public CSingleton<CGraphic>
 {
     friend CSingleton<CGraphic>;
-
 public:
 	HWND InitWindow(pMainWndProc proc, WORD width=800, WORD height=600, TSTRING titelName=_T("Game"), TSTRING className=_T("MyClass"));
 	void InitDX(HWND hwnd);
