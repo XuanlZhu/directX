@@ -24,7 +24,7 @@ public:
     bool Initialize(HWND hWnd);
     void BeginFrame(float r,float g,float b);
     void EndFrame();
-    void DrawTexture(ID3D11ShaderResourceView* texture,float x,float y,float width,float height);
+    void DrawTexture(ID3D11ShaderResourceView* texture,float x,float y,float width,float height,float rotatX=0,float rotatY=0,float angleDeg=0);
     ID3D11ShaderResourceView* LoadTexture(std::string path);
     void CreateVertexBuffer();
     void CreatePixelShader();
@@ -50,4 +50,5 @@ private:
     ID3D11ShaderResourceView* texture2;
     ID3D11ShaderResourceView* texture3;
     ID3D11ShaderResourceView* texture4;
+    int number = 0;
 };

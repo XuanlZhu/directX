@@ -128,12 +128,15 @@ bool Graphic::Initialize(HWND hWnd)
     texture1 = LoadTexture("PNG/role1.png");
     texture2 = LoadTexture("PNG/line.png");
     texture3 = LoadTexture("PNG/grad.png");
+    number = 0;
     return true;
 }
 
 
 void Graphic::BeginFrame(float r,float g,float b)
 {
+    // number += 1;
+    // std::cout << number << std::endl;
     // assert(m_context);
     // assert(m_renderTargetView);
     //设置渲染目标视图
@@ -150,10 +153,17 @@ void Graphic::BeginFrame(float r,float g,float b)
         m_renderTargetView,
         color
     );
+    float time = GetTickCount() / 1000.0f;
+    // 摆动速度
+    float speed = 2.0f;
+    // 最大角度
+    float maxAngle = 45.0f;
+    float angle = sin(time * speed)*maxAngle;
+
     DrawTexture(test_texture,0,0,800,600);
     DrawTexture(texture1,350,0,100,100);
-    DrawTexture(texture2,378,77,5,50);
-    DrawTexture(texture3,365,120,32,19);
+    DrawTexture(texture2,378,77,5,50,378,77,angle);
+    DrawTexture(texture3,365,120,32,19,378,77,angle);
 
 
 }
@@ -398,13 +408,49 @@ void Graphic::EndFrame()
     );
 }
 
-void Graphic::DrawTexture(ID3D11ShaderResourceView* texture,float x,float y,float width,float height)
+DirectX::XMFLOAT2 RotatePoint(
+    float x,
+    float y,
+    float centerX,
+    float centerY,
+    float cosA,
+    float sinA
+)
+{
+    // 移动到旋转中心
+    float dx = x - centerX;
+    float dy = y - centerY;
+
+
+    // 旋转
+    float rx =
+        dx * cosA -
+        dy * sinA;
+
+    float ry =
+        dx * sinA +
+        dy * cosA;
+
+
+    // 移回来
+    return {
+        rx + centerX,
+        ry + centerY
+    };
+}
+
+void Graphic::DrawTexture(ID3D11ShaderResourceView* texture,float x,float y,float width,float height,float rotatX,float rotatY,float angleDeg)
 {
     float left   = x;
     float right  = x + width;
     float top    = y;
     float bottom = y + height;
 
+    float angle = DirectX::XMConvertToRadians(angleDeg);
+
+
+    float cosA = cos(angle);
+    float sinA = sin(angle);
 
     // 屏幕坐标 -> NDC
     float l = left   / 800  * 2.0f - 1.0f;
@@ -413,29 +459,98 @@ void Graphic::DrawTexture(ID3D11ShaderResourceView* texture,float x,float y,floa
     float t = 1.0f - top    / 600 * 2.0f;
     float b = 1.0f - bottom / 600 * 2.0f;
 
+    auto p1 = RotatePoint(
+        left,
+        top,
+        rotatX,
+        rotatY,
+        cosA,
+        sinA
+    );
+    auto p2 = RotatePoint(
+        right,
+        top,
+        rotatX,
+        rotatY,
+        cosA,
+        sinA
+    );
+    auto p3 = RotatePoint(
+        left,
+        bottom,
+        rotatX,
+        rotatY,
+        cosA,
+        sinA
+    );
+    auto p4 = RotatePoint(
+        right,
+        bottom,
+        rotatX,
+        rotatY,
+        cosA,
+        sinA
+    );
+    auto ToNDC = [](float x,float y)
+    {
+        return DirectX::XMFLOAT2(
+            x / 800.0f * 2.0f - 1.0f,
+            1.0f - y / 600.0f * 2.0f
+        );
+    };
+
+
+    auto ndc1 = ToNDC(p1.x,p1.y);
+    auto ndc2 = ToNDC(p2.x,p2.y);
+    auto ndc3 = ToNDC(p3.x,p3.y);
+    auto ndc4 = ToNDC(p4.x,p4.y);
 
     Vertex vertices[] =
     {
         {
-            {l, t, 0},
+            {ndc1.x,ndc1.y,0},
             {0,0}
         },
 
         {
-            {r, t, 0},
+            {ndc2.x,ndc2.y,0},
             {1,0}
         },
 
         {
-            {l, b, 0},
+            {ndc3.x,ndc3.y,0},
             {0,1}
         },
 
         {
-            {r, b, 0},
+            {ndc4.x,ndc4.y,0},
             {1,1}
         }
     };
+
+
+    // Vertex vertices[] =
+    // {
+    //     {
+    //         {l, t, 0},
+    //         {0,0}
+    //     },
+    //
+    //     {
+    //         {r, t, 0},
+    //         {1,0}
+    //     },
+    //
+    //     {
+    //         {l, b, 0},
+    //         {0,1}
+    //     },
+    //
+    //     {
+    //         {r, b, 0},
+    //         {1,1}
+    //     }
+    // };
     // std::cout << "1" << std::endl;
     // 更新顶点数据
     D3D11_MAPPED_SUBRESOURCE mapped{};
