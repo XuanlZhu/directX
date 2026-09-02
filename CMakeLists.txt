@@ -29,6 +29,8 @@ add_executable(base WIN32
         test/Core/CSprite.h
         test/Core/CImageManager.cpp
         test/Core/CImageManager.h
+        test/Core/UIManager.cpp
+        test/Core/UIManager.h
 )
 
 

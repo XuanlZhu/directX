@@ -22,7 +22,7 @@ class Graphic
 public:
     ~Graphic();
     bool Initialize(HWND hWnd);
-    void BeginFrame(float r,float g,float b);
+    void BeginFrame();
     void EndFrame();
     void DrawTexture(ID3D11ShaderResourceView* texture,float x,float y,float width,float height,float rotatX=0,float rotatY=0,float angleDeg=0);
     ID3D11ShaderResourceView* LoadTexture(std::string path);

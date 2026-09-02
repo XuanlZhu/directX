@@ -11,12 +11,14 @@
 #include "Graphic.h"
 #include "../Global.h"
 #include "SpriteList.h"
+#include "UIManager.h"
 
 
 Game::Game() {
     Global::spriteList = new SpriteList();
     Global::graphic = new Graphic();
     Global::imageManager = new CImageManager();
+    Global::uiManager = new UIManager();
     //按键绑定
     // mInput.OnKeyDown = [this](int _key)
     // {
@@ -54,7 +56,9 @@ void Game::Update(float deltaTime)
 //绘制函数
 void Game::Draw()
 {
-
+    // Global::uiManager->Draw();//UI绘制
+    Global::graphic->BeginFrame();
+    Global::graphic->EndFrame();
 }
 //输入
 void Game::ProcessInput()

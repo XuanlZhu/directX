@@ -85,7 +85,7 @@ int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR,int nCmdShow)
         float deltaTime = GetNowTime()-nowTime;
         nowTime = GetNowTime();
         // 游戏循环
-        // Global::game->Mainloop(deltaTime);
+        Global::game->Mainloop(deltaTime);
 
 
         // 帧率控制

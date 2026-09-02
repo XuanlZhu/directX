@@ -3,7 +3,6 @@
 //
 
 #pragma once
-#include <graphics.h>
 #include <thread>
 #include <atomic>
 #include <chrono>

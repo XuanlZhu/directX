@@ -5,7 +5,6 @@
 #pragma once
 
 #include <DirectXMath.h>
-#include <graphics.h>
 #include <string>
 
 #include "DDSTextureLoader.h"

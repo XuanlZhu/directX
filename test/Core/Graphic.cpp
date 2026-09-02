@@ -133,7 +133,7 @@ bool Graphic::Initialize(HWND hWnd)
 }
 
 
-void Graphic::BeginFrame(float r,float g,float b)
+void Graphic::BeginFrame()
 {
     // number += 1;
     // std::cout << number << std::endl;

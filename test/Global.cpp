@@ -6,6 +6,7 @@
 
 #include <chrono>
 #include "Core/Game.h"
+#include "Core/SpriteList.h"
 
 std::wstring StringToWString(std::string str) {
     int size_needed = MultiByteToWideChar(
@@ -34,4 +35,14 @@ std::wstring StringToWString(std::string str) {
 float GetNowTime() {
     auto ts = std::chrono::high_resolution_clock::now();
     return std::chrono::duration<float>(ts-Global::game->mStartTime).count();
+}
+
+std::weak_ptr<CSprite> CreateCSprite(std::string _sprite, XMFLOAT2 _pos) {
+    std::shared_ptr<CSprite> sprite;;//创建精灵类，下发到当前精灵表
+
+    sprite = std::make_shared<CSprite>();
+
+    sprite->SetPosition(_pos);
+    Global::spriteList->Append(sprite);
+    return sprite;
 }
