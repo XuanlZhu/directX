@@ -148,7 +148,7 @@ void Graphic::BeginFrame(float r,float g,float b)
 
 
     float color[4] ={r,g,b,1.0f};
-
+    //清理渲染目标图
     m_context->ClearRenderTargetView(
         m_renderTargetView,
         color
@@ -408,35 +408,16 @@ void Graphic::EndFrame()
     );
 }
 
-DirectX::XMFLOAT2 RotatePoint(
-    float x,
-    float y,
-    float centerX,
-    float centerY,
-    float cosA,
-    float sinA
-)
+DirectX::XMFLOAT2 RotatePoint(float x,float y,float centerX,float centerY,float cosA,float sinA)
 {
     // 移动到旋转中心
     float dx = x - centerX;
     float dy = y - centerY;
-
-
     // 旋转
-    float rx =
-        dx * cosA -
-        dy * sinA;
-
-    float ry =
-        dx * sinA +
-        dy * cosA;
-
-
+    float rx = dx * cosA - dy * sinA;
+    float ry = dx * sinA + dy * cosA;
     // 移回来
-    return {
-        rx + centerX,
-        ry + centerY
-    };
+    return {rx + centerX,ry + centerY};
 }
 
 void Graphic::DrawTexture(ID3D11ShaderResourceView* texture,float x,float y,float width,float height,float rotatX,float rotatY,float angleDeg)
@@ -597,14 +578,13 @@ void Graphic::DrawTexture(ID3D11ShaderResourceView* texture,float x,float y,floa
         D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP
     );
 
-
-    // shader
+    // shader 把顶点着色器（Vertex Shader）绑定到 Direct3D 11 的渲染管线中，让 GPU 在处理顶点时使用这个 Shader
     m_context->VSSetShader(
         m_vertexShader,
         nullptr,
         0
     );
-    //把顶点着色器（Vertex Shader）绑定到 Direct3D 11 的渲染管线中，让 GPU 在处理顶点时使用这个 Shader
+    //把像素着色器（Pixel Shader）绑定到 DirectX 11 渲染管线，让 GPU 在生成每个像素颜色时使用这个 Shader。
     m_context->PSSetShader(
         m_pixelShader,
         nullptr,
@@ -613,7 +593,6 @@ void Graphic::DrawTexture(ID3D11ShaderResourceView* texture,float x,float y,floa
 
 
     // 绑定图片
-    //把像素着色器（Pixel Shader）绑定到 DirectX 11 渲染管线，让 GPU 在生成每个像素颜色时使用这个 Shader。
     m_context->PSSetShaderResources(
         0,
         1,
@@ -625,9 +604,8 @@ void Graphic::DrawTexture(ID3D11ShaderResourceView* texture,float x,float y,floa
         1,
         &m_sampler
     );
-
+    //Blend State混合状态,用于实现透明、半透明、颜色叠加效果
     float blendFactor[4] = {0,0,0,0};
-
     m_context->OMSetBlendState(
         m_alphaBlendState,
         blendFactor,
