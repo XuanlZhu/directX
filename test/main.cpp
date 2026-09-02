@@ -58,8 +58,8 @@ int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR,int nCmdShow)
     // 初始化
     Global::game = new Game();
     // 创建Graphic
-    Global::graphic = new Graphic();
     Global::graphic->Initialize(hWnd);
+    Global::game->Setup();
 
     MSG msg = {};
     const double frameTime = 1.0 / 60.0;

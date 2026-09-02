@@ -10,11 +10,17 @@
 
 #pragma comment(lib,"d3d11.lib")
 #pragma comment(lib,"dxgi.lib")
+using namespace DirectX;
 
 struct Vertex
 {
     DirectX::XMFLOAT3 position;
     DirectX::XMFLOAT2 uv;
+};
+struct LineVertex
+{
+    DirectX::XMFLOAT3 position;
+    DirectX::XMFLOAT4 color;
 };
 
 class Graphic
@@ -26,11 +32,13 @@ public:
     void EndFrame();
     void DrawTexture(ID3D11ShaderResourceView* texture,float x,float y,float width,float height,float rotatX=0,float rotatY=0,float angleDeg=0);
     ID3D11ShaderResourceView* LoadTexture(std::string path);
+    void DrawLine(XMFLOAT2 startPos,XMFLOAT2 endPos,XMFLOAT3 color);
     void CreateVertexBuffer();
     void CreatePixelShader();
     void CreateVertexShader();
     void CreateSampler();
     void CreateBlendState();
+    void InitlineVertex();
 
     HWND m_hWnd = nullptr;
     IDXGISwapChain* m_swapChain = nullptr;//交换链
@@ -44,11 +52,8 @@ public:
     ID3D11PixelShader* m_pixelShader = nullptr;//着色器
     ID3D11SamplerState* m_sampler = nullptr;//取样器
     ID3D11BlendState* m_alphaBlendState = nullptr;// Alpha混合状态
+    ID3D11Buffer* m_lineVertexBuffer= nullptr;//直线缓冲区
+    ID3D11VertexShader* m_lineVertexShader = nullptr;
+    ID3D11PixelShader* m_linePixelShader = nullptr;
 
-    ID3D11ShaderResourceView* test_texture;
-    ID3D11ShaderResourceView* texture1;
-    ID3D11ShaderResourceView* texture2;
-    ID3D11ShaderResourceView* texture3;
-    ID3D11ShaderResourceView* texture4;
-    int number = 0;
 };

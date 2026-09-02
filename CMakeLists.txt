@@ -33,6 +33,8 @@ add_executable(base WIN32
         test/Core/UIManager.h
         test/Sprites/Sprite_gold.cpp
         test/Sprites/Sprite_gold.h
+        test/Core/CVector2.cpp
+        test/Core/CVector2.h
 )
 
 

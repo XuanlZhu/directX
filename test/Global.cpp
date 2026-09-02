@@ -5,11 +5,29 @@
 #include "Global.h"
 
 #include <chrono>
+#include <iostream>
+#include <random>
 
 #include "Core/CImageManager.h"
 #include "Core/Game.h"
 #include "Core/Graphic.h"
 #include "Core/SpriteList.h"
+
+int RandomInt(int _min, int _max) {
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+
+    std::uniform_int_distribution<> dis(_min,_max);
+    return dis(gen);
+}
+
+float RandomFloat(float _min, float _max) {
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+
+    uniform_int_distribution<> dis(_min,_max);
+    return dis(gen);
+}
 
 std::wstring StringToWString(std::string str) {
     int size_needed = MultiByteToWideChar(
@@ -46,11 +64,17 @@ std::weak_ptr<CSprite> CreateCSprite(std::string _sprite, XMFLOAT2 _pos) {
     sprite = std::make_shared<CSprite>();
 
     sprite->SetPosition(_pos);
+    std::cout << "CreateCSprite,加入精灵表" << std::endl;
     Global::spriteList->Append(sprite);
+    sprite->OnCreated();
     return sprite;
 }
 
 void DrawTexture(std::string name, float x, float y, float width, float height, float rotatX, float rotatY,float angleDeg) {
     auto img = Global::imageManager->GetImage(name);
     Global::graphic->DrawTexture(img,x,y,width,height,rotatX,rotatY,angleDeg);
+}
+
+void DrawLine(XMFLOAT2 startPos, XMFLOAT2 endPos, XMFLOAT3 color) {
+    Global::graphic->DrawLine(startPos, endPos, color);
 }

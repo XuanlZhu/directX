@@ -125,11 +125,7 @@ bool Graphic::Initialize(HWND hWnd)
     CreateVertexShader();
     CreateSampler();
     CreateBlendState();
-    test_texture = LoadTexture("PNG/first3.png");
-    texture1 = LoadTexture("PNG/role1.png");
-    texture2 = LoadTexture("PNG/line.png");
-    texture3 = LoadTexture("PNG/grad.png");
-    number = 0;
+    InitlineVertex();
     return true;
 }
 
@@ -402,6 +398,71 @@ void Graphic::CreateBlendState()
     assert(SUCCEEDED(hr));
 }
 
+void Graphic::InitlineVertex() {
+    D3D11_BUFFER_DESC desc{};
+
+    desc.Usage = D3D11_USAGE_DYNAMIC;
+    desc.ByteWidth = sizeof(LineVertex) * 2;
+    desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+    HRESULT hr = m_device->CreateBuffer(
+        &desc,
+        nullptr,
+        &m_lineVertexBuffer
+    );
+
+    if(FAILED(hr))
+    {
+        MessageBox(
+            nullptr,
+            "创建Line VertexBuffer失败",
+            "Error",
+            MB_OK
+        );
+    }
+    //m_lineVertexShader 初始化
+    ID3DBlob* blob = nullptr;
+    D3DCompileFromFile(
+        L"LineVS.hlsl",
+        nullptr,
+        nullptr,
+        "main",
+        "vs_5_0",
+        0,
+        0,
+        &blob,
+        nullptr
+    );
+    m_device->CreateVertexShader(
+        blob->GetBufferPointer(),
+        blob->GetBufferSize(),
+        nullptr,
+        &m_lineVertexShader
+    );
+    blob->Release();
+    //m_linePixelShader 初始化
+    blob = nullptr;
+    D3DCompileFromFile(
+        L"LinePS.hlsl",
+        nullptr,
+        nullptr,
+        "main",
+        "ps_5_0",
+        0,
+        0,
+        &blob,
+        nullptr
+    );
+    m_device->CreatePixelShader(
+        blob->GetBufferPointer(),
+        blob->GetBufferSize(),
+        nullptr,
+        &m_linePixelShader
+    );
+    blob->Release();
+}
+
 void Graphic::EndFrame()
 {
     assert(m_swapChain);
@@ -624,6 +685,94 @@ void Graphic::DrawTexture(ID3D11ShaderResourceView* texture,float x,float y,floa
 
 }
 
+void Graphic::DrawLine(XMFLOAT2 startPos, XMFLOAT2 endPos, XMFLOAT3 color) {
+    // std::cout << "画线" << std::endl;
+    LineVertex vertices[2];
+    // 屏幕坐标转NDC
+    auto ToNDC_X = [](float x)
+    {
+        return x / 800.0f * 2.0f - 1.0f;
+    };
+    auto ToNDC_Y = [](float y)
+    {
+        return 1.0f - y / 600.0f * 2.0f;
+    };
+    vertices[0].position =
+    {
+        ToNDC_X(startPos.x),
+        ToNDC_Y(startPos.y),
+        0.0f
+    };
+    vertices[0].color =
+    {
+        color.x,
+        color.y,
+        color.z,
+        1.0f
+    };
+    vertices[1].position =
+    {
+        ToNDC_X(endPos.x),
+        ToNDC_Y(endPos.y),
+        0.0f
+    };
+    vertices[1].color =
+    {
+        color.x,
+        color.y,
+        color.z,
+        1.0f
+    };
+    // 更新动态VertexBuffer
+    D3D11_MAPPED_SUBRESOURCE mapped{};
+    HRESULT hr = m_context->Map(
+        m_lineVertexBuffer,
+        0,
+        D3D11_MAP_WRITE_DISCARD,
+        0,
+        &mapped
+    );
+    if(SUCCEEDED(hr))
+    {
+        memcpy(
+            mapped.pData,
+            vertices,
+            sizeof(vertices)
+        );
+
+        m_context->Unmap(
+            m_lineVertexBuffer,
+            0
+        );
+    }
+    UINT stride = sizeof(LineVertex);
+    UINT offset = 0;
+    m_context->IASetVertexBuffers(
+        0,
+        1,
+        &m_lineVertexBuffer,
+        &stride,
+        &offset
+    );
+    m_context->IASetPrimitiveTopology(
+        D3D11_PRIMITIVE_TOPOLOGY_LINELIST
+    );
+    m_context->VSSetShader(
+        m_lineVertexShader,
+        nullptr,
+        0
+    );
+    m_context->PSSetShader(
+        m_linePixelShader,
+        nullptr,
+        0
+    );
+    m_context->Draw(
+        2,
+        0
+    );
+}
+
 ID3D11ShaderResourceView*
 Graphic::LoadTexture(std::string _path)
 {
@@ -644,3 +793,4 @@ Graphic::LoadTexture(std::string _path)
     }
     return texture;
 }
+
