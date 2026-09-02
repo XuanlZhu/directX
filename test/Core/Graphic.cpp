@@ -3,7 +3,7 @@
 #include <iostream>
 #include <d3dcompiler.h>
 
-#include "Global.h"
+#include "../Global.h"
 
 
 // Graphic::Graphic() {

@@ -4,6 +4,9 @@
 
 #include "Global.h"
 
+#include <chrono>
+#include "Core/Game.h"
+
 std::wstring StringToWString(std::string str) {
     int size_needed = MultiByteToWideChar(
         CP_UTF8,
@@ -26,4 +29,9 @@ std::wstring StringToWString(std::string str) {
     );
 
     return wstr;
+}
+
+float GetNowTime() {
+    auto ts = std::chrono::high_resolution_clock::now();
+    return std::chrono::duration<float>(ts-Global::game->mStartTime).count();
 }

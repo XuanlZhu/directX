@@ -31,7 +31,7 @@ public:
     void CreateVertexShader();
     void CreateSampler();
     void CreateBlendState();
-private:
+
     HWND m_hWnd = nullptr;
     IDXGISwapChain* m_swapChain = nullptr;//交换链
     ID3D11Device* m_device = nullptr;//设备

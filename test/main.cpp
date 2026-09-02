@@ -3,7 +3,9 @@
 #include <thread>
 #include <Windows.h>
 
-#include "Graphic.h"
+#include "Core/Game.h"
+#include "Global.h"
+#include "Core/Graphic.h"
 
 
 LRESULT CALLBACK WndProc(HWND hWnd,UINT msg,WPARAM wParam,LPARAM lParam)
@@ -21,6 +23,9 @@ LRESULT CALLBACK WndProc(HWND hWnd,UINT msg,WPARAM wParam,LPARAM lParam)
 
 int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR,int nCmdShow)
 {
+    // 初始化
+    Global::game = new Game();
+
     WNDCLASS wc = {};
     wc.lpfnWndProc = WndProc;
     wc.hInstance = hInstance;
@@ -59,6 +64,8 @@ int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR,int nCmdShow)
     MSG msg = {};
     const double frameTime = 1.0 / 60.0;
 
+    auto nowTime = GetNowTime();
+
     while (true)
     {
         auto frameStart = std::chrono::high_resolution_clock::now();
@@ -75,14 +82,11 @@ int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR,int nCmdShow)
         }
 
 
+        float deltaTime = GetNowTime()-nowTime;
+        nowTime = GetNowTime();
         // 游戏循环
-        graphic.BeginFrame(
-            0.2f,
-            0.4f,
-            0.6f
-        );
+        // Global::game->Mainloop(deltaTime);
 
-        graphic.EndFrame();
 
         // 帧率控制
         auto frameEnd = std::chrono::high_resolution_clock::now();
