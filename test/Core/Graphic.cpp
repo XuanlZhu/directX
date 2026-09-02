@@ -3,6 +3,7 @@
 #include <iostream>
 #include <d3dcompiler.h>
 
+#include "Game.h"
 #include "../Global.h"
 
 
@@ -145,25 +146,28 @@ void Graphic::BeginFrame()
         &m_renderTargetView,
         nullptr
     );
+    // std::cout << "开始绘制" << std::endl;
 
-
-    float color[4] ={r,g,b,1.0f};
+    float color[4] ={0,0,1,1};
     //清理渲染目标图
     m_context->ClearRenderTargetView(
         m_renderTargetView,
         color
     );
-    float time = GetTickCount() / 1000.0f;
-    // 摆动速度
-    float speed = 2.0f;
-    // 最大角度
-    float maxAngle = 45.0f;
-    float angle = sin(time * speed)*maxAngle;
 
-    DrawTexture(test_texture,0,0,800,600);
-    DrawTexture(texture1,350,0,100,100);
-    DrawTexture(texture2,378,77,5,50,378,77,angle);
-    DrawTexture(texture3,365,120,32,19,378,77,angle);
+    Global::game->Draw();
+
+    // float time = GetTickCount() / 1000.0f;
+    // // 摆动速度
+    // float speed = 2.0f;
+    // // 最大角度
+    // float maxAngle = 45.0f;
+    // float angle = sin(time * speed)*maxAngle;
+    //
+    // DrawTexture(test_texture,0,0,800,600);
+    // DrawTexture(texture1,350,0,100,100);
+    // DrawTexture(texture2,378,77,5,50,378,77,angle);
+    // DrawTexture(texture3,365,120,32,19,378,77,angle);
 
 
 }

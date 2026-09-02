@@ -5,9 +5,10 @@
 #include "CSprite.h"
 
 #include "../Global.h"
-#include "CImageManager.h"
+#include "../Core/CImageManager.h"
 
 CSprite::CSprite(){
+
 }
 CSprite::CSprite(std::string _path) {
     mImage = Global::imageManager->GetImage(_path);
@@ -20,7 +21,7 @@ CSprite::CSprite(std::string _path, float length) {
 
 void CSprite::Draw()
 {
-
+    DrawTexture(pngName,0,0,100,100);
 }
 
 void CSprite::SetPosition(float _x, float _y) {

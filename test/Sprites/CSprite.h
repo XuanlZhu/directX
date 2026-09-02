@@ -8,6 +8,8 @@
 #include <string>
 
 #include "DDSTextureLoader.h"
+#include "Global.h"
+#include "Core/CImageManager.h"
 
 using namespace DirectX;
 
@@ -32,8 +34,9 @@ public:
     float mChangeY=0;
     float mLength=50;//长度
     XMFLOAT2 mLookat = XMFLOAT2(1,0);
-protected:
-    ID3D11ShaderResourceView* mImage = nullptr;//图片
+
+    std::string pngName = "gold3";
+    ID3D11ShaderResourceView* mImage = Global::imageManager->GetImage(pngName);//图片
     XMFLOAT2 mPos;//位置
     std::string mImagePath;//图片路径，需要使用资源管理器，而不是持有mImage
 };

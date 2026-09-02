@@ -25,12 +25,14 @@ add_executable(base WIN32
         test/Core/Game.h
         test/Core/SpriteList.cpp
         test/Core/SpriteList.h
-        test/Core/CSprite.cpp
-        test/Core/CSprite.h
+        test/Sprites/CSprite.cpp
+        test/Sprites/CSprite.h
         test/Core/CImageManager.cpp
         test/Core/CImageManager.h
         test/Core/UIManager.cpp
         test/Core/UIManager.h
+        test/Sprites/Sprite_gold.cpp
+        test/Sprites/Sprite_gold.h
 )
 
 

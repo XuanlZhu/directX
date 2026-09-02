@@ -23,8 +23,6 @@ LRESULT CALLBACK WndProc(HWND hWnd,UINT msg,WPARAM wParam,LPARAM lParam)
 
 int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR,int nCmdShow)
 {
-    // 初始化
-    Global::game = new Game();
 
     WNDCLASS wc = {};
     wc.lpfnWndProc = WndProc;
@@ -57,9 +55,11 @@ int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR,int nCmdShow)
 
     ShowWindow(hWnd,nCmdShow);
 
+    // 初始化
+    Global::game = new Game();
     // 创建Graphic
-    Graphic graphic;
-    graphic.Initialize(hWnd);
+    Global::graphic = new Graphic();
+    Global::graphic->Initialize(hWnd);
 
     MSG msg = {};
     const double frameTime = 1.0 / 60.0;

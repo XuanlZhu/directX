@@ -5,7 +5,10 @@
 #include "Global.h"
 
 #include <chrono>
+
+#include "Core/CImageManager.h"
 #include "Core/Game.h"
+#include "Core/Graphic.h"
 #include "Core/SpriteList.h"
 
 std::wstring StringToWString(std::string str) {
@@ -45,4 +48,9 @@ std::weak_ptr<CSprite> CreateCSprite(std::string _sprite, XMFLOAT2 _pos) {
     sprite->SetPosition(_pos);
     Global::spriteList->Append(sprite);
     return sprite;
+}
+
+void DrawTexture(std::string name, float x, float y, float width, float height, float rotatX, float rotatY,float angleDeg) {
+    auto img = Global::imageManager->GetImage(name);
+    Global::graphic->DrawTexture(img,x,y,width,height,rotatX,rotatY,angleDeg);
 }
