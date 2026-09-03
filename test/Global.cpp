@@ -12,6 +12,8 @@
 #include "Core/Game.h"
 #include "Core/Graphic.h"
 #include "Core/SpriteList.h"
+#include "Sprites/Sprite_claw.h"
+#include "Sprites/Sprite_gold.h"
 
 int RandomInt(int _min, int _max) {
     static std::random_device rd;
@@ -60,8 +62,13 @@ float GetNowTime() {
 
 std::weak_ptr<CSprite> CreateCSprite(std::string _sprite, XMFLOAT2 _pos) {
     std::shared_ptr<CSprite> sprite;;//创建精灵类，下发到当前精灵表
-
-    sprite = std::make_shared<CSprite>();
+    if (_sprite=="Sprite_claw") {
+        sprite = std::make_shared<Sprite_claw>();
+    }else if( _sprite=="Sprite_gold") {
+        sprite = std::make_shared<Sprite_gold>();
+    }else {
+        sprite = std::make_shared<CSprite>();
+    }
 
     sprite->SetPosition(_pos);
     std::cout << "CreateCSprite,加入精灵表" << std::endl;
@@ -75,6 +82,6 @@ void DrawTexture(std::string name, float x, float y, float width, float height, 
     Global::graphic->DrawTexture(img,x,y,width,height,rotatX,rotatY,angleDeg);
 }
 
-void DrawLine(XMFLOAT2 startPos, XMFLOAT2 endPos, XMFLOAT3 color) {
-    Global::graphic->DrawLine(startPos, endPos, color);
+void DrawLine(CVector2 startPos, CVector2 endPos, XMFLOAT3 color) {
+    Global::graphic->DrawLine(XMFLOAT2(startPos.x,startPos.y), XMFLOAT2(endPos.x,endPos.y), color);
 }

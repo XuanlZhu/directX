@@ -35,6 +35,9 @@ add_executable(base WIN32
         test/Sprites/Sprite_gold.h
         test/Core/CVector2.cpp
         test/Core/CVector2.h
+        test/Sprites/Sprite_claw.cpp
+        test/Sprites/Sprite_claw.h
+        test/Core/EKey.h
 )
 
 

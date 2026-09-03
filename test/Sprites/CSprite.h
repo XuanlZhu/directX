@@ -23,22 +23,56 @@ public:
     virtual void Draw();// 绘制
     void SetPosition(float x, float y);// 设置位置
     void SetPosition(XMFLOAT2 pos);// 设置位置
-    XMFLOAT2 GetPos();// 获取位置
+    CVector2 GetPos();// 获取位置
     virtual void Update(float deltaTime);
     virtual void Destroy();//销毁,子类要重写
     virtual void OnCreated();//当创建
 
+
     bool isdraw = true;//精灵表删除标记
-    float mSpeed = 5;//速度
+    float mSpeed = 100;//速度
     float mChangeX=0;//偏移
     float mChangeY=0;
 
-    XMFLOAT2 mLookat = XMFLOAT2(1,0);
+    CVector2 mLookat = CVector2(1,0);
 
-    XMFLOAT2 mPos{};//位置
+    CVector2 mPosInit;//初始位置
+    CVector2 mPos;//位置
     float mLength=50;//长度
-    float angleDeg = 30;//旋转角
-    XMFLOAT2 mVertexs[4];//顶点
-    std::string pngName = "gold3";
+
+    CVector2 mVertexs[4];//顶点
+    std::string pngName = "claw";
     // ID3D11ShaderResourceView* mImage = Global::imageManager->GetImage(pngName);//图片
+
+    float mWidth = 50;//宽
+    float mHeight = 50;//高
+    float angleDeg = 0;//旋转角
+    XMFLOAT2 XAnchor{0,0};//锚点
+    XMFLOAT2 XScale{1,1};//缩放
+    XMFLOAT2 XPosition{0,0};//世界坐标
+    XMFLOAT2 XLocalVertices[4];//局部顶点
+    XMFLOAT2 XWorldVertices[4];//世界顶点
+    XMMATRIX GetWorldMatrix() {
+        // 缩放
+        XMMATRIX scale = XMMatrixScaling(XScale.x,XScale.y,1.0f);
+        // 旋转
+        XMMATRIX rotation = XMMatrixRotationZ(XMConvertToRadians(angleDeg));
+        // 平移
+        XMMATRIX translation = XMMatrixTranslation(mPos.x,mPos.y,0.0f);
+        // 世界矩阵
+        return scale * rotation * translation;
+    };//世界矩阵
+    void GetWorldVertices() {
+        XMMATRIX world = GetWorldMatrix();
+        for(int i = 0; i < 4; i++)
+        {
+            XMVECTOR local = XMVectorSet(XLocalVertices[i].x,XLocalVertices[i].y,0.0f,1.0f);//创建局部坐标
+            XMVECTOR worldPos = XMVector3Transform(local,world);//计算世界坐标，向量*矩阵
+            XMStoreFloat2(&XWorldVertices[i],worldPos);//转回Float2
+        }
+    };//获取世界顶点
+
+
+
+
 };

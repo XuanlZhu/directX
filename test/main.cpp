@@ -5,6 +5,7 @@
 
 #include "Core/Game.h"
 #include "Global.h"
+#include "Core/EKey.h"
 #include "Core/Graphic.h"
 
 
@@ -15,6 +16,32 @@ LRESULT CALLBACK WndProc(HWND hWnd,UINT msg,WPARAM wParam,LPARAM lParam)
         case WM_DESTROY:
             PostQuitMessage(0);
             return 0;
+        //键盘按下
+        case WM_KEYDOWN:
+        {
+            Global::game->OnKeyPress((int)wParam);
+            return 0;
+        }
+        // 键盘释放
+        case WM_KEYUP:
+        {
+            Global::game->OnKeyRelease((int)wParam);
+            return 0;
+        }
+        // 鼠标移动
+        case WM_MOUSEMOVE:
+        {
+            return 0;
+        }
+        // 鼠标左键
+        case WM_LBUTTONDOWN:
+        {
+            std::cout << "鼠标左键按下" << std::endl;
+            return 0;
+        }
+
+
+
     }
 
     return DefWindowProc(hWnd,msg,wParam,lParam);

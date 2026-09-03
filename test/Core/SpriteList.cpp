@@ -43,13 +43,13 @@ std::shared_ptr<CSprite> SpriteList::GetSharedPtr(CSprite* _unit) {
 
 void SpriteList::Draw()
 {
-    std::cout << "SpriteList::Draw" << std::endl;
+    // std::cout << "SpriteList::Draw" << std::endl;
     //裁切
     for(auto sprite : mSprites)
     {
         sprite->Draw();
     }
-    std::cout << "SpriteList::Draw结束" << std::endl;
+    // std::cout << "SpriteList::Draw结束" << std::endl;
 }
 
 void SpriteList::Append(std::shared_ptr<CSprite> _sprite) {

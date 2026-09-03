@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "CImageManager.h"
+#include "EKey.h"
 #include "Graphic.h"
 #include "../Global.h"
 #include "SpriteList.h"
@@ -33,29 +34,51 @@ Game::Game() {
 void Game::Setup()
 {
     for (int i = 0; i < 5; i++) {
-        CreateCSprite("Sprite_gold", XMFLOAT2(RandomInt(0,800),RandomInt(100,600)));
+        CreateCSprite("Sprite_gold", XMFLOAT2(RandomInt(0,800),RandomInt(200,600)));
     }
-    // CreateCSprite("Sprite_gold", XMFLOAT2(0,0));
+    Global::claw = CreateCSprite("Sprite_claw", XMFLOAT2(365,120)).lock().get();
 }
 
 //主循环
 void Game::Mainloop(float deltaTime)
 {
     ProcessInput();//输入
-    std::cout << "开始Update" << std::endl;
+    // std::cout << "开始Update" << std::endl;
     Update(deltaTime);//更新
-    std::cout << "开始BeginFrame" << std::endl;
+    // std::cout << "开始BeginFrame" << std::endl;
     Global::graphic->BeginFrame();
-    std::cout << "开始EndFrame" << std::endl;
+    // std::cout << "开始EndFrame" << std::endl;
     Global::graphic->EndFrame();
     // Draw();//绘制
 }
 //当键盘按下
 void Game::OnKeyPress(int _key) {
-
+    if (_key == EKey::W) {
+        Global::claw->mChangeY = -1;
+    }
+    if (_key == EKey::A) {
+        Global::claw->mChangeX = -1;
+    }
+    if (_key == EKey::S) {
+        Global::claw->mChangeY = 1;
+    }
+    if (_key == EKey::D) {
+        Global::claw->mChangeX = 1;
+    }
 }
 void Game::OnKeyRelease(int _key) {
-
+    if (_key == EKey::W) {
+        Global::claw->mChangeY = 0;
+    }
+    if (_key == EKey::A) {
+        Global::claw->mChangeX = 0;
+    }
+    if (_key == EKey::S) {
+        Global::claw->mChangeY = 0;
+    }
+    if (_key == EKey::D) {
+        Global::claw->mChangeX = 0;
+    }
 }
 //更新
 void Game::Update(float deltaTime)
@@ -65,16 +88,25 @@ void Game::Update(float deltaTime)
     //     CreateCSprite("Sprite_gold", XMFLOAT2(RandomInt(0,600),RandomInt(200,500)));
     // }
 
+    float time = GetNowTime();
+    // 摆动速度
+    float speed = 2.0f;
+    // 最大角度
+    float maxAngle = 45.0f;
+    float angle = sin(time * speed)*maxAngle;
+    // Global::claw->angleDeg = angle;
+    // Global::claw->mPos = Global::claw->mPosInit.Rotate(CVector2(378,77),angle);
+
     Global::spriteList->Update(deltaTime);
 }
 //绘制函数
 void Game::Draw()
 {
     // Global::uiManager->Draw();//UI绘制
-    std::cout << "Game::Draw" << std::endl;
+    // std::cout << "Game::Draw" << std::endl;
 
     float time = GetNowTime();
-    std::cout << "GetNowTime" << std::endl;
+    // std::cout << "GetNowTime" << std::endl;
     // 摆动速度
     float speed = 2.0f;
     // 最大角度
@@ -84,8 +116,8 @@ void Game::Draw()
     DrawTexture("first3",0,0,800,600);
     DrawTexture("role1",350,0,100,100);
     DrawTexture("line",378,77,5,50,378,77,angle);
-    DrawTexture("grad",365,120,32,19,378,77,angle);
-    std::cout << "Game::Draw结束，进入Global::spriteList->Draw" << std::endl;
+    // DrawTexture("grad",365,120,32,19,378,77,angle);
+    // std::cout << "Game::Draw结束，进入Global::spriteList->Draw" << std::endl;
     Global::spriteList->Draw();
 }
 //输入

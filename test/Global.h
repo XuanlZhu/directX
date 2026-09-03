@@ -10,6 +10,7 @@
 #include <string>
 
 #include "DDSTextureLoader.h"
+class CVector2;
 class UIManager;
 using namespace DirectX;
 
@@ -26,6 +27,7 @@ public:
     inline static CImageManager* imageManager = nullptr;//图片管理器
     inline static Graphic* graphic = nullptr;//渲染器
     inline static UIManager* uiManager = nullptr;//ui管理器
+    inline static CSprite* claw = nullptr;//钩爪
 };
 
 int RandomInt(int _min,int _max);
@@ -34,4 +36,4 @@ std::wstring StringToWString(std::string str);
 float GetNowTime();//单位是秒
 std::weak_ptr<CSprite> CreateCSprite(std::string _sprite, XMFLOAT2 _pos);//创建精灵，并下发到精灵表
 void DrawTexture(std::string name,float x,float y,float width,float height,float rotatX=0,float rotatY=0,float angleDeg=0);
-void DrawLine(XMFLOAT2 startPos,XMFLOAT2 endPos,XMFLOAT3 color);
+void DrawLine(CVector2 startPos,CVector2 endPos,XMFLOAT3 color);
