@@ -61,11 +61,13 @@ ID3D11ShaderResourceView* CImageManager::GetImage(std::string path) {
     }
     // 放入缓存
     mImages[path] = texture;
+
+
     // 保存alpha数据
     DirectX::ScratchImage image;
     hr = DirectX::LoadFromWICFile(
         wpath.c_str(),
-        DirectX::WIC_FLAGS_FORCE_RGBA32,
+        DirectX::WIC_FLAGS_NONE,
         nullptr,
         image
     );

@@ -14,6 +14,7 @@ include_directories(test)
 
 # 加入 DirectXTK
 add_subdirectory(DirectXTK)
+add_subdirectory(DirectXTex)
 
 add_executable(base WIN32
         test/Core/Graphic.cpp

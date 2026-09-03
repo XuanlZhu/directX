@@ -15,6 +15,9 @@ class CImageManager
 public:
     ID3D11ShaderResourceView* GetImagebyPath(std::string path);
     ID3D11ShaderResourceView* GetImage(std::string name);
+    int GetImageAalpha(std::string name,int x,int y) {
+        return mAalpha[name][x][y];
+    }
 
     std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> mImages;
     std::unordered_map<std::string, std::vector<std::vector<int>>> mAalpha;

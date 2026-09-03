@@ -39,9 +39,12 @@ void CSprite::CollisionDetection() {
     //包围盒检测
     if (BoxDetection(sprites[0]))
     {
-        std::cout << "包围盒碰撞" << std::endl;
+        // std::cout << "包围盒碰撞" << std::endl;
         if (OBBDetection(sprites[0])) {
-            std::cout << "OBB碰撞" << std::endl;
+            // std::cout << "OBB碰撞" << std::endl;
+            if (PixelDetection(sprites[0])) {
+                std::cout << "像素碰撞" << std::endl;
+            }
         }
     }
 }
@@ -115,19 +118,18 @@ bool CSprite::OBBDetection(CSprite* other) {
 }
 
 bool CSprite::PixelDetection(CSprite* other) {
-    CSprite* A = this;CSprite* B = other;
-    ID3D11ShaderResourceView* imgA = Global::imageManager->GetImage(A->pngName);
-    ID3D11ShaderResourceView* imgB = Global::imageManager->GetImage(B->pngName);
+    CSprite* B = this;CSprite* A = other;
+    // std::cout << "开始像素碰撞" << std::endl;
 
-    XMMATRIX world = GetWorldMatrix();
+    XMMATRIX worldA = A->GetWorldMatrix();
+    XMMATRIX worldB = B->GetWorldMatrix();
     auto isInside = [&](int x,int y)
     {
         XMFLOAT2 posB;//世界坐标
         XMVECTOR local = XMVectorSet(x,y,0,1);//创建局部坐标
-        XMVECTOR worldPos = XMVector3Transform(local,world);//计算世界坐标，向量*矩阵
+        XMVECTOR worldPos = XMVector3Transform(local,worldB);//计算世界坐标，向量*矩阵
         XMStoreFloat2(&posB,worldPos);//转回Float2
         // 判断点是否在A的OBB内部
-        bool inside = true;
         for(int i = 0; i < 4; i++)
         {
             XMFLOAT2 a = A->XWorldVertices[i];XMFLOAT2 b = A->XWorldVertices[(i+1)%4];
@@ -138,23 +140,38 @@ bool CSprite::PixelDetection(CSprite* other) {
             // 2D叉乘
             float cross =edgeX * pointY -edgeY * pointX;
             if(cross < 0){
-                inside = false;break;
+                return false;
             }
         }
-        return inside;
+        return true;
     };
     //对于B的每个像素点
     for(int i=0;i<B->mWidth;i++) {
-        for(int j=0;j<B->mHeight;i++) {
+        for(int j=0;j<B->mHeight;j++) {
+            // std::cout << "B->mWidth"<<B->mWidth << std::endl;
+            std::cout << "遍历像素"<<i <<","<<j << std::endl;
             //对于B的每个像素，如果在A内部
             if (isInside(i,j)) {
-                float alphaB =  imgA[i,j];//获取B的alpha值
-                float alphaA =  A.IMG[i,j];//获取A的alpha值
+                std::cout << "在A内部"<<i <<","<<j << std::endl;
+                float alphaB =  Global::imageManager->GetImageAalpha(B->pngName,i,j);//获取B的alpha值
+                XMFLOAT2 posB;//世界坐标
+                XMVECTOR local = XMVectorSet(i,j,0,1);//创建局部坐标
+                XMVECTOR worldPos = XMVector3Transform(local,worldB);//计算世界坐标，向量*矩阵
+                XMStoreFloat2(&posB,worldPos);//转回Float2
+
+                XMFLOAT2 posA;//世界坐标
+                XMVECTOR localA = XMVectorSet(posB.x,posB.y,0,1);//创建局部坐标
+                XMVECTOR worldPosA = XMVector3Transform(localA,XMMatrixInverse(nullptr, worldA));//使用逆矩阵获取局部坐标
+                XMStoreFloat2(&posA,worldPosA);//转回Float2
+
+                float alphaA =  Global::imageManager->GetImageAalpha(A->pngName,posA.x,posA.y);//获取A的alpha值
+
+                std::cout << "alphaA"<<alphaA << std::endl;
+                std::cout << "alphaA"<<alphaB << std::endl;
                 if(alphaA>0 && alphaB>0) {
                     return true;
                 }
             }
-
         }
     }
 
