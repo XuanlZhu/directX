@@ -17,4 +17,5 @@ public:
     ID3D11ShaderResourceView* GetImage(std::string name);
 
     std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> mImages;
+    std::unordered_map<std::string, std::vector<std::vector<int>>> mAalpha;
 };

@@ -16,8 +16,4 @@ public:
         mPosInit = CVector2(365,120);
         angleDeg = 45;
     };
-    void Update(float deltaTime) override {
-        mPos = mPos + CVector2(mChangeX,mChangeY).Normalize()*100*deltaTime;
-
-    };
 };

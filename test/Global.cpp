@@ -85,3 +85,7 @@ void DrawTexture(std::string name, float x, float y, float width, float height, 
 void DrawLine(CVector2 startPos, CVector2 endPos, XMFLOAT3 color) {
     Global::graphic->DrawLine(XMFLOAT2(startPos.x,startPos.y), XMFLOAT2(endPos.x,endPos.y), color);
 }
+
+void DrawLine(XMFLOAT2 startPos, XMFLOAT2 endPos, XMFLOAT3 color) {
+    Global::graphic->DrawLine(startPos, endPos, color);
+}

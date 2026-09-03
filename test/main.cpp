@@ -1,11 +1,11 @@
 #include <chrono>
 #include <iostream>
 #include <thread>
+// #define NOMINMAX
 #include <Windows.h>
 
 #include "Core/Game.h"
 #include "Global.h"
-#include "Core/EKey.h"
 #include "Core/Graphic.h"
 
 

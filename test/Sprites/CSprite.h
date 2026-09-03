@@ -52,6 +52,7 @@ public:
     XMFLOAT2 XPosition{0,0};//世界坐标
     XMFLOAT2 XLocalVertices[4];//局部顶点
     XMFLOAT2 XWorldVertices[4];//世界顶点
+    XMFLOAT2 XBoxVertices[4];//包围盒顶点
     XMMATRIX GetWorldMatrix() {
         // 缩放
         XMMATRIX scale = XMMatrixScaling(XScale.x,XScale.y,1.0f);
@@ -71,8 +72,25 @@ public:
             XMStoreFloat2(&XWorldVertices[i],worldPos);//转回Float2
         }
     };//获取世界顶点
-
-
+    void GetBoxVertices() {
+        //计算包围盒顶点
+        float minX = XWorldVertices[0].x;float maxX = XWorldVertices[0].x;float minY = XWorldVertices[0].y;float maxY = XWorldVertices[0].y;
+        for(int i=1;i<4;i++)
+        {
+            minX = min(minX, XWorldVertices[i].x);
+            maxX = max(maxX, XWorldVertices[i].x);
+            minY = min(minY, XWorldVertices[i].y);
+            maxY = max(maxY, XWorldVertices[i].y);
+        }
+        XBoxVertices[0] = XMFLOAT2(minX,minY); // 左上
+        XBoxVertices[1] = XMFLOAT2(maxX,minY); // 右上
+        XBoxVertices[2] = XMFLOAT2(minX,maxY); // 左下
+        XBoxVertices[3] = XMFLOAT2(maxX,maxY); // 右下
+    };//获取包围盒顶点
+    void CollisionDetection();
+    bool BoxDetection(CSprite* other);//包围盒检测
+    bool OBBDetection(CSprite* other);//顶点检测
+    bool PixelDetection(CSprite* other);//像素检测
 
 
 };

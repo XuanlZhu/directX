@@ -10,6 +10,7 @@
 #include "Global.h"
 #include "Graphic.h"
 #include "WICTextureLoader.h"
+#include <DirectXTex.h>
 
 ID3D11ShaderResourceView* CImageManager::GetImagebyPath(std::string path) {
 
@@ -60,6 +61,38 @@ ID3D11ShaderResourceView* CImageManager::GetImage(std::string path) {
     }
     // 放入缓存
     mImages[path] = texture;
+    // 保存alpha数据
+    DirectX::ScratchImage image;
+    hr = DirectX::LoadFromWICFile(
+        wpath.c_str(),
+        DirectX::WIC_FLAGS_FORCE_RGBA32,
+        nullptr,
+        image
+    );
+    if(SUCCEEDED(hr))
+    {
+        auto metadata = image.GetMetadata();
+        int width = metadata.width;
+        int height = metadata.height;
+        std::vector<std::vector<int>> alpha;
+        alpha.resize(height);
+        for(int y = 0; y < height; y++)
+        {
+            alpha[y].resize(width);
+        }
+        auto pixels = image.GetPixels();
+        for(int y = 0; y < height; y++)
+        {
+            for(int x = 0; x < width; x++)
+            {
+                int index = (y * width + x) * 4;
+                //RGBA
+                unsigned char a = pixels[index + 3];
+                alpha[y][x] = a;
+            }
+        }
+        mAalpha[path] = alpha;
+    }
 
     return mImages[path].Get();
 }

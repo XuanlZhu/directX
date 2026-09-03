@@ -47,4 +47,5 @@ target_link_libraries(base PRIVATE
         d3dcompiler
 
         DirectXTK
+        DirectXTex
 )
