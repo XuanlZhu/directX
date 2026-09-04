@@ -34,7 +34,7 @@ Game::Game() {
 void Game::Setup()
 {
     for (int i = 0; i < 5; i++) {
-        CreateCSprite("Sprite_gold", XMFLOAT2(RandomInt(0,800),RandomInt(300,600)));
+        CreateCSprite("Sprite_gold", XMFLOAT2(RandomInt(100,700),RandomInt(200,600)));
     }
     Global::claw = CreateCSprite("Sprite_claw", XMFLOAT2(365+16,120)).lock().get();
 }

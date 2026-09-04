@@ -47,9 +47,9 @@ void Sprite_claw::Update(float deltaTime) {
     }
 
     //控制移动
-    CVector2 dir2 = CVector2(mChangeX,mChangeY).Normalize();
-    mPos = mPos + dir2*100*deltaTime;//过去
-    CollisionDetection();
+    // CVector2 dir2 = CVector2(mChangeX,mChangeY).Normalize();
+    // mPos = mPos + dir2*100*deltaTime;//过去
+    // CollisionDetection();
 
     //设置钩爪摆动
     if (ThrowState == 1) {
@@ -64,8 +64,8 @@ void Sprite_claw::Update(float deltaTime) {
         float angle = sin(swingTime * speed)*maxAngle;
 
         //摆动角度
-        // angleDeg = angle;
-        // mPos = mPosInit.Rotate(rotatePoint,angle);
+        angleDeg = angle;
+        mPos = mPosInit.Rotate(rotatePoint,angle);
     }
     //如果有抓取物
     if (CrawledItem) {
