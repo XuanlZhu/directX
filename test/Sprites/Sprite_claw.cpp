@@ -8,8 +8,8 @@ Sprite_claw::Sprite_claw() {
     pngName = "claw";
     mWidth = 32;
     mHeight = 19;
-    mPosInit = CVector2(365,120);
-    angleDeg = 45;
+    mPosInit = CVector2(365+16,120);
+    angleDeg = 0;
     mSpeed = 300;//速度
 
 
@@ -51,6 +51,7 @@ void Sprite_claw::Update(float deltaTime) {
     }else if (ThrowState == 2) {
         mPos = mPos - dir.Normalize()*mSpeed*deltaTime;//回来
     }else{
+        //钩爪摆动
         swingTime += deltaTime;
         float speed = 2.0f;// 摆动速度
         float maxAngle = 45.0f;// 最大角度
@@ -83,6 +84,7 @@ void Sprite_claw::Draw() {
     float speed = 2.0f;// 摆动速度
     float maxAngle = 45.0f;// 最大角度
     float angle = sin(swingTime * speed)*maxAngle;
+    // angle = 0;
 
     float length = (mPos-CVector2(378,77)).Length();
     DrawTexture("line",378,77,5,length,378,77,angle);

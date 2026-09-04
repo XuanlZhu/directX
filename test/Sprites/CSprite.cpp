@@ -18,10 +18,15 @@ CSprite::CSprite(){
 
 }
 void CSprite::OnCreated() {
-    XLocalVertices[0] = XMFLOAT2(0,0);
-    XLocalVertices[1] = XMFLOAT2(mWidth-1,0);
-    XLocalVertices[2] = XMFLOAT2(0,mHeight-1);
-    XLocalVertices[3] = XMFLOAT2(mWidth-1,mHeight-1);
+    // XLocalVertices[0] = XMFLOAT2(0,0);
+    // XLocalVertices[1] = XMFLOAT2(mWidth-1,0);
+    // XLocalVertices[2] = XMFLOAT2(0,mHeight-1);
+    // XLocalVertices[3] = XMFLOAT2(mWidth-1,mHeight-1);
+    float anchorX = XAnchor.x*mWidth;float anchorY = XAnchor.y*mHeight;
+    XLocalVertices[0] = XMFLOAT2(-anchorX, -anchorY);
+    XLocalVertices[1] = XMFLOAT2(mWidth - anchorX, -anchorY);
+    XLocalVertices[2] = XMFLOAT2(-anchorX, mHeight - anchorY);
+    XLocalVertices[3] = XMFLOAT2(mWidth - anchorX, mHeight - anchorY);
 }
 
 
@@ -194,7 +199,7 @@ bool CSprite::PixelDetection(CSprite* other) {
 }
 
 void CSprite::Update(float deltaTime) {
-    
+
 }
 
 void CSprite::Draw()
@@ -208,7 +213,7 @@ void CSprite::Draw()
     DrawLine(XWorldVertices[3], XWorldVertices[1], XMFLOAT3(1,1,1));
     DrawLine(XWorldVertices[3], XWorldVertices[2], XMFLOAT3(1,1,1));
     //绘制图片
-    DrawTexture(pngName,mPos.x,mPos.y,mWidth,mHeight,mPos.x,mPos.y,angleDeg);
+    DrawTexture(pngName,mPos.x-XAnchor.x*mWidth,mPos.y,mWidth,mHeight,mPos.x,mPos.y,angleDeg);
     //包围盒
     DrawLine(XBoxVertices[0],XBoxVertices[1],XMFLOAT3(0,0,1));
     DrawLine(XBoxVertices[0],XBoxVertices[2],XMFLOAT3(0,0,1));
