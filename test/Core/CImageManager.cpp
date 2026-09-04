@@ -63,38 +63,58 @@ ID3D11ShaderResourceView* CImageManager::GetImage(std::string path) {
     mImages[path] = texture;
 
 
+
+
     // 保存alpha数据
     DirectX::ScratchImage image;
+
     hr = DirectX::LoadFromWICFile(
         wpath.c_str(),
         DirectX::WIC_FLAGS_NONE,
         nullptr,
         image
     );
+
     if(SUCCEEDED(hr))
     {
         auto metadata = image.GetMetadata();
-        int width = metadata.width;
-        int height = metadata.height;
+
+        int width = (int)metadata.width;
+        int height = (int)metadata.height;
         std::vector<std::vector<int>> alpha;
-        alpha.resize(height);
-        for(int y = 0; y < height; y++)
+        // 第一维是x(宽)
+        alpha.resize(width);
+        for(int x = 0; x < width; x++)
         {
-            alpha[y].resize(width);
+            // 第二维是y(高)
+            alpha[x].resize(height);
         }
-        auto pixels = image.GetPixels();
+        auto img = image.GetImage(0,0,0);
+
         for(int y = 0; y < height; y++)
         {
+            const unsigned char* row =
+                img->pixels + y * img->rowPitch;
             for(int x = 0; x < width; x++)
             {
-                int index = (y * width + x) * 4;
-                //RGBA
-                unsigned char a = pixels[index + 3];
-                alpha[y][x] = a;
+                unsigned char a = row[x * 4 + 3];
+
+                alpha[x][y] = (int)a;
             }
         }
         mAalpha[path] = alpha;
     }
 
     return mImages[path].Get();
+}
+
+int CImageManager::GetImageAalpha(std::string name, int x, int y) {
+    name = "PNG/" + name + ".png";
+    // std::cout << "缩放为像素" << x << "|" << y<< std::endl;
+    // std::cout << "alpha大小X" << mAalpha[name].size() << std::endl;
+    // std::cout << "alpha大小Y" << mAalpha[name][0].size()<< std::endl;
+    // std::cout << mAalpha[name][0][0] << std::endl;
+    // std::cout << "Aalpha大小X" << mAalpha[name].size() << x << std::endl;
+    // std::cout << "Aalpha大小Y" << mAalpha[name][0].size() << y << std::endl;
+    return mAalpha[name][x][y];
 }

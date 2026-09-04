@@ -36,12 +36,10 @@ LRESULT CALLBACK WndProc(HWND hWnd,UINT msg,WPARAM wParam,LPARAM lParam)
         // 鼠标左键
         case WM_LBUTTONDOWN:
         {
-            std::cout << "鼠标左键按下" << std::endl;
+            // std::cout << "鼠标左键按下" << (int)wParam <<std::endl;
+            Global::game->OnKeyPress((int)wParam);
             return 0;
         }
-
-
-
     }
 
     return DefWindowProc(hWnd,msg,wParam,lParam);

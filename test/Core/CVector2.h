@@ -4,6 +4,7 @@
 
 #pragma once
 #include <cmath>
+#include <DirectXMath.h>
 
 class CVector2
 {
@@ -12,6 +13,9 @@ public:
     float y;
     CVector2();
     CVector2(float _x, float _y);
+    CVector2(DirectX::XMFLOAT2 xm) {
+        x = xm.x;y = xm.y;
+    };
     //加法
     CVector2 operator+(const CVector2& _other) const;
     //减法
@@ -21,6 +25,7 @@ public:
     float Length() const;//长度
     CVector2 Normalize() const;//归1化
     float Dot(CVector2 _other){return x * _other.x + y * _other.y;};
+    float Cross2D(CVector2 _other){return x * _other.y - y * _other.x;};
     float ToAngle(){return std::atan2(y, x) * 180.0f / 3.1415926f;};//转角度
     CVector2 Rotate(float _angle);
     CVector2 Rotate(CVector2 pos,float angleDeg);

@@ -23,16 +23,22 @@ public:
     virtual void Draw();// 绘制
     void SetPosition(float x, float y);// 设置位置
     void SetPosition(XMFLOAT2 pos);// 设置位置
+    void SetPosition(CVector2 pos);// 设置位置
     CVector2 GetPos();// 获取位置
     virtual void Update(float deltaTime);
     virtual void Destroy();//销毁,子类要重写
     virtual void OnCreated();//当创建
+    virtual void ThrowOut(){};//扔出
+    virtual void Crawled(){};//被抓取
 
 
     bool isdraw = true;//精灵表删除标记
+    CVector2 dir;//方向
+    // bool isThrow = false;//扔出中
     float mSpeed = 100;//速度
     float mChangeX=0;//偏移
     float mChangeY=0;
+
 
     CVector2 mLookat = CVector2(1,0);
 
@@ -43,7 +49,8 @@ public:
     CVector2 mVertexs[4];//顶点
     std::string pngName = "claw";
     // ID3D11ShaderResourceView* mImage = Global::imageManager->GetImage(pngName);//图片
-
+    float oWidth = 50;//原始宽高
+    float oHeight = 50;//原始宽高
     float mWidth = 50;//宽
     float mHeight = 50;//高
     float angleDeg = 0;//旋转角
@@ -87,7 +94,7 @@ public:
         XBoxVertices[2] = XMFLOAT2(minX,maxY); // 左下
         XBoxVertices[3] = XMFLOAT2(maxX,maxY); // 右下
     };//获取包围盒顶点
-    void CollisionDetection();
+    CSprite* CollisionDetection();
     bool BoxDetection(CSprite* other);//包围盒检测
     bool OBBDetection(CSprite* other);//顶点检测
     bool PixelDetection(CSprite* other);//像素检测

@@ -19,12 +19,13 @@ CSprite::CSprite(){
 }
 void CSprite::OnCreated() {
     XLocalVertices[0] = XMFLOAT2(0,0);
-    XLocalVertices[1] = XMFLOAT2(mWidth,0);
-    XLocalVertices[2] = XMFLOAT2(0,mHeight);
-    XLocalVertices[3] = XMFLOAT2(mWidth,mHeight);
+    XLocalVertices[1] = XMFLOAT2(mWidth-1,0);
+    XLocalVertices[2] = XMFLOAT2(0,mHeight-1);
+    XLocalVertices[3] = XMFLOAT2(mWidth-1,mHeight-1);
 }
 
-void CSprite::CollisionDetection() {
+
+CSprite* CSprite::CollisionDetection() {
     //获取其他精灵
     std::vector<CSprite*> sprites;
     for (auto& sprite : Global::spriteList->mSprites)
@@ -39,14 +40,16 @@ void CSprite::CollisionDetection() {
     //包围盒检测
     if (BoxDetection(sprites[0]))
     {
-        // std::cout << "包围盒碰撞" << std::endl;
+        std::cout << "包围盒碰撞" << std::endl;
         if (OBBDetection(sprites[0])) {
-            // std::cout << "OBB碰撞" << std::endl;
+            std::cout << "OBB碰撞" << std::endl;
             if (PixelDetection(sprites[0])) {
                 std::cout << "像素碰撞" << std::endl;
+                return sprites[0];
             }
         }
     }
+    return nullptr;
 }
 
 bool CSprite::BoxDetection(CSprite* other) {
@@ -129,45 +132,57 @@ bool CSprite::PixelDetection(CSprite* other) {
         XMVECTOR local = XMVectorSet(x,y,0,1);//创建局部坐标
         XMVECTOR worldPos = XMVector3Transform(local,worldB);//计算世界坐标，向量*矩阵
         XMStoreFloat2(&posB,worldPos);//转回Float2
+
+        CVector2 cposB(posB);
+        CVector2 pos[4];
+        for(int i=0;i<4;i++) {
+            pos[i] = CVector2(A->XWorldVertices[i]);
+        }
         // 判断点是否在A的OBB内部
         for(int i = 0; i < 4; i++)
         {
-            XMFLOAT2 a = A->XWorldVertices[i];XMFLOAT2 b = A->XWorldVertices[(i+1)%4];
-            // 边向量
-            float edgeX = b.x - a.x;float edgeY = b.y - a.y;
-            // 点到边
-            float pointX = posB.x - a.x;float pointY = posB.y - a.y;
-            // 2D叉乘
-            float cross =edgeX * pointY -edgeY * pointX;
-            if(cross < 0){
-                return false;
+            // 两个OBB局部轴
+            CVector2 axisX = (pos[1] - pos[0]).Normalize();
+            CVector2 axisY = (pos[2] - pos[0]).Normalize();
+            // 点相对于OBB原点
+            CVector2 dir = cposB - pos[0];
+            // 投影长度
+            float projX = dir.Dot(axisX);
+            float projY = dir.Dot(axisY);
+            // OBB宽高
+            float width  = (pos[1] - pos[0]).Length();
+            float height = (pos[2] - pos[0]).Length();
+            // 判断投影是否在范围
+            if(projX >= 0 && projX <= width &&
+               projY >= 0 && projY <= height)
+            {
+                return true;
             }
         }
-        return true;
+        return false;
     };
     //对于B的每个像素点
     for(int i=0;i<B->mWidth;i++) {
         for(int j=0;j<B->mHeight;j++) {
-            // std::cout << "B->mWidth"<<B->mWidth << std::endl;
-            std::cout << "遍历像素"<<i <<","<<j << std::endl;
             //对于B的每个像素，如果在A内部
             if (isInside(i,j)) {
-                std::cout << "在A内部"<<i <<","<<j << std::endl;
+                // std::cout << "获取B的alpha"<<i <<","<<j << std::endl;
                 float alphaB =  Global::imageManager->GetImageAalpha(B->pngName,i,j);//获取B的alpha值
+
                 XMFLOAT2 posB;//世界坐标
                 XMVECTOR local = XMVectorSet(i,j,0,1);//创建局部坐标
                 XMVECTOR worldPos = XMVector3Transform(local,worldB);//计算世界坐标，向量*矩阵
+
                 XMStoreFloat2(&posB,worldPos);//转回Float2
+                // std::cout << "获取B的世界坐标"<<posB.x<<","<<posB.y<< std::endl;
 
-                XMFLOAT2 posA;//世界坐标
-                XMVECTOR localA = XMVectorSet(posB.x,posB.y,0,1);//创建局部坐标
-                XMVECTOR worldPosA = XMVector3Transform(localA,XMMatrixInverse(nullptr, worldA));//使用逆矩阵获取局部坐标
-                XMStoreFloat2(&posA,worldPosA);//转回Float2
+                XMFLOAT2 posA;//局部坐标
+                XMVECTOR localA = XMVector3Transform(worldPos,XMMatrixInverse(nullptr, worldA));//使用逆矩阵获取局部坐标
+                XMStoreFloat2(&posA,localA);//转回Float2
+                // std::cout << "获取A的局部坐标"<<posA.x<<","<<posA.y<< std::endl;
+                // float alphaA =  Global::imageManager->GetImageAalpha(A->pngName,posA.x/(A->mWidth/A->oWidth) ,posA.y/(A->mHeight/A->oHeight));
+                float alphaA =  Global::imageManager->GetImageAalpha(A->pngName,posA.x/2.38 ,posA.y/2.63);
 
-                float alphaA =  Global::imageManager->GetImageAalpha(A->pngName,posA.x,posA.y);//获取A的alpha值
-
-                std::cout << "alphaA"<<alphaA << std::endl;
-                std::cout << "alphaA"<<alphaB << std::endl;
                 if(alphaA>0 && alphaB>0) {
                     return true;
                 }
@@ -179,16 +194,14 @@ bool CSprite::PixelDetection(CSprite* other) {
 }
 
 void CSprite::Update(float deltaTime) {
-    mPos = mPos + CVector2(mChangeX,mChangeY).Normalize()*100*deltaTime;//移动
-    GetWorldVertices();//计算世界顶点
-    GetBoxVertices();//计算包围盒顶点
-    if(this==Global::claw) {
-        CollisionDetection();//碰撞检测
-    }
+    
 }
 
 void CSprite::Draw()
 {
+    // if(this==Global::claw)return;
+    GetWorldVertices();//计算世界顶点
+    GetBoxVertices();//计算包围盒顶点
     //矩形框
     DrawLine(XWorldVertices[0], XWorldVertices[1], XMFLOAT3(1,1,1));
     DrawLine(XWorldVertices[0], XWorldVertices[2], XMFLOAT3(1,1,1));
@@ -208,8 +221,11 @@ void CSprite::SetPosition(float _x, float _y) {
     mPos.x = _x;mPos.y = _y;
 }
 
-void CSprite::SetPosition(XMFLOAT2 _pos) {
-    mPos.x = _pos.x;mPos.y = _pos.y;
+void CSprite::SetPosition(XMFLOAT2 pos) {
+    mPos.x = pos.x;mPos.y = pos.y;
+}
+void CSprite::SetPosition(CVector2 pos) {
+    mPos.x = pos.x;mPos.y = pos.y;
 }
 
 CVector2 CSprite::GetPos(){

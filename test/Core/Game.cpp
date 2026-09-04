@@ -51,35 +51,7 @@ void Game::Mainloop(float deltaTime)
     Global::graphic->EndFrame();
     // Draw();//绘制
 }
-//当键盘按下
-void Game::OnKeyPress(int _key) {
-    if (_key == EKey::W) {
-        Global::claw->mChangeY = -1;
-    }
-    if (_key == EKey::A) {
-        Global::claw->mChangeX = -1;
-    }
-    if (_key == EKey::S) {
-        Global::claw->mChangeY = 1;
-    }
-    if (_key == EKey::D) {
-        Global::claw->mChangeX = 1;
-    }
-}
-void Game::OnKeyRelease(int _key) {
-    if (_key == EKey::W) {
-        Global::claw->mChangeY = 0;
-    }
-    if (_key == EKey::A) {
-        Global::claw->mChangeX = 0;
-    }
-    if (_key == EKey::S) {
-        Global::claw->mChangeY = 0;
-    }
-    if (_key == EKey::D) {
-        Global::claw->mChangeX = 0;
-    }
-}
+
 //更新
 void Game::Update(float deltaTime)
 {
@@ -87,15 +59,6 @@ void Game::Update(float deltaTime)
     //     mRecordTime = GetNowTime();
     //     CreateCSprite("Sprite_gold", XMFLOAT2(RandomInt(0,600),RandomInt(200,500)));
     // }
-
-    float time = GetNowTime();
-    // 摆动速度
-    float speed = 2.0f;
-    // 最大角度
-    float maxAngle = 45.0f;
-    float angle = sin(time * speed)*maxAngle;
-    // Global::claw->angleDeg = angle;
-    // Global::claw->mPos = Global::claw->mPosInit.Rotate(CVector2(378,77),angle);
 
     Global::spriteList->Update(deltaTime);
 }
@@ -115,7 +78,7 @@ void Game::Draw()
 
     DrawTexture("first3",0,0,800,600);
     DrawTexture("role1",350,0,100,100);
-    DrawTexture("line",378,77,5,50,378,77,angle);
+    // DrawTexture("line",378,77,5,50,378,77,angle);
     // DrawTexture("grad",365,120,32,19,378,77,angle);
     // std::cout << "Game::Draw结束，进入Global::spriteList->Draw" << std::endl;
     Global::spriteList->Draw();
@@ -124,4 +87,38 @@ void Game::Draw()
 void Game::ProcessInput()
 {
     // mInput.Update();//输入更新
+}
+//当键盘按下
+void Game::OnKeyPress(int _key) {
+    if (_key == EKey::LClick) {
+        // std::cout << "鼠标左键按下" << std::endl;
+        Global::claw->ThrowOut();
+    }
+
+    if (_key == EKey::W) {
+        // Global::claw->mChangeY = -1;
+    }
+    if (_key == EKey::A) {
+        // Global::claw->mChangeX = -1;
+    }
+    if (_key == EKey::S) {
+        // Global::claw->mChangeY = 1;
+    }
+    if (_key == EKey::D) {
+        // Global::claw->mChangeX = 1;
+    }
+}
+void Game::OnKeyRelease(int _key) {
+    if (_key == EKey::W) {
+        Global::claw->mChangeY = 0;
+    }
+    if (_key == EKey::A) {
+        Global::claw->mChangeX = 0;
+    }
+    if (_key == EKey::S) {
+        Global::claw->mChangeY = 0;
+    }
+    if (_key == EKey::D) {
+        Global::claw->mChangeX = 0;
+    }
 }
