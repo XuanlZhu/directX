@@ -34,7 +34,7 @@ Game::Game() {
 void Game::Setup()
 {
     for (int i = 0; i < 5; i++) {
-        CreateCSprite("Sprite_gold", XMFLOAT2(RandomInt(0,800),RandomInt(200,600)));
+        CreateCSprite("Sprite_gold", XMFLOAT2(RandomInt(0,800),RandomInt(300,600)));
     }
     Global::claw = CreateCSprite("Sprite_claw", XMFLOAT2(365+16,120)).lock().get();
 }
@@ -43,23 +43,14 @@ void Game::Setup()
 void Game::Mainloop(float deltaTime)
 {
     ProcessInput();//输入
-    // std::cout << "开始Update" << std::endl;
     Update(deltaTime);//更新
-    // std::cout << "开始BeginFrame" << std::endl;
-    Global::graphic->BeginFrame();
-    // std::cout << "开始EndFrame" << std::endl;
+    Global::graphic->BeginFrame();//draw在其中调用
     Global::graphic->EndFrame();
-    // Draw();//绘制
 }
 
 //更新
 void Game::Update(float deltaTime)
 {
-    // if (GetNowTime() - mRecordTime>1) {
-    //     mRecordTime = GetNowTime();
-    //     CreateCSprite("Sprite_gold", XMFLOAT2(RandomInt(0,600),RandomInt(200,500)));
-    // }
-
     Global::spriteList->Update(deltaTime);
 }
 //绘制函数
@@ -90,22 +81,22 @@ void Game::ProcessInput()
 }
 //当键盘按下
 void Game::OnKeyPress(int _key) {
-    if (_key == EKey::LClick) {
+    if (_key == EKey::Space) {
         // std::cout << "鼠标左键按下" << std::endl;
         Global::claw->ThrowOut();
     }
 
     if (_key == EKey::W) {
-        // Global::claw->mChangeY = -1;
+        Global::claw->mChangeY = -1;
     }
     if (_key == EKey::A) {
-        // Global::claw->mChangeX = -1;
+        Global::claw->mChangeX = -1;
     }
     if (_key == EKey::S) {
-        // Global::claw->mChangeY = 1;
+        Global::claw->mChangeY = 1;
     }
     if (_key == EKey::D) {
-        // Global::claw->mChangeX = 1;
+        Global::claw->mChangeX = 1;
     }
 }
 void Game::OnKeyRelease(int _key) {

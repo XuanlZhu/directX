@@ -20,6 +20,7 @@ public:
     float returnTime = 2;//回来时间
     CSprite* CrawledItem = nullptr;//抓取物体
     CVector2 offset;//偏移
+    CVector2 rotatePoint;//旋转点
     float swingTime=0;//摆动时间
 
 };

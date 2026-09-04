@@ -25,7 +25,7 @@ public:
     void SetPosition(XMFLOAT2 pos);// 设置位置
     void SetPosition(CVector2 pos);// 设置位置
     CVector2 GetPos();// 获取位置
-    virtual void Update(float deltaTime);
+    virtual void Update(float deltaTime){};
     virtual void Destroy();//销毁,子类要重写
     virtual void OnCreated();//当创建
     virtual void ThrowOut(){};//扔出
@@ -57,28 +57,12 @@ public:
     XMFLOAT2 XAnchor{0,0};//锚点
     XMFLOAT2 XScale{1,1};//缩放
     XMFLOAT2 XPosition{0,0};//世界坐标
+    XMFLOAT2 XOriginLocalVertices[4];//原始局部顶点，没有经过锚点偏移
     XMFLOAT2 XLocalVertices[4];//局部顶点
     XMFLOAT2 XWorldVertices[4];//世界顶点
     XMFLOAT2 XBoxVertices[4];//包围盒顶点
-    XMMATRIX GetWorldMatrix() {
-        // 缩放
-        XMMATRIX scale = XMMatrixScaling(XScale.x,XScale.y,1.0f);
-        // 旋转
-        XMMATRIX rotation = XMMatrixRotationZ(XMConvertToRadians(angleDeg));
-        // 平移
-        XMMATRIX translation = XMMatrixTranslation(mPos.x,mPos.y,0.0f);
-        // 世界矩阵
-        return scale * rotation * translation;
-    };//世界矩阵
-    void GetWorldVertices() {
-        XMMATRIX world = GetWorldMatrix();
-        for(int i = 0; i < 4; i++)
-        {
-            XMVECTOR local = XMVectorSet(XLocalVertices[i].x,XLocalVertices[i].y,0.0f,1.0f);//创建局部坐标
-            XMVECTOR worldPos = XMVector3Transform(local,world);//计算世界坐标，向量*矩阵
-            XMStoreFloat2(&XWorldVertices[i],worldPos);//转回Float2
-        }
-    };//获取世界顶点
+    XMMATRIX GetWorldMatrix();
+    void GetWorldVertices();
     void GetBoxVertices() {
         //计算包围盒顶点
         float minX = XWorldVertices[0].x;float maxX = XWorldVertices[0].x;float minY = XWorldVertices[0].y;float maxY = XWorldVertices[0].y;

@@ -15,27 +15,51 @@
 
 CSprite::CSprite(){
     // mImage = Global::imageManager->GetImage(pngName);
-
+    Global::imageManager->GetImage(pngName);//预载图片
 }
 void CSprite::OnCreated() {
-    // XLocalVertices[0] = XMFLOAT2(0,0);
-    // XLocalVertices[1] = XMFLOAT2(mWidth-1,0);
-    // XLocalVertices[2] = XMFLOAT2(0,mHeight-1);
-    // XLocalVertices[3] = XMFLOAT2(mWidth-1,mHeight-1);
+    XOriginLocalVertices[0] = XMFLOAT2(0,0);
+    XOriginLocalVertices[1] = XMFLOAT2(mWidth-1,0);
+    XOriginLocalVertices[2] = XMFLOAT2(0,mHeight-1);
+    XOriginLocalVertices[3] = XMFLOAT2(mWidth-1,mHeight-1);
     float anchorX = XAnchor.x*mWidth;float anchorY = XAnchor.y*mHeight;
     XLocalVertices[0] = XMFLOAT2(-anchorX, -anchorY);
-    XLocalVertices[1] = XMFLOAT2(mWidth - anchorX, -anchorY);
-    XLocalVertices[2] = XMFLOAT2(-anchorX, mHeight - anchorY);
-    XLocalVertices[3] = XMFLOAT2(mWidth - anchorX, mHeight - anchorY);
+    XLocalVertices[1] = XMFLOAT2(mWidth-1 - anchorX, -anchorY);
+    XLocalVertices[2] = XMFLOAT2(-anchorX, mHeight-1 - anchorY);
+    XLocalVertices[3] = XMFLOAT2(mWidth-1 - anchorX, mHeight-1 - anchorY);
+
+    GetWorldVertices();//计算世界顶点
+    GetBoxVertices();//计算包围盒顶点
 }
 
+XMMATRIX CSprite::GetWorldMatrix() {
+    // 缩放
+    XMMATRIX scale = XMMatrixScaling(XScale.x,XScale.y,1.0f);
+    // 旋转
+    XMMATRIX rotation = XMMatrixRotationZ(XMConvertToRadians(angleDeg));
+    // 平移
+    XMMATRIX translation = XMMatrixTranslation(mPos.x,mPos.y,0.0f);
+    // 世界矩阵
+    return scale * rotation * translation;
+};//世界矩阵
+//获取世界顶点
+void CSprite::GetWorldVertices() {
+    XMMATRIX world = GetWorldMatrix();
+    for(int i = 0; i < 4; i++)
+    {
+        XMVECTOR local = XMVectorSet(XLocalVertices[i].x,XLocalVertices[i].y,0.0f,1.0f);//创建局部坐标
+        XMVECTOR worldPos = XMVector3Transform(local,world);//计算世界坐标，向量*矩阵
+        XMStoreFloat2(&XWorldVertices[i],worldPos);//转回Float2
+    }
+};
 
 CSprite* CSprite::CollisionDetection() {
     //获取其他精灵
     std::vector<CSprite*> sprites;
     for (auto& sprite : Global::spriteList->mSprites)
     {
-        if (sprite.get()!=this) {sprites.push_back(sprite.get());}
+        // std::cout << "物体"<< sprite->mPos.x<<"|" <<sprite->mPos.y  << std::endl;
+        if (sprite.get()!=Global::claw) {sprites.push_back(sprite.get());}
     }
     // 按距离排序（近 -> 远）
     std::sort(sprites.begin(),sprites.end(),[this](CSprite* a, CSprite* b){
@@ -45,11 +69,11 @@ CSprite* CSprite::CollisionDetection() {
     //包围盒检测
     if (BoxDetection(sprites[0]))
     {
-        std::cout << "包围盒碰撞" << std::endl;
+        // std::cout << "包围盒碰撞" << std::endl;
         if (OBBDetection(sprites[0])) {
-            std::cout << "OBB碰撞" << std::endl;
+            // std::cout << "OBB碰撞" << std::endl;
             if (PixelDetection(sprites[0])) {
-                std::cout << "像素碰撞" << std::endl;
+                // std::cout << "像素碰撞" << std::endl;
                 return sprites[0];
             }
         }
@@ -125,72 +149,66 @@ bool CSprite::OBBDetection(CSprite* other) {
     return true;
 }
 
+bool isInside2(int x,int y,XMFLOAT2 pos2[4]) {
+    CVector2 cposB(x,y);
+    CVector2 pos[4];
+    for(int i=0;i<4;i++) {
+        pos[i] = CVector2(pos2[i]);
+    }
+    // 判断点是否在A的OBB内部
+    for(int i = 0; i < 4; i++)
+    {
+        // 两个OBB局部轴
+        CVector2 axisX = (pos[1] - pos[0]).Normalize();
+        CVector2 axisY = (pos[2] - pos[0]).Normalize();
+        // 点相对于OBB原点
+        CVector2 dir = cposB - pos[0];
+        // 投影长度
+        float projX = dir.Dot(axisX);
+        float projY = dir.Dot(axisY);
+        // OBB宽高
+        float width  = (pos[1] - pos[0]).Length();
+        float height = (pos[2] - pos[0]).Length();
+        // 判断投影是否在范围
+        if(projX >= 0 && projX <= width &&projY >= 0 && projY <= height)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 bool CSprite::PixelDetection(CSprite* other) {
-    CSprite* B = this;CSprite* A = other;
+    CSprite* A = other;CSprite* B = this;
     // std::cout << "开始像素碰撞" << std::endl;
 
     XMMATRIX worldA = A->GetWorldMatrix();
     XMMATRIX worldB = B->GetWorldMatrix();
-    auto isInside = [&](int x,int y)
-    {
-        XMFLOAT2 posB;//世界坐标
-        XMVECTOR local = XMVectorSet(x,y,0,1);//创建局部坐标
-        XMVECTOR worldPos = XMVector3Transform(local,worldB);//计算世界坐标，向量*矩阵
-        XMStoreFloat2(&posB,worldPos);//转回Float2
 
-        CVector2 cposB(posB);
-        CVector2 pos[4];
-        for(int i=0;i<4;i++) {
-            pos[i] = CVector2(A->XWorldVertices[i]);
-        }
-        // 判断点是否在A的OBB内部
-        for(int i = 0; i < 4; i++)
-        {
-            // 两个OBB局部轴
-            CVector2 axisX = (pos[1] - pos[0]).Normalize();
-            CVector2 axisY = (pos[2] - pos[0]).Normalize();
-            // 点相对于OBB原点
-            CVector2 dir = cposB - pos[0];
-            // 投影长度
-            float projX = dir.Dot(axisX);
-            float projY = dir.Dot(axisY);
-            // OBB宽高
-            float width  = (pos[1] - pos[0]).Length();
-            float height = (pos[2] - pos[0]).Length();
-            // 判断投影是否在范围
-            if(projX >= 0 && projX <= width &&
-               projY >= 0 && projY <= height)
-            {
-                return true;
-            }
-        }
-        return false;
-    };
     //对于B的每个像素点
     for(int i=0;i<B->mWidth;i++) {
         for(int j=0;j<B->mHeight;j++) {
+            XMFLOAT2 posB;//世界坐标
+            float anchorX = B->XAnchor.x*B->mWidth;float anchorY = B->XAnchor.y*B->mHeight;
+            XMVECTOR local = XMVectorSet(i-anchorX,j-anchorY,0,1);//创建局部坐标
+            XMVECTOR worldPos = XMVector3Transform(local,worldB);//计算世界坐标，向量*矩阵
+            XMStoreFloat2(&posB,worldPos);//转回Float2
             //对于B的每个像素，如果在A内部
-            if (isInside(i,j)) {
-                // std::cout << "获取B的alpha"<<i <<","<<j << std::endl;
+            if (isInside2(posB.x,posB.y,A->XWorldVertices)) {
+                // std::cout << "获取B的alpha"<<i <<","<<j << std::endl;//mWidth32,mHeight19
                 float alphaB =  Global::imageManager->GetImageAalpha(B->pngName,i,j);//获取B的alpha值
-
-                XMFLOAT2 posB;//世界坐标
-                XMVECTOR local = XMVectorSet(i,j,0,1);//创建局部坐标
-                XMVECTOR worldPos = XMVector3Transform(local,worldB);//计算世界坐标，向量*矩阵
-
-                XMStoreFloat2(&posB,worldPos);//转回Float2
-                // std::cout << "获取B的世界坐标"<<posB.x<<","<<posB.y<< std::endl;
 
                 XMFLOAT2 posA;//局部坐标
                 XMVECTOR localA = XMVector3Transform(worldPos,XMMatrixInverse(nullptr, worldA));//使用逆矩阵获取局部坐标
                 XMStoreFloat2(&posA,localA);//转回Float2
-                // std::cout << "获取A的局部坐标"<<posA.x<<","<<posA.y<< std::endl;
-                // float alphaA =  Global::imageManager->GetImageAalpha(A->pngName,posA.x/(A->mWidth/A->oWidth) ,posA.y/(A->mHeight/A->oHeight));
-                float alphaA =  Global::imageManager->GetImageAalpha(A->pngName,posA.x/2.38 ,posA.y/2.63);
-
-                if(alphaA>0 && alphaB>0) {
-                    return true;
-                }
+                // std::cout << "获取A的alpha"<<posA.x/2.38 <<","<<posA.y/2.63 << std::endl;//50,50|原始21，19
+                //偏移A
+                // float alphaPosAX = posA.x
+                anchorX = A->XAnchor.x*A->mWidth;anchorY = A->XAnchor.y*A->mHeight;
+                float Ax = (posA.x+anchorX)/(2.38);float Bx = (posA.y+anchorY)/(2.63);
+                float alphaA =  Global::imageManager->GetImageAalpha(A->pngName,Ax,Bx);
+                // std::cout << "获取AB的alpha"<<alphaA <<","<<alphaB<< std::endl;
+                if(alphaA>0 && alphaB>0) {return true;}
             }
         }
     }
@@ -198,9 +216,6 @@ bool CSprite::PixelDetection(CSprite* other) {
     return false;
 }
 
-void CSprite::Update(float deltaTime) {
-
-}
 
 void CSprite::Draw()
 {
@@ -277,3 +292,39 @@ void CSprite::Destroy() {
 //
 // }
 
+
+// auto isInside = [&](int x,int y)
+// {
+//     XMFLOAT2 posB;//世界坐标
+//     XMVECTOR local = XMVectorSet(x,y,0,1);//创建局部坐标
+//     XMVECTOR worldPos = XMVector3Transform(local,worldB);//计算世界坐标，向量*矩阵
+//     XMStoreFloat2(&posB,worldPos);//转回Float2
+//
+//     CVector2 cposB(posB);
+//     CVector2 pos[4];
+//     for(int i=0;i<4;i++) {
+//         pos[i] = CVector2(A->XWorldVertices[i]);
+//     }
+//     // 判断点是否在A的OBB内部
+//     for(int i = 0; i < 4; i++)
+//     {
+//         // 两个OBB局部轴
+//         CVector2 axisX = (pos[1] - pos[0]).Normalize();
+//         CVector2 axisY = (pos[2] - pos[0]).Normalize();
+//         // 点相对于OBB原点
+//         CVector2 dir = cposB - pos[0];
+//         // 投影长度
+//         float projX = dir.Dot(axisX);
+//         float projY = dir.Dot(axisY);
+//         // OBB宽高
+//         float width  = (pos[1] - pos[0]).Length();
+//         float height = (pos[2] - pos[0]).Length();
+//         // 判断投影是否在范围
+//         if(projX >= 0 && projX <= width &&
+//            projY >= 0 && projY <= height)
+//         {
+//             return true;
+//         }
+//     }
+//     return false;
+// };

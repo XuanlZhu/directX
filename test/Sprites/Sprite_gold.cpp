@@ -11,8 +11,8 @@ Sprite_gold::Sprite_gold() {
     mHeight = 50;
 
     angleDeg = RandomInt(0,360);
-    float oWidth = 21;//原始宽高
-    float oHeight = 19;//原始宽高
+    oWidth = 21;//原始宽高
+    oHeight = 19;//原始宽高
 }
 
 void Sprite_gold::Crawled() {

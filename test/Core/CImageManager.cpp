@@ -113,8 +113,5 @@ int CImageManager::GetImageAalpha(std::string name, int x, int y) {
     // std::cout << "缩放为像素" << x << "|" << y<< std::endl;
     // std::cout << "alpha大小X" << mAalpha[name].size() << std::endl;
     // std::cout << "alpha大小Y" << mAalpha[name][0].size()<< std::endl;
-    // std::cout << mAalpha[name][0][0] << std::endl;
-    // std::cout << "Aalpha大小X" << mAalpha[name].size() << x << std::endl;
-    // std::cout << "Aalpha大小Y" << mAalpha[name][0].size() << y << std::endl;
     return mAalpha[name][x][y];
 }
