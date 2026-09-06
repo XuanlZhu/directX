@@ -126,16 +126,13 @@ bool Graphic::Initialize(HWND hWnd)
     CreateSampler();
     CreateBlendState();
     InitlineVertex();
+    InitVertex3();
     return true;
 }
 
 
 void Graphic::BeginFrame()
 {
-    // number += 1;
-    // std::cout << number << std::endl;
-    // assert(m_context);
-    // assert(m_renderTargetView);
     //设置渲染目标视图
     m_context->OMSetRenderTargets(
         1,
@@ -143,30 +140,111 @@ void Graphic::BeginFrame()
         nullptr
     );
     // std::cout << "开始绘制" << std::endl;
-
-    float color[4] ={0,0,1,1};
+    float color[4] ={1,1,1,1};
     //清理渲染目标图
     m_context->ClearRenderTargetView(
         m_renderTargetView,
         color
     );
+    // DrawTexture("first3",0,0,800,600);
 
-    Global::game->Draw();
+    //画多边形
+    Vertex3 vertices[] =
+    {
+        {{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}},//红色
+        {{ 0.0f,  0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}},//绿色
+        {{ 0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}}//蓝色
+    };
 
-    // float time = GetTickCount() / 1000.0f;
-    // // 摆动速度
-    // float speed = 2.0f;
-    // // 最大角度
-    // float maxAngle = 45.0f;
-    // float angle = sin(time * speed)*maxAngle;
-    //
-    // DrawTexture(test_texture,0,0,800,600);
-    // DrawTexture(texture1,350,0,100,100);
-    // DrawTexture(texture2,378,77,5,50,378,77,angle);
-    // DrawTexture(texture3,365,120,32,19,378,77,angle);
+    DrawPrimitiveUP(
+        D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
+        vertices,
+        3,
+        sizeof(Vertex3)
+    );
+    // DrawLine(XMFLOAT2(0,0), XMFLOAT2(200,200), XMFLOAT3(1,1,1));
+    // DrawTexture("first3",0,0,800,600);
+    // DrawTexture("first3",0,0,800,600);
+    // DrawLine(XMFLOAT2(0,0), XMFLOAT2(200,200), XMFLOAT3(1,1,1));
 
-
+    // Global::game->Draw();
 }
+void Graphic::DrawPrimitiveUP(D3D11_PRIMITIVE_TOPOLOGY topology,const void* vertices,UINT vertexCount,UINT vertexStride) {
+    if (!vertices || vertexCount == 0 || vertexStride == 0)return;
+    // 设置输入布局
+    m_context->IASetInputLayout(m_inputLayout3);
+    m_context->VSSetShader(m_vertexShader3, nullptr, 0);
+    m_context->PSSetShader(m_pixelShader3, nullptr, 0);
+
+    UINT dataSize = vertexCount * vertexStride;
+    // 如果当前 Buffer 不够大，就重新创建
+    if (!m_dynamicVertexBuffer || m_dynamicVertexBufferSize < dataSize)
+    {
+        m_dynamicVertexBuffer.Reset();
+
+        D3D11_BUFFER_DESC desc{};
+        desc.Usage = D3D11_USAGE_DYNAMIC;
+        desc.ByteWidth = dataSize;
+        desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+        desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+        HRESULT hr = m_device->CreateBuffer(
+            &desc,
+            nullptr,
+            &m_dynamicVertexBuffer
+        );
+
+        if (FAILED(hr))
+            return;
+
+        m_dynamicVertexBufferSize = dataSize;
+    }
+
+    // 把 CPU 顶点数据写入 Dynamic Vertex Buffer
+    D3D11_MAPPED_SUBRESOURCE mapped{};
+
+    HRESULT hr = m_context->Map(
+        m_dynamicVertexBuffer.Get(),
+        0,
+        D3D11_MAP_WRITE_DISCARD,
+        0,
+        &mapped
+    );
+
+    if (FAILED(hr))return;
+
+    memcpy(
+        mapped.pData,
+        vertices,
+        dataSize
+    );
+
+    m_context->Unmap(
+        m_dynamicVertexBuffer.Get(),
+        0
+    );
+
+    // 设置 Vertex Buffer
+    UINT stride = vertexStride;
+    UINT offset = 0;
+
+    ID3D11Buffer* buffer = m_dynamicVertexBuffer.Get();
+
+    m_context->IASetVertexBuffers(
+        0,
+        1,
+        &buffer,
+        &stride,
+        &offset
+    );
+
+    // 设置图元类型
+    m_context->IASetPrimitiveTopology(topology);
+
+    // 绘制
+    m_context->Draw(vertexCount, 0);
+}
+
 
 void Graphic::CreateVertexBuffer()
 {
@@ -463,6 +541,135 @@ void Graphic::InitlineVertex() {
     blob->Release();
 }
 
+void Graphic::InitVertex3()
+{
+    HRESULT hr;
+
+    // =========================
+    // 编译 Vertex Shader
+    // =========================
+
+    ID3DBlob* vsBlob = nullptr;
+    ID3DBlob* errorBlob = nullptr;
+
+    hr = D3DCompileFromFile(
+        L"ColorVS.hlsl",
+        nullptr,
+        nullptr,
+        "VS",
+        "vs_5_0",
+        0,
+        0,
+        &vsBlob,
+        &errorBlob
+    );
+
+    if (FAILED(hr))
+    {
+        std::cout << "ColorVS.hlsl编译失败" << std::endl;
+    }
+
+    // =========================
+    // 创建 Vertex Shader
+    // =========================
+
+    hr = m_device->CreateVertexShader(
+        vsBlob->GetBufferPointer(),
+        vsBlob->GetBufferSize(),
+        nullptr,
+        &m_vertexShader3
+    );
+
+    if (FAILED(hr))
+    {
+        std::cout << "m_vertexShader3创建失败" << std::endl;
+    }
+
+    // =========================
+    // 创建 Input Layout
+    // =========================
+
+    D3D11_INPUT_ELEMENT_DESC layout3[] =
+    {
+        {
+            "POSITION",
+            0,
+            DXGI_FORMAT_R32G32B32_FLOAT,
+            0,
+            0,
+            D3D11_INPUT_PER_VERTEX_DATA,
+            0
+        },
+
+        {
+            "COLOR",
+            0,
+            DXGI_FORMAT_R32G32B32_FLOAT,
+            0,
+            12,
+            D3D11_INPUT_PER_VERTEX_DATA,
+            0
+        }
+    };
+
+    hr = m_device->CreateInputLayout(
+        layout3,
+        2,
+        vsBlob->GetBufferPointer(),
+        vsBlob->GetBufferSize(),
+        &m_inputLayout3
+    );
+
+    vsBlob->Release();
+
+    if (FAILED(hr))
+    {
+        std::cout << "m_inputLayout3创建失败" << std::endl;
+    }
+
+    // =========================
+    // 编译 Pixel Shader
+    // =========================
+
+    ID3DBlob* psBlob = nullptr;
+
+    hr = D3DCompileFromFile(
+        L"ColorPS.hlsl",
+        nullptr,
+        nullptr,
+        "PS",
+        "ps_5_0",
+        0,
+        0,
+        &psBlob,
+        &errorBlob
+    );
+
+    if (FAILED(hr))
+    {
+        std::cout << "ColorPS.hlsl编译失败" << std::endl;
+    }
+    // =========================
+    // 创建 Pixel Shader
+    // =========================
+
+    hr = m_device->CreatePixelShader(
+        psBlob->GetBufferPointer(),
+        psBlob->GetBufferSize(),
+        nullptr,
+        &m_pixelShader3
+    );
+
+    psBlob->Release();
+
+    if (FAILED(hr))
+    {
+        std::cout << "m_pixelShader3创建失败" << std::endl;
+    }
+
+    std::cout << "InitVertex3结束" << std::endl;
+}
+
 void Graphic::EndFrame()
 {
     assert(m_swapChain);
@@ -485,7 +692,7 @@ DirectX::XMFLOAT2 RotatePoint(float x,float y,float centerX,float centerY,float 
     return {rx + centerX,ry + centerY};
 }
 
-void Graphic::DrawTexture(ID3D11ShaderResourceView* texture,float x,float y,float width,float height,float rotatX,float rotatY,float angleDeg)
+void Graphic::DrawTexture2(ID3D11ShaderResourceView* texture,float x,float y,float width,float height,float rotatX,float rotatY,float angleDeg)
 {
     float left   = x;
     float right  = x + width;
@@ -685,7 +892,7 @@ void Graphic::DrawTexture(ID3D11ShaderResourceView* texture,float x,float y,floa
 
 }
 
-void Graphic::DrawLine(XMFLOAT2 startPos, XMFLOAT2 endPos, XMFLOAT3 color) {
+void Graphic::DrawLine2(XMFLOAT2 startPos, XMFLOAT2 endPos, XMFLOAT3 color) {
     // std::cout << "画线" << std::endl;
     LineVertex vertices[2];
     // 屏幕坐标转NDC

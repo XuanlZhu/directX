@@ -79,13 +79,13 @@ std::weak_ptr<CSprite> CreateCSprite(std::string _sprite, XMFLOAT2 _pos) {
 
 void DrawTexture(std::string name, float x, float y, float width, float height, float rotatX, float rotatY,float angleDeg) {
     auto img = Global::imageManager->GetImage(name);
-    Global::graphic->DrawTexture(img,x,y,width,height,rotatX,rotatY,angleDeg);
+    Global::graphic->DrawTexture2(img,x,y,width,height,rotatX,rotatY,angleDeg);
 }
 
 void DrawLine(CVector2 startPos, CVector2 endPos, XMFLOAT3 color) {
-    Global::graphic->DrawLine(XMFLOAT2(startPos.x,startPos.y), XMFLOAT2(endPos.x,endPos.y), color);
+    Global::graphic->DrawLine2(XMFLOAT2(startPos.x,startPos.y), XMFLOAT2(endPos.x,endPos.y), color);
 }
 
 void DrawLine(XMFLOAT2 startPos, XMFLOAT2 endPos, XMFLOAT3 color) {
-    Global::graphic->DrawLine(startPos, endPos, color);
+    Global::graphic->DrawLine2(startPos, endPos, color);
 }

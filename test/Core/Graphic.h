@@ -4,6 +4,7 @@
 #include <DirectXMath.h>
 #include <string>
 #include <WICTextureLoader.h>
+#include <wrl/client.h>
 
 #pragma comment(lib,"d3d11.lib")
 #pragma comment(lib,"dxgi.lib")
@@ -19,6 +20,11 @@ struct LineVertex
     DirectX::XMFLOAT3 position;
     DirectX::XMFLOAT4 color;
 };
+struct Vertex3
+{
+    DirectX::XMFLOAT3 position;
+    DirectX::XMFLOAT3 color;
+};
 
 class Graphic
 {
@@ -27,15 +33,19 @@ public:
     bool Initialize(HWND hWnd);
     void BeginFrame();
     void EndFrame();
-    void DrawTexture(ID3D11ShaderResourceView* texture,float x,float y,float width,float height,float rotatX=0,float rotatY=0,float angleDeg=0);
+    void DrawTexture2(ID3D11ShaderResourceView* texture,float x,float y,float width,float height,float rotatX=0,float rotatY=0,float angleDeg=0);
     ID3D11ShaderResourceView* LoadTexture(std::string path);
-    void DrawLine(XMFLOAT2 startPos,XMFLOAT2 endPos,XMFLOAT3 color);
+    void DrawLine2(XMFLOAT2 startPos,XMFLOAT2 endPos,XMFLOAT3 color);
     void CreateVertexBuffer();
     void CreatePixelShader();
     void CreateVertexShader();
     void CreateSampler();
     void CreateBlendState();
     void InitlineVertex();
+    void InitVertex3();
+    void Graphic::DrawPrimitiveUP(D3D11_PRIMITIVE_TOPOLOGY topology,const void* vertices,UINT vertexCount,UINT vertexStride);
+    Microsoft::WRL::ComPtr<ID3D11Buffer> m_dynamicVertexBuffer;
+    UINT m_dynamicVertexBufferSize = 0;
 
     HWND m_hWnd = nullptr;
     IDXGISwapChain* m_swapChain = nullptr;//交换链
@@ -52,5 +62,9 @@ public:
     ID3D11Buffer* m_lineVertexBuffer= nullptr;//直线缓冲区
     ID3D11VertexShader* m_lineVertexShader = nullptr;
     ID3D11PixelShader* m_linePixelShader = nullptr;
+
+    ID3D11InputLayout* m_inputLayout3 = nullptr;//输入布局
+    ID3D11VertexShader* m_vertexShader3 = nullptr;//顶点Shader
+    ID3D11PixelShader* m_pixelShader3 = nullptr;//着色器
 
 };
