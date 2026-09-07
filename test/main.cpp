@@ -7,8 +7,10 @@
 #include "Core/Game.h"
 #include "Global.h"
 #include "Core/Graphic.h"
+#include <windowsx.h>
 
-
+#include "Core/Camera.h"
+bool m_rightMouseDown = false;
 LRESULT CALLBACK WndProc(HWND hWnd,UINT msg,WPARAM wParam,LPARAM lParam)
 {
     switch(msg)
@@ -28,9 +30,24 @@ LRESULT CALLBACK WndProc(HWND hWnd,UINT msg,WPARAM wParam,LPARAM lParam)
             Global::game->OnKeyRelease((int)wParam);
             return 0;
         }
+        //鼠标右键
+        case WM_RBUTTONDOWN:
+        {
+            m_rightMouseDown = true;
+            return 0;
+        }
+        case WM_RBUTTONUP:
+        {
+            m_rightMouseDown = false;
+            return 0;
+        }
         // 鼠标移动
         case WM_MOUSEMOVE:
         {
+            int mouseX = GET_X_LPARAM(lParam);
+            int mouseY = GET_Y_LPARAM(lParam);
+            Global::camera->OnMouseMove(mouseX,mouseY,m_rightMouseDown);
+
             return 0;
         }
         // 鼠标左键

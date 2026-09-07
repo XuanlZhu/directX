@@ -49,7 +49,9 @@ public:
     void CreateBlendState();
     void InitlineVertex();
     void InitVertex3();
-    void Graphic::DrawPrimitiveUP(D3D11_PRIMITIVE_TOPOLOGY topology,const void* vertices,UINT vertexCount,UINT vertexStride);
+    void DrawPrimitiveUP(D3D11_PRIMITIVE_TOPOLOGY topology,const void* vertices,UINT vertexCount,UINT vertexStride);
+    void DrawPrimitive3D(D3D11_PRIMITIVE_TOPOLOGY topology,const void* vertices,UINT vertexCount,UINT vertexStride);
+
     Microsoft::WRL::ComPtr<ID3D11Buffer> m_dynamicVertexBuffer;
     UINT m_dynamicVertexBufferSize = 0;
 

@@ -43,6 +43,7 @@ void Game::Mainloop(float deltaTime)
 void Game::Update(float deltaTime)
 {
     // Global::spriteList->Update(deltaTime);
+    Global::camera->Update(deltaTime);
 }
 //绘制函数
 void Game::Draw()
@@ -57,8 +58,35 @@ void Game::ProcessInput()
 }
 //当键盘按下
 void Game::OnKeyPress(int _key) {
+    if (_key == EKey::Space) {
 
+    }
+
+    if (_key == EKey::W) {
+        Global::camera->mChangeY = 1;
+    }
+    if (_key == EKey::A) {
+        Global::camera->mChangeX = -1;
+    }
+    if (_key == EKey::S) {
+        Global::camera->mChangeY = -1;
+    }
+    if (_key == EKey::D) {
+        Global::camera->mChangeX = 1;
+    }
 }
 void Game::OnKeyRelease(int _key) {
+    if (_key == EKey::W) {
+        Global::camera->mChangeY = 0;
+    }
+    if (_key == EKey::A) {
+        Global::camera->mChangeX = 0;
+    }
+    if (_key == EKey::S) {
+        Global::camera->mChangeY = 0;
+    }
+    if (_key == EKey::D) {
+        Global::camera->mChangeX = 0;
+    }
 
 }

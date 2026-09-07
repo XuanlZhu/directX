@@ -223,40 +223,168 @@ void Graphic::BeginFrame()
     );
     //-----------------------------------------------------------
     // 世界矩阵
-    // DirectX::XMMATRIX world = DirectX::XMMatrixIdentity();
+    DirectX::XMMATRIX world = DirectX::XMMatrixIdentity();
     // 矩阵数据
-    // MatrixBuffer matrixData;
-    // matrixData.world = DirectX::XMMatrixTranspose(world);
-    // matrixData.view =DirectX::XMMatrixTranspose(Global::camera->GetViewMatrix());
-    // matrixData.projection = DirectX::XMMatrixTranspose(m_projection);
+    MatrixBuffer matrixData;
+    matrixData.world = DirectX::XMMatrixTranspose(world);
+    matrixData.view =DirectX::XMMatrixTranspose(Global::camera->GetViewMatrix());
+    matrixData.projection = DirectX::XMMatrixTranspose(m_projection);
 
     // 把矩阵传给 GPU
-    // m_context->UpdateSubresource(
-    //     m_matrixBuffer,
-    //     0,
-    //     nullptr,
-    //     &matrixData,
-    //     0,
-    //     0
-    // );
+    m_context->UpdateSubresource(
+        m_matrixBuffer,
+        0,
+        nullptr,
+        &matrixData,
+        0,
+        0
+    );
 
-    // VS 使用 b0
-    // m_context->VSSetConstantBuffers(
-    //     0,
-    //     1,
-    //     &m_matrixBuffer
-    // );
+    // VS 使用buff
+    m_context->VSSetConstantBuffers(
+        0,
+        1,
+        &m_matrixBuffer
+    );
 
     // 绘制立方体
-    // DrawPrimitiveUP(
-    //     D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
-    //     vertices,
-    //     36,
-    //     sizeof(Vertex3)
-    // );
+    DrawPrimitive3D(
+        D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
+        vertices,
+        std::size(vertices),
+        sizeof(Vertex3)
+    );
 
 
 }
+
+void Graphic::DrawPrimitive3D(D3D11_PRIMITIVE_TOPOLOGY topology,const void* vertices,UINT vertexCount,UINT vertexStride)
+{
+    if (!vertices || vertexCount == 0 || vertexStride == 0)
+        return;
+
+    UINT vertexBufferSize = vertexCount * vertexStride;
+
+    // ========================================
+    // 1. 确保 Dynamic Vertex Buffer 足够大
+    // ========================================
+    if (!m_dynamicVertexBuffer ||
+        m_dynamicVertexBufferSize < vertexBufferSize)
+    {
+        m_dynamicVertexBuffer.Reset();
+
+        D3D11_BUFFER_DESC desc = {};
+        desc.Usage = D3D11_USAGE_DYNAMIC;
+        desc.ByteWidth = vertexBufferSize;
+        desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+        desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+        HRESULT hr = m_device->CreateBuffer(
+            &desc,
+            nullptr,
+            m_dynamicVertexBuffer.GetAddressOf()
+        );
+
+        if (FAILED(hr))
+            return;
+
+        m_dynamicVertexBufferSize = vertexBufferSize;
+    }
+
+    // ========================================
+    // 2. 把 CPU 顶点数据写入 Dynamic Buffer
+    // ========================================
+    D3D11_MAPPED_SUBRESOURCE mapped = {};
+
+    HRESULT hr = m_context->Map(
+        m_dynamicVertexBuffer.Get(),
+        0,
+        D3D11_MAP_WRITE_DISCARD,
+        0,
+        &mapped
+    );
+
+    if (FAILED(hr))
+        return;
+
+    memcpy(
+        mapped.pData,
+        vertices,
+        vertexBufferSize
+    );
+
+    m_context->Unmap(
+        m_dynamicVertexBuffer.Get(),
+        0
+    );
+
+    // ========================================
+    // 3. 设置 Input Layout
+    // ========================================
+    m_context->IASetInputLayout(
+        m_inputLayout3
+    );
+
+    // ========================================
+    // 4. 设置 Vertex Buffer
+    // ========================================
+    UINT stride = vertexStride;
+    UINT offset = 0;
+
+    ID3D11Buffer* buffer =
+        m_dynamicVertexBuffer.Get();
+
+    m_context->IASetVertexBuffers(
+        0,
+        1,
+        &buffer,
+        &stride,
+        &offset
+    );
+
+    // ========================================
+    // 5. 设置图元类型
+    // ========================================
+    m_context->IASetPrimitiveTopology(
+        topology
+    );
+
+    // ========================================
+    // 6. 设置 Vertex Shader
+    // ========================================
+    m_context->VSSetShader(
+        m_vertexShader3,
+        nullptr,
+        0
+    );
+
+    // ========================================
+    // 7. 设置 Pixel Shader
+    // ========================================
+    m_context->PSSetShader(
+        m_pixelShader3,
+        nullptr,
+        0
+    );
+
+    // ========================================
+    // 8. 设置矩阵 Constant Buffer
+    // ========================================
+    m_context->VSSetConstantBuffers(
+        0,
+        1,
+        &m_matrixBuffer
+    );
+
+    // ========================================
+    // 9. 绘制
+    // ========================================
+    m_context->Draw(
+        vertexCount,
+        0
+    );
+}
+
 void Graphic::DrawPrimitiveUP(D3D11_PRIMITIVE_TOPOLOGY topology,const void* vertices,UINT vertexCount,UINT vertexStride) {
     if (!vertices || vertexCount == 0 || vertexStride == 0)return;
     // 设置输入布局
@@ -644,7 +772,7 @@ void Graphic::InitVertex3()
         L"ColorVS.hlsl",
         nullptr,
         nullptr,
-        "VS",
+        "main",
         "vs_5_0",
         0,
         0,
