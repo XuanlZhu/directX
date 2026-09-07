@@ -39,6 +39,8 @@ add_executable(base WIN32
         test/Sprites/Sprite_claw.cpp
         test/Sprites/Sprite_claw.h
         test/Core/EKey.h
+        test/Core/Camera.cpp
+        test/Core/Camera.h
 )
 
 

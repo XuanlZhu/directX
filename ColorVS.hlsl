@@ -1,3 +1,10 @@
+cbuffer Transform : register(b0)
+{
+    matrix world;
+    matrix view;
+    matrix projection;
+};
+
 struct VSInput
 {
     float3 position : POSITION;
@@ -10,11 +17,17 @@ struct VSOutput
     float3 color : COLOR;
 };
 
-VSOutput VS(VSInput input)
+VSOutput main(VSInput input)
 {
     VSOutput output;
 
-    output.position = float4(input.position, 1.0f);
+    float4 pos = float4(input.position, 1.0f);
+
+    pos = mul(pos, world);
+    pos = mul(pos, view);
+    pos = mul(pos, projection);
+
+    output.position = pos;
     output.color = input.color;
 
     return output;

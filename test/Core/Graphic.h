@@ -25,6 +25,12 @@ struct Vertex3
     DirectX::XMFLOAT3 position;
     DirectX::XMFLOAT3 color;
 };
+struct MatrixBuffer
+{
+    DirectX::XMMATRIX world;
+    DirectX::XMMATRIX view;
+    DirectX::XMMATRIX projection;
+};
 
 class Graphic
 {
@@ -67,4 +73,6 @@ public:
     ID3D11VertexShader* m_vertexShader3 = nullptr;//顶点Shader
     ID3D11PixelShader* m_pixelShader3 = nullptr;//着色器
 
+    DirectX::XMMATRIX m_projection = DirectX::XMMatrixIdentity();//投影矩阵
+    ID3D11Buffer* m_matrixBuffer = nullptr;//矩阵buffer
 };

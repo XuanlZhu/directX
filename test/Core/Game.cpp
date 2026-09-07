@@ -7,6 +7,7 @@
 #include <iostream>
 #include <vector>
 
+#include "Camera.h"
 #include "CImageManager.h"
 #include "EKey.h"
 #include "Graphic.h"
@@ -20,6 +21,7 @@ Game::Game() {
     Global::graphic = new Graphic();
     Global::imageManager = new CImageManager();
     Global::uiManager = new UIManager();
+    Global::camera = new Camera();//相机
 
 }
 //初始化

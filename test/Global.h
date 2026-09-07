@@ -8,6 +8,7 @@
 #include <memory>
 #include <string>
 
+class Camera;
 class CVector2;
 class UIManager;
 using namespace DirectX;
@@ -26,6 +27,7 @@ public:
     inline static Graphic* graphic = nullptr;//渲染器
     inline static UIManager* uiManager = nullptr;//ui管理器
     inline static CSprite* claw = nullptr;//钩爪
+    inline static Camera* camera = nullptr;//相机
 };
 
 int RandomInt(int _min,int _max);

@@ -3,6 +3,7 @@
 #include <iostream>
 #include <d3dcompiler.h>
 
+#include "Camera.h"
 #include "Game.h"
 #include "../Global.h"
 
@@ -127,9 +128,83 @@ bool Graphic::Initialize(HWND hWnd)
     CreateBlendState();
     InitlineVertex();
     InitVertex3();
+    //投影矩阵
+    // m_projection = DirectX::XMMatrixPerspectiveFovLH(
+    //     DirectX::XMConvertToRadians(60.0f),
+    //     800.0f / 600.0f,
+    //     0.1f,
+    //     100.0f
+    // );
+    // //创建m_matrixBuffer
+    // D3D11_BUFFER_DESC desc = {};
+    // desc.Usage = D3D11_USAGE_DEFAULT;
+    // desc.ByteWidth = sizeof(MatrixBuffer);
+    // desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    // m_device->CreateBuffer(
+    //     &desc,
+    //     nullptr,
+    //     &m_matrixBuffer
+    // );
+
     return true;
 }
+//立方体
+Vertex3 vertices[] =
+{
+    // 前面
+    {{-1,-1,-1}, {1,0,0}},
+    {{-1, 1,-1}, {1,0,0}},
+    {{ 1, 1,-1}, {1,0,0}},
 
+    {{-1,-1,-1}, {1,0,0}},
+    {{ 1, 1,-1}, {1,0,0}},
+    {{ 1,-1,-1}, {1,0,0}},
+
+    // 后面
+    {{-1,-1, 1}, {0,1,0}},
+    {{ 1, 1, 1}, {0,1,0}},
+    {{-1, 1, 1}, {0,1,0}},
+
+    {{-1,-1, 1}, {0,1,0}},
+    {{ 1,-1, 1}, {0,1,0}},
+    {{ 1, 1, 1}, {0,1,0}},
+
+    // 左面
+    {{-1,-1,-1}, {0,0,1}},
+    {{-1,-1, 1}, {0,0,1}},
+    {{-1, 1, 1}, {0,0,1}},
+
+    {{-1,-1,-1}, {0,0,1}},
+    {{-1, 1, 1}, {0,0,1}},
+    {{-1, 1,-1}, {0,0,1}},
+
+    // 右面
+    {{1,-1,-1}, {1,1,0}},
+    {{1, 1, 1}, {1,1,0}},
+    {{1,-1, 1}, {1,1,0}},
+
+    {{1,-1,-1}, {1,1,0}},
+    {{1, 1,-1}, {1,1,0}},
+    {{1, 1, 1}, {1,1,0}},
+
+    // 上面
+    {{-1,1,-1}, {1,0,1}},
+    {{-1,1, 1}, {1,0,1}},
+    {{ 1,1, 1}, {1,0,1}},
+
+    {{-1,1,-1}, {1,0,1}},
+    {{ 1,1, 1}, {1,0,1}},
+    {{ 1,1,-1}, {1,0,1}},
+
+    // 下面
+    {{-1,-1,-1}, {0,1,1}},
+    {{ 1,-1, 1}, {0,1,1}},
+    {{-1,-1, 1}, {0,1,1}},
+
+    {{-1,-1,-1}, {0,1,1}},
+    {{ 1,-1,-1}, {0,1,1}},
+    {{ 1,-1, 1}, {0,1,1}},
+};
 
 void Graphic::BeginFrame()
 {
@@ -146,28 +221,41 @@ void Graphic::BeginFrame()
         m_renderTargetView,
         color
     );
-    // DrawTexture("first3",0,0,800,600);
+    //-----------------------------------------------------------
+    // 世界矩阵
+    // DirectX::XMMATRIX world = DirectX::XMMatrixIdentity();
+    // 矩阵数据
+    // MatrixBuffer matrixData;
+    // matrixData.world = DirectX::XMMatrixTranspose(world);
+    // matrixData.view =DirectX::XMMatrixTranspose(Global::camera->GetViewMatrix());
+    // matrixData.projection = DirectX::XMMatrixTranspose(m_projection);
 
-    //画多边形
-    Vertex3 vertices[] =
-    {
-        {{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}},//红色
-        {{ 0.0f,  0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}},//绿色
-        {{ 0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}}//蓝色
-    };
+    // 把矩阵传给 GPU
+    // m_context->UpdateSubresource(
+    //     m_matrixBuffer,
+    //     0,
+    //     nullptr,
+    //     &matrixData,
+    //     0,
+    //     0
+    // );
 
-    DrawPrimitiveUP(
-        D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
-        vertices,
-        3,
-        sizeof(Vertex3)
-    );
-    // DrawLine(XMFLOAT2(0,0), XMFLOAT2(200,200), XMFLOAT3(1,1,1));
-    // DrawTexture("first3",0,0,800,600);
-    // DrawTexture("first3",0,0,800,600);
-    // DrawLine(XMFLOAT2(0,0), XMFLOAT2(200,200), XMFLOAT3(1,1,1));
+    // VS 使用 b0
+    // m_context->VSSetConstantBuffers(
+    //     0,
+    //     1,
+    //     &m_matrixBuffer
+    // );
 
-    // Global::game->Draw();
+    // 绘制立方体
+    // DrawPrimitiveUP(
+    //     D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
+    //     vertices,
+    //     36,
+    //     sizeof(Vertex3)
+    // );
+
+
 }
 void Graphic::DrawPrimitiveUP(D3D11_PRIMITIVE_TOPOLOGY topology,const void* vertices,UINT vertexCount,UINT vertexStride) {
     if (!vertices || vertexCount == 0 || vertexStride == 0)return;
