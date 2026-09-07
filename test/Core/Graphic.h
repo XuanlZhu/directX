@@ -77,4 +77,6 @@ public:
 
     DirectX::XMMATRIX m_projection = DirectX::XMMatrixIdentity();//投影矩阵
     ID3D11Buffer* m_matrixBuffer = nullptr;//矩阵buffer
+    ID3D11DepthStencilView* m_depthStencilView = nullptr;//深度视图
+    ID3D11DepthStencilState* m_depthStencilState = nullptr;//深度状态
 };

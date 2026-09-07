@@ -145,6 +145,37 @@ bool Graphic::Initialize(HWND hWnd)
         nullptr,
         &m_matrixBuffer
     );
+    //创建深度状态
+    D3D11_DEPTH_STENCIL_DESC depthDesc = {};
+    depthDesc.DepthEnable = TRUE;
+    depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+    depthDesc.DepthFunc = D3D11_COMPARISON_LESS;
+    m_device->CreateDepthStencilState(
+        &depthDesc,
+        &m_depthStencilState
+    );
+    // 1. 创建深度缓冲区
+    ID3D11Texture2D* depthBuffer = nullptr;
+    D3D11_TEXTURE2D_DESC depthDesc2 = {};
+    depthDesc2.Width = width;
+    depthDesc2.Height = height;
+    depthDesc2.MipLevels = 1;
+    depthDesc2.ArraySize = 1;
+    depthDesc2.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+    depthDesc2.SampleDesc.Count = 1;
+    depthDesc2.Usage = D3D11_USAGE_DEFAULT;
+    depthDesc2.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+
+    m_device->CreateTexture2D(
+        &depthDesc2,
+        nullptr,
+        &depthBuffer
+    );
+    m_device->CreateDepthStencilView(
+        depthBuffer,
+        nullptr,
+        &m_depthStencilView
+    );
 
     return true;
 }
@@ -206,20 +237,33 @@ Vertex3 vertices[] =
     {{ 1,-1, 1}, {0,1,1}},
 };
 
+
 void Graphic::BeginFrame()
 {
     //设置渲染目标视图
     m_context->OMSetRenderTargets(
         1,
         &m_renderTargetView,
-        nullptr
+        m_depthStencilView
     );
+    m_context->OMSetDepthStencilState(
+        m_depthStencilState,
+        0
+    );
+
     // std::cout << "开始绘制" << std::endl;
     float color[4] ={1,1,1,1};
     //清理渲染目标图
     m_context->ClearRenderTargetView(
         m_renderTargetView,
         color
+    );
+    //清理深度
+    m_context->ClearDepthStencilView(
+        m_depthStencilView,
+        D3D11_CLEAR_DEPTH,
+        1.0f,
+        0
     );
     //-----------------------------------------------------------
     // 世界矩阵
@@ -255,6 +299,28 @@ void Graphic::BeginFrame()
         sizeof(Vertex3)
     );
 
+    Vertex3 vertices2[10 * 10 * 6];
+    int index = 0;
+    for (int z = 0; z < 10; z++)
+    {
+        for (int x = 0; x < 10; x++)
+        {
+            float x0 = x - 5.0f;
+            float x1 = x + 1 - 5.0f;
+
+            float z0 = z - 5.0f;
+            float z1 = z + 1 - 5.0f;
+            // 第一个三角形
+            vertices2[index++] = { {x0, -1, z0}, {1, 0, 0} };
+            vertices2[index++] = { {x1, -1, z1}, {0, 1, 0} };
+            vertices2[index++] = { {x1, -1, z0}, {0, 0, 1} };
+            // 第二个三角形
+            vertices2[index++] = { {x0, -1, z0}, {1, 0, 0} };
+            vertices2[index++] = { {x0, -1, z1}, {0, 0, 1} };
+            vertices2[index++] = { {x1, -1, z1}, {0, 1, 0} };
+        }
+    }
+    DrawPrimitive3D(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST,vertices2,10 * 10 * 6,sizeof(Vertex3));
 
 }
 
