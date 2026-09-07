@@ -129,22 +129,22 @@ bool Graphic::Initialize(HWND hWnd)
     InitlineVertex();
     InitVertex3();
     //投影矩阵
-    // m_projection = DirectX::XMMatrixPerspectiveFovLH(
-    //     DirectX::XMConvertToRadians(60.0f),
-    //     800.0f / 600.0f,
-    //     0.1f,
-    //     100.0f
-    // );
-    // //创建m_matrixBuffer
-    // D3D11_BUFFER_DESC desc = {};
-    // desc.Usage = D3D11_USAGE_DEFAULT;
-    // desc.ByteWidth = sizeof(MatrixBuffer);
-    // desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-    // m_device->CreateBuffer(
-    //     &desc,
-    //     nullptr,
-    //     &m_matrixBuffer
-    // );
+    m_projection = DirectX::XMMatrixPerspectiveFovLH(
+        DirectX::XMConvertToRadians(60.0f),
+        800.0f / 600.0f,
+        0.1f,
+        100.0f
+    );
+    //创建m_matrixBuffer
+    D3D11_BUFFER_DESC desc = {};
+    desc.Usage = D3D11_USAGE_DEFAULT;
+    desc.ByteWidth = sizeof(MatrixBuffer);
+    desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    m_device->CreateBuffer(
+        &desc,
+        nullptr,
+        &m_matrixBuffer
+    );
 
     return true;
 }
