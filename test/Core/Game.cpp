@@ -14,6 +14,7 @@
 #include "../Global.h"
 #include "SpriteList.h"
 #include "UIManager.h"
+#include "Mesh/Mesh.h"
 
 
 Game::Game() {
@@ -22,6 +23,7 @@ Game::Game() {
     Global::imageManager = new CImageManager();
     Global::uiManager = new UIManager();
     Global::camera = new Camera();//相机
+    Global::mesh = new Mesh();//网格体
 
 }
 //初始化
@@ -63,30 +65,45 @@ void Game::OnKeyPress(int _key) {
     }
 
     if (_key == EKey::W) {
-        Global::camera->mChangeY = 1;
-    }
-    if (_key == EKey::A) {
-        Global::camera->mChangeX = -1;
+        Global::mesh->Rotate(1,0,0);
     }
     if (_key == EKey::S) {
-        Global::camera->mChangeY = -1;
+        Global::mesh->Rotate(-1,0,0);
+    }
+
+    if (_key == EKey::A) {
+        Global::mesh->Rotate(0,1,0);
     }
     if (_key == EKey::D) {
-        Global::camera->mChangeX = 1;
+        Global::mesh->Rotate(0,-1,0);
+    }
+
+    if (_key == EKey::Q) {
+        Global::mesh->Rotate(0,0,1);
+    }
+    if (_key == EKey::E) {
+        Global::mesh->Rotate(0,0,-1);
+    }
+    //前进
+    if (_key == EKey::F) {
+        Global::mesh->Move(true);
+    }
+    if (_key == EKey::V) {
+        Global::mesh->Move(false);
     }
 }
 void Game::OnKeyRelease(int _key) {
     if (_key == EKey::W) {
-        Global::camera->mChangeY = 0;
+        // Global::camera->mChangeY = 0;
     }
     if (_key == EKey::A) {
-        Global::camera->mChangeX = 0;
+        // Global::camera->mChangeX = 0;
     }
     if (_key == EKey::S) {
-        Global::camera->mChangeY = 0;
+        // Global::camera->mChangeY = 0;
     }
     if (_key == EKey::D) {
-        Global::camera->mChangeX = 0;
+        // Global::camera->mChangeX = 0;
     }
 
 }

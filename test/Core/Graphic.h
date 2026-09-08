@@ -3,6 +3,7 @@
 // #include <Windows.h>
 #include <DirectXMath.h>
 #include <string>
+#include <vector>
 #include <WICTextureLoader.h>
 #include <wrl/client.h>
 
@@ -50,7 +51,9 @@ public:
     void InitlineVertex();
     void InitVertex3();
     void DrawPrimitiveUP(D3D11_PRIMITIVE_TOPOLOGY topology,const void* vertices,UINT vertexCount,UINT vertexStride);
-    void DrawPrimitive3D(D3D11_PRIMITIVE_TOPOLOGY topology,const void* vertices,UINT vertexCount,UINT vertexStride);
+    void DrawPrimitive3D(D3D11_PRIMITIVE_TOPOLOGY topology,std::vector<Vertex3> vertices,UINT vertexCount,UINT vertexStride);
+    void DrawPrimitiveIndexed(D3D11_PRIMITIVE_TOPOLOGY topology,const void* vertices,UINT vertexCount,UINT vertexStride,const void* indices,UINT indexCount,DXGI_FORMAT indexFormat);
+
 
     Microsoft::WRL::ComPtr<ID3D11Buffer> m_dynamicVertexBuffer;
     UINT m_dynamicVertexBufferSize = 0;
@@ -79,4 +82,7 @@ public:
     ID3D11Buffer* m_matrixBuffer = nullptr;//矩阵buffer
     ID3D11DepthStencilView* m_depthStencilView = nullptr;//深度视图
     ID3D11DepthStencilState* m_depthStencilState = nullptr;//深度状态
+    //
+    Microsoft::WRL::ComPtr<ID3D11Buffer> m_dynamicIndexBuffer;
+    UINT m_dynamicIndexBufferSize = 0;
 };

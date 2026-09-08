@@ -8,6 +8,7 @@
 #include <memory>
 #include <string>
 
+class Mesh;
 class Camera;
 class CVector2;
 class UIManager;
@@ -28,6 +29,7 @@ public:
     inline static UIManager* uiManager = nullptr;//ui管理器
     inline static CSprite* claw = nullptr;//钩爪
     inline static Camera* camera = nullptr;//相机
+    inline static Mesh* mesh = nullptr;//网格体
 };
 
 int RandomInt(int _min,int _max);

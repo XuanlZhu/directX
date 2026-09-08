@@ -41,6 +41,8 @@ add_executable(base WIN32
         test/Core/EKey.h
         test/Core/Camera.cpp
         test/Core/Camera.h
+        test/Mesh/Mesh.cpp
+        test/Mesh/Mesh.h
 )
 
 
