@@ -7,23 +7,6 @@
 #include "Entity_pillar.h"
 
 
-std::shared_ptr<Entity> EntityManager::CreateEntity(std::string name) {
-    std::shared_ptr<Entity> entity;
-    if(name == "Entity") {
-        entity = std::make_shared<Entity>();
-    }else if(name == "Entity_pillar"){
-        entity = std::make_shared<Entity_pillar>();
-
-
-
-
-    }else {
-        entity = std::make_shared<Entity>();
-    }
-    mEntity.push_back(entity);
-
-    return entity;
-}
 
 void EntityManager::Draw() {
     for(auto& entity : mEntity) {
@@ -32,6 +15,7 @@ void EntityManager::Draw() {
 }
 
 void EntityManager::Append(std::shared_ptr<Entity> entity) {
+    mEntity.push_back(entity);
 }
 
 void EntityManager::Update(float deltaTime) {

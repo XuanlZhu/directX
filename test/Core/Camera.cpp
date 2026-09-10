@@ -9,7 +9,7 @@ using namespace DirectX;
 #include "DirectXMath.h"
 
 Camera::Camera() {
-    facing = DirectX::XMFLOAT3( 0.707, 0,  0.707);
+    facing = DirectX::XMFLOAT3( 1, 0,  0);
     position = DirectX::XMFLOAT3{ -2, 2, -5.0f };
 }
 
@@ -123,4 +123,11 @@ void Camera::OnMouseMove(int x, int y,bool isRdown){
         &facing,
         dir
     );
+}
+
+void Camera::OnMouseMoveLeft(int x, int y, bool isLdown) {
+}
+
+void Camera::SetPosition(XMFLOAT3 pos) {
+    position = pos;
 }

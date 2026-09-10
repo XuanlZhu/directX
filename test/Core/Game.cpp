@@ -10,9 +10,11 @@
 #include "Camera.h"
 #include "CImageManager.h"
 #include "EKey.h"
+#include "CameraFPS.h"
 #include "Graphic.h"
 #include "../Global.h"
 #include "SpriteList.h"
+#include "CameraTPS.h"
 #include "UIManager.h"
 #include "../Entity/Entity.h"
 #include "../Entity/EntityManager.h"
@@ -27,12 +29,21 @@ Game::Game() {
     Global::camera = new Camera();//相机
     Global::mesh = new Mesh();//网格体
     Global::entityManager = new EntityManager();//实体管理器
-    Global::player = CreateEntity("Entity").get();//玩家
+    Global::player = CreateEntity("Entity",XMFLOAT3{0,0,0}).get();//玩家
+
+    Global::cameraFPS = new CameraFPS();//FPS相机
+    Global::cameraTPS = new CameraTPS();//TPS相机
 }
 //初始化
 void Game::Setup()
 {
-    CreateEntity("Entity_pillar");
+    Global::camera = Global::cameraTPS;//切换相机
+    CreateEntity("Entity_pillar",XMFLOAT3{5,0,5});
+    CreateEntity("Entity_pillar",XMFLOAT3{-5,0,5});
+    CreateEntity("Entity_pillar",XMFLOAT3{5,0,-5});
+    CreateEntity("Entity_pillar",XMFLOAT3{-5,0,-5});
+    // CreateEntity("Entity_pillar",XMFLOAT3{5,0,0});
+
 }
 
 //主循环
@@ -48,9 +59,8 @@ void Game::Mainloop(float deltaTime)
 void Game::Update(float deltaTime)
 {
     // Global::spriteList->Update(deltaTime);
-    Global::camera->Update(deltaTime);
     Global::entityManager->Update(deltaTime);
-
+    Global::camera->Update(deltaTime);
 }
 //绘制函数
 void Game::Draw()

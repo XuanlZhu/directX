@@ -45,6 +45,14 @@ void Entity::Update(float deltaTime) {
     XMStoreFloat3(&position, pos);
 }
 
+void Entity::SetPosition(XMFLOAT3 pos) {
+    position = pos;
+}
+
+XMFLOAT3 Entity::GetPosition() {
+    return position;
+}
+
 XMMATRIX Entity::GetWorldMatrix() {
     // 缩放
     XMMATRIX scaleX = XMMatrixScaling(

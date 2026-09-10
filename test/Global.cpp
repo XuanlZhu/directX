@@ -13,6 +13,7 @@
 #include "Core/Graphic.h"
 #include "Core/SpriteList.h"
 #include "Entity/EntityManager.h"
+#include "Entity/Entity_pillar.h"
 #include "Sprites/Sprite_claw.h"
 #include "Sprites/Sprite_gold.h"
 
@@ -91,6 +92,18 @@ void DrawLine(XMFLOAT2 startPos, XMFLOAT2 endPos, XMFLOAT3 color) {
     Global::graphic->DrawLine2(startPos, endPos, color);
 }
 
-std::shared_ptr<Entity> CreateEntity(std::string name) {
-    return Global::entityManager->CreateEntity(name);
+std::shared_ptr<Entity> CreateEntity(std::string name,XMFLOAT3 pos) {
+    std::shared_ptr<Entity> entity;
+    if(name == "Entity") {
+        entity = std::make_shared<Entity>();
+    }else if(name == "Entity_pillar"){
+        entity = std::make_shared<Entity_pillar>();
+
+
+    }else {
+        entity = std::make_shared<Entity>();
+    }
+    entity->SetPosition(pos);//设置位置
+    Global::entityManager->Append(entity);//添加到实体管理器
+    return entity;
 }

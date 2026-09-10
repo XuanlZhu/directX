@@ -34,6 +34,9 @@ public:
     inline static Mesh* mesh = nullptr;//网格体
     inline static EntityManager* entityManager = nullptr;//实体管理器
     inline static Entity* player = nullptr;//玩家
+
+    inline static Camera* cameraFPS = nullptr;//FPS相机
+    inline static Camera* cameraTPS = nullptr;//TPS相机
 };
 
 int RandomInt(int _min,int _max);
@@ -44,4 +47,4 @@ std::weak_ptr<CSprite> CreateCSprite(std::string _sprite, XMFLOAT2 _pos);//创�
 void DrawTexture(std::string name,float x,float y,float width,float height,float rotatX=0,float rotatY=0,float angleDeg=0);
 void DrawLine(CVector2 startPos,CVector2 endPos,XMFLOAT3 color);
 void DrawLine(XMFLOAT2 startPos,XMFLOAT2 endPos,XMFLOAT3 color);
-std::shared_ptr<Entity> CreateEntity(std::string name);
+std::shared_ptr<Entity> CreateEntity(std::string name,XMFLOAT3 pos);

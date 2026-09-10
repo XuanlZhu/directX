@@ -11,6 +11,7 @@
 
 #include "Core/Camera.h"
 bool m_rightMouseDown = false;
+bool m_leftMouseDown = false;
 LRESULT CALLBACK WndProc(HWND hWnd,UINT msg,WPARAM wParam,LPARAM lParam)
 {
     switch(msg)
@@ -41,20 +42,25 @@ LRESULT CALLBACK WndProc(HWND hWnd,UINT msg,WPARAM wParam,LPARAM lParam)
             m_rightMouseDown = false;
             return 0;
         }
+            // 鼠标左键
+        case WM_LBUTTONDOWN:
+        {
+            m_leftMouseDown = true;
+            return 0;
+        }
+        case WM_LBUTTONUP:
+        {
+            m_leftMouseDown = false;
+            return 0;
+        }
+
         // 鼠标移动
         case WM_MOUSEMOVE:
         {
             int mouseX = GET_X_LPARAM(lParam);
             int mouseY = GET_Y_LPARAM(lParam);
             Global::camera->OnMouseMove(mouseX,mouseY,m_rightMouseDown);
-
-            return 0;
-        }
-        // 鼠标左键
-        case WM_LBUTTONDOWN:
-        {
-            // std::cout << "鼠标左键按下" << (int)wParam <<std::endl;
-            Global::game->OnKeyPress((int)wParam);
+            Global::camera->OnMouseMoveLeft(mouseX,mouseY,m_leftMouseDown);
             return 0;
         }
     }

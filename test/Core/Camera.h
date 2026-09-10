@@ -10,6 +10,14 @@ class Camera
 {
 public:
     Camera();
+    XMMATRIX GetViewMatrix();
+    virtual void Update(float deltaTime);
+    virtual void OnMouseMove(int x, int y,bool isRdown);
+    virtual void OnMouseMoveLeft(int x, int y,bool isLdown);
+    void SetPosition(XMFLOAT3 pos);
+
+
+
     XMFLOAT3 position = { 0.5, 0.0f, -5.0f };
     XMFLOAT3 facing = { 0.0f, 0.0f, 1 };
     XMFLOAT3 uping = { 0, 1, 0 };
@@ -22,8 +30,4 @@ public:
     float mSpeed = 1;
     float mYaw = 0.0f;
     float mPitch = 0.0f;
-
-    XMMATRIX GetViewMatrix();
-    virtual void Update(float deltaTime);
-    virtual void OnMouseMove(int x, int y,bool isRdown);
 };

@@ -16,6 +16,8 @@ public:
     Entity();
     virtual void Draw();// 绘制
     virtual void Update(float deltaTime);
+    void SetPosition(XMFLOAT3 pos);
+    XMFLOAT3 GetPosition();
 
     XMMATRIX GetWorldMatrix();
     virtual void Rotate(float x,float y,float z);//欧拉旋转
