@@ -91,19 +91,32 @@ void Game::OnKeyPress(int _key) {
     if (_key == EKey::V) {
         Global::mesh->Move(false);
     }
+    //相机移动
+    if (_key == EKey::Up) {
+        Global::camera->mChangeY = 1;
+    }
+    if (_key == EKey::Left) {
+        Global::camera->mChangeX = -1;
+    }
+    if (_key == EKey::Down) {
+        Global::camera->mChangeY = -1;
+    }
+    if (_key == EKey::Right) {
+        Global::camera->mChangeX = 1;
+    }
 }
 void Game::OnKeyRelease(int _key) {
-    if (_key == EKey::W) {
-        // Global::camera->mChangeY = 0;
+    if (_key == EKey::Up) {
+        Global::camera->mChangeY = 0;
     }
-    if (_key == EKey::A) {
-        // Global::camera->mChangeX = 0;
+    if (_key == EKey::Left) {
+        Global::camera->mChangeX = 0;
     }
-    if (_key == EKey::S) {
-        // Global::camera->mChangeY = 0;
+    if (_key == EKey::Down) {
+        Global::camera->mChangeY = 0;
     }
-    if (_key == EKey::D) {
-        // Global::camera->mChangeX = 0;
+    if (_key == EKey::Right) {
+        Global::camera->mChangeX = 0;
     }
 
 }
