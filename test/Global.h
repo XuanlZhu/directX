@@ -8,6 +8,8 @@
 #include <memory>
 #include <string>
 
+class Entity;
+class EntityManager;
 class Mesh;
 class Camera;
 class CVector2;
@@ -30,6 +32,8 @@ public:
     inline static CSprite* claw = nullptr;//钩爪
     inline static Camera* camera = nullptr;//相机
     inline static Mesh* mesh = nullptr;//网格体
+    inline static EntityManager* entityManager = nullptr;//实体管理器
+    inline static Entity* player = nullptr;//玩家
 };
 
 int RandomInt(int _min,int _max);
@@ -40,3 +44,4 @@ std::weak_ptr<CSprite> CreateCSprite(std::string _sprite, XMFLOAT2 _pos);//创�
 void DrawTexture(std::string name,float x,float y,float width,float height,float rotatX=0,float rotatY=0,float angleDeg=0);
 void DrawLine(CVector2 startPos,CVector2 endPos,XMFLOAT3 color);
 void DrawLine(XMFLOAT2 startPos,XMFLOAT2 endPos,XMFLOAT3 color);
+std::shared_ptr<Entity> CreateEntity(std::string name);

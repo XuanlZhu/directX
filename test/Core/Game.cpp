@@ -14,6 +14,8 @@
 #include "../Global.h"
 #include "SpriteList.h"
 #include "UIManager.h"
+#include "../Entity/Entity.h"
+#include "../Entity/EntityManager.h"
 #include "Mesh/Mesh.h"
 
 
@@ -24,12 +26,13 @@ Game::Game() {
     Global::uiManager = new UIManager();
     Global::camera = new Camera();//相机
     Global::mesh = new Mesh();//网格体
-
+    Global::entityManager = new EntityManager();//实体管理器
+    Global::player = CreateEntity("Entity").get();//玩家
 }
 //初始化
 void Game::Setup()
 {
-
+    CreateEntity("Entity_pillar");
 }
 
 //主循环
@@ -46,10 +49,13 @@ void Game::Update(float deltaTime)
 {
     // Global::spriteList->Update(deltaTime);
     Global::camera->Update(deltaTime);
+    Global::entityManager->Update(deltaTime);
+
 }
 //绘制函数
 void Game::Draw()
 {
+    Global::entityManager->Draw();//绘制实体
     // DrawTexture("first3",0,0,800,600);
     // DrawLine(XMFLOAT2(0,0), XMFLOAT2(200,200), XMFLOAT3(1,1,1));
 }
@@ -64,59 +70,32 @@ void Game::OnKeyPress(int _key) {
 
     }
 
+    //相机移动
     if (_key == EKey::W) {
-        Global::mesh->Rotate(1,0,0);
+        Global::player->mChangeForward = 1;
+    }
+    if (_key == EKey::A) {
+        Global::player->mChangeLeft = 1;
     }
     if (_key == EKey::S) {
-        Global::mesh->Rotate(-1,0,0);
-    }
-
-    if (_key == EKey::A) {
-        Global::mesh->Rotate(0,1,0);
+        Global::player->mChangeForward = -1;
     }
     if (_key == EKey::D) {
-        Global::mesh->Rotate(0,-1,0);
-    }
-
-    if (_key == EKey::Q) {
-        Global::mesh->Rotate(0,0,1);
-    }
-    if (_key == EKey::E) {
-        Global::mesh->Rotate(0,0,-1);
-    }
-    //前进
-    if (_key == EKey::F) {
-        Global::mesh->Move(true);
-    }
-    if (_key == EKey::V) {
-        Global::mesh->Move(false);
-    }
-    //相机移动
-    if (_key == EKey::Up) {
-        Global::camera->mChangeY = 1;
-    }
-    if (_key == EKey::Left) {
-        Global::camera->mChangeX = -1;
-    }
-    if (_key == EKey::Down) {
-        Global::camera->mChangeY = -1;
-    }
-    if (_key == EKey::Right) {
-        Global::camera->mChangeX = 1;
+        Global::player->mChangeLeft = -1;
     }
 }
 void Game::OnKeyRelease(int _key) {
-    if (_key == EKey::Up) {
-        Global::camera->mChangeY = 0;
+    if (_key == EKey::W) {
+        Global::player->mChangeForward = 0;
     }
-    if (_key == EKey::Left) {
-        Global::camera->mChangeX = 0;
+    if (_key == EKey::A) {
+        Global::player->mChangeLeft = 0;
     }
-    if (_key == EKey::Down) {
-        Global::camera->mChangeY = 0;
+    if (_key == EKey::S) {
+        Global::player->mChangeForward = 0;
     }
-    if (_key == EKey::Right) {
-        Global::camera->mChangeX = 0;
+    if (_key == EKey::D) {
+        Global::player->mChangeLeft = 0;
     }
 
 }

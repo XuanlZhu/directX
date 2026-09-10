@@ -4,6 +4,7 @@
 
 #pragma once
 #include <memory>
+#include <string>
 #include <vector>
 
 
@@ -11,6 +12,7 @@ class Entity;
 
 class EntityManager {
 public:
+    std::shared_ptr<Entity> CreateEntity(std::string name);
     void Draw();//绘制
     void Append(std::shared_ptr<Entity> entity);//添加实体
     void Update(float deltaTime);//更新

@@ -4,6 +4,8 @@
 
 #include "Mesh.h"
 
+#include "Global.h"
+
 Mesh::Mesh() {
     vertices = {
         // =========================
@@ -158,6 +160,7 @@ Mesh::Mesh() {
 }
 
 void Mesh::Draw() {
+
 }
 
 void Mesh::Update(float deltaTime) {

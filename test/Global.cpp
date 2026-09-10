@@ -12,6 +12,7 @@
 #include "Core/Game.h"
 #include "Core/Graphic.h"
 #include "Core/SpriteList.h"
+#include "Entity/EntityManager.h"
 #include "Sprites/Sprite_claw.h"
 #include "Sprites/Sprite_gold.h"
 
@@ -88,4 +89,8 @@ void DrawLine(CVector2 startPos, CVector2 endPos, XMFLOAT3 color) {
 
 void DrawLine(XMFLOAT2 startPos, XMFLOAT2 endPos, XMFLOAT3 color) {
     Global::graphic->DrawLine2(startPos, endPos, color);
+}
+
+std::shared_ptr<Entity> CreateEntity(std::string name) {
+    return Global::entityManager->CreateEntity(name);
 }

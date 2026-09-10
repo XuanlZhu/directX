@@ -43,10 +43,16 @@ add_executable(base WIN32
         test/Core/Camera.h
         test/Mesh/Mesh.cpp
         test/Mesh/Mesh.h
-        test/Mesh/Entity.cpp
-        test/Mesh/Entity.h
-        test/Mesh/EntityManager.cpp
-        test/Mesh/EntityManager.h
+        test/Entity/Entity.cpp
+        test/Entity/Entity.h
+        test/Entity/EntityManager.cpp
+        test/Entity/EntityManager.h
+        test/Core/FPSCamera.cpp
+        test/Core/FPSCamera.h
+        test/Entity/Entity_pillar.cpp
+        test/Entity/Entity_pillar.h
+        test/Mesh/Mesh_pillar.cpp
+        test/Mesh/Mesh_pillar.h
 )
 
 

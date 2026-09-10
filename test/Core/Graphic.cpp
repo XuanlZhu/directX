@@ -178,64 +178,29 @@ bool Graphic::Initialize(HWND hWnd)
         &m_depthStencilView
     );
 
+    //矩阵初始化------------------------------------------------------
+    // VS 使用buff
+    m_context->VSSetConstantBuffers(
+        0,
+        1,
+        &m_matrixBuffer
+    );
+
+
     return true;
 }
-//立方体
-Vertex3 vertices[] =
+//地面
+std::vector<Vertex3> vertices =
 {
-    // 前面
-    {{-1,-1,-1}, {1,0,0}},
-    {{-1, 1,-1}, {1,0,0}},
-    {{ 1, 1,-1}, {1,0,0}},
+    // 第一个三角形
+    {{-5.0f, 0.0f, -5.0f}, {0.5f, 0.5f, 0.5f}},
+    {{-5.0f, 0.0f,  5.0f}, {0.5f, 0.5f, 0.5f}},
+    {{ 5.0f, 0.0f,  5.0f}, {0.5f, 0.5f, 0.5f}},
 
-    {{-1,-1,-1}, {1,0,0}},
-    {{ 1, 1,-1}, {1,0,0}},
-    {{ 1,-1,-1}, {1,0,0}},
-
-    // 后面
-    {{-1,-1, 1}, {0,1,0}},
-    {{ 1, 1, 1}, {0,1,0}},
-    {{-1, 1, 1}, {0,1,0}},
-
-    {{-1,-1, 1}, {0,1,0}},
-    {{ 1,-1, 1}, {0,1,0}},
-    {{ 1, 1, 1}, {0,1,0}},
-
-    // 左面
-    {{-1,-1,-1}, {0,0,1}},
-    {{-1,-1, 1}, {0,0,1}},
-    {{-1, 1, 1}, {0,0,1}},
-
-    {{-1,-1,-1}, {0,0,1}},
-    {{-1, 1, 1}, {0,0,1}},
-    {{-1, 1,-1}, {0,0,1}},
-
-    // 右面
-    {{1,-1,-1}, {1,1,0}},
-    {{1, 1, 1}, {1,1,0}},
-    {{1,-1, 1}, {1,1,0}},
-
-    {{1,-1,-1}, {1,1,0}},
-    {{1, 1,-1}, {1,1,0}},
-    {{1, 1, 1}, {1,1,0}},
-
-    // 上面
-    {{-1,1,-1}, {1,0,1}},
-    {{-1,1, 1}, {1,0,1}},
-    {{ 1,1, 1}, {1,0,1}},
-
-    {{-1,1,-1}, {1,0,1}},
-    {{ 1,1, 1}, {1,0,1}},
-    {{ 1,1,-1}, {1,0,1}},
-
-    // 下面
-    {{-1,-1,-1}, {0,1,1}},
-    {{ 1,-1, 1}, {0,1,1}},
-    {{-1,-1, 1}, {0,1,1}},
-
-    {{-1,-1,-1}, {0,1,1}},
-    {{ 1,-1,-1}, {0,1,1}},
-    {{ 1,-1, 1}, {0,1,1}},
+    // 第二个三角形
+    {{-5.0f, 0.0f, -5.0f}, {0.5f, 0.5f, 0.5f}},
+    {{ 5.0f, 0.0f,  5.0f}, {0.5f, 0.5f, 0.5f}},
+    {{ 5.0f, 0.0f, -5.0f}, {0.5f, 0.5f, 0.5f}},
 };
 
 
@@ -266,16 +231,14 @@ void Graphic::BeginFrame()
         1.0f,
         0
     );
-    //-----------------------------------------------------------
-    // 世界矩阵
-    DirectX::XMMATRIX world = Global::mesh->GetWorldMatrix();
-    // 矩阵数据
-    MatrixBuffer matrixData;
-    matrixData.world = DirectX::XMMatrixTranspose(world);
-    matrixData.view =DirectX::XMMatrixTranspose(Global::camera->GetViewMatrix());
-    matrixData.projection = DirectX::XMMatrixTranspose(m_projection);
 
-    // 把矩阵传给 GPU
+    Global::game->Draw();
+    //绘制地板----------------------------------------------------
+    MatrixBuffer matrixData;
+    matrixData.world = XMMatrixTranspose(XMMatrixIdentity());
+    matrixData.view =  XMMatrixTranspose(Global::camera->GetViewMatrix());
+    matrixData.projection = XMMatrixTranspose(m_projection);
+    //把矩阵传给 GPU
     m_context->UpdateSubresource(
         m_matrixBuffer,
         0,
@@ -284,21 +247,45 @@ void Graphic::BeginFrame()
         0,
         0
     );
-    // VS 使用buff
-    m_context->VSSetConstantBuffers(
-        0,
-        1,
-        &m_matrixBuffer
-    );
-
-    // 绘制立方体
+    //绘制地板
     DrawPrimitive3D(
         D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
-        Global::mesh->vertices,
-        std::size(Global::mesh->vertices),
+        vertices,
+        std::size(vertices),
         sizeof(Vertex3)
     );
-
+    //-----------------------------------------------------------
+    // 世界矩阵
+    // XMMATRIX world = Global::mesh->GetWorldMatrix();
+    // // 矩阵数据
+    // MatrixBuffer matrixData;
+    // matrixData.world = XMMatrixTranspose(XMMatrixIdentity());
+    // matrixData.view =  XMMatrixTranspose(Global::camera->GetViewMatrix());
+    // matrixData.projection = XMMatrixTranspose(m_projection);
+    //
+    // // // 把矩阵传给 GPU
+    // m_context->UpdateSubresource(
+    //     m_matrixBuffer,
+    //     0,
+    //     nullptr,
+    //     &matrixData,
+    //     0,
+    //     0
+    // );
+    // // VS 使用buff
+    // m_context->VSSetConstantBuffers(
+    //     0,
+    //     1,
+    //     &m_matrixBuffer
+    // );
+    //
+    // // 绘制立方体
+    // DrawPrimitive3D(
+    //     D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
+    //     Global::mesh->vertices,
+    //     std::size(Global::mesh->vertices),
+    //     sizeof(Vertex3)
+    // );
 }
 void Graphic::DrawPrimitiveIndexed(D3D11_PRIMITIVE_TOPOLOGY topology,const void* vertices,UINT vertexCount,UINT vertexStride,const void* indices,UINT indexCount,DXGI_FORMAT indexFormat)
 {
