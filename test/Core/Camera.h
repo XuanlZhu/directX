@@ -4,6 +4,8 @@
 
 #pragma once
 #include <DirectXMath.h>
+#include <vector>
+struct Vertex3;
 using namespace DirectX;
 
 class Camera
@@ -15,8 +17,9 @@ public:
     virtual void OnMouseMove(int x, int y,bool isRdown);
     virtual void OnMouseMoveLeft(int x, int y,bool isLdown);
     void SetPosition(XMFLOAT3 pos);
-
-
+    void DrawFrustum();//画视锥体
+    std::vector<Vertex3> VerticesFrustum;//视锥体顶点
+    virtual void Draw();// 绘制
 
     XMFLOAT3 position = { 0.5, 0.0f, -5.0f };
     XMFLOAT3 facing = { 0.0f, 0.0f, 1 };

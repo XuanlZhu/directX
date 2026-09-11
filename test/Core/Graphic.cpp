@@ -265,7 +265,7 @@ void Graphic::BeginFrame()
         sizeof(Vertex3)
     );
     //绘制文字
-    // DrawText2("asdj", 100, 100);
+    DrawText2("Press F", 0, 500);
 
 
     //-----------------------------------------------------------

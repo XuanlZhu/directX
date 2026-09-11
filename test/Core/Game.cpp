@@ -66,6 +66,7 @@ void Game::Update(float deltaTime)
 void Game::Draw()
 {
     Global::entityManager->Draw();//绘制实体
+    Global::camera->Draw();
     // DrawTexture("first3",0,0,800,600);
     // DrawLine(XMFLOAT2(0,0), XMFLOAT2(200,200), XMFLOAT3(1,1,1));
 }
@@ -79,6 +80,11 @@ void Game::OnKeyPress(int _key) {
     if (_key == EKey::Space) {
 
     }
+    //按F画视锥体
+    if (_key == EKey::F) {
+        Global::camera->DrawFrustum();
+    }
+
 
     //相机移动
     if (_key == EKey::W) {
