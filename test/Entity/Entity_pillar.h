@@ -10,4 +10,6 @@ class Entity_pillar :public Entity
 {
 public:
     Entity_pillar();
+    void Update(float deltaTime) override;
+    virtual void Draw() override;// 绘制
 };

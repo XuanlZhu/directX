@@ -48,3 +48,4 @@ void DrawTexture(std::string name,float x,float y,float width,float height,float
 void DrawLine(CVector2 startPos,CVector2 endPos,XMFLOAT3 color);
 void DrawLine(XMFLOAT2 startPos,XMFLOAT2 endPos,XMFLOAT3 color);
 std::shared_ptr<Entity> CreateEntity(std::string name,XMFLOAT3 pos);
+XMFLOAT2 WorldToScreen(XMFLOAT3 pos);

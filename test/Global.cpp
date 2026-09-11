@@ -8,6 +8,7 @@
 #include <iostream>
 #include <random>
 
+#include "Core/Camera.h"
 #include "Core/CImageManager.h"
 #include "Core/Game.h"
 #include "Core/Graphic.h"
@@ -106,4 +107,22 @@ std::shared_ptr<Entity> CreateEntity(std::string name,XMFLOAT3 pos) {
     entity->SetPosition(pos);//设置位置
     Global::entityManager->Append(entity);//添加到实体管理器
     return entity;
+}
+
+XMFLOAT2 WorldToScreen(XMFLOAT3 _pos) {
+    XMVECTOR pos = XMLoadFloat3(&_pos);
+    XMVECTOR screenPos = XMVector3Project(
+        pos,
+        0.0f, 0.0f,
+        800.0f, 600.0f,     // 屏幕区域
+        0.0f, 1.0f,         // 深度范围
+        Global::graphic->m_projection,
+        Global::camera->GetViewMatrix(),
+        XMMatrixIdentity()
+    );
+
+    XMFLOAT3 result;
+    XMStoreFloat3(&result, screenPos);
+
+    return {result.x,result.y};
 }
