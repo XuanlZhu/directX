@@ -61,13 +61,12 @@ add_executable(base WIN32
 )
 
 target_include_directories(base PRIVATE
-        ${CMAKE_SOURCE_DIR}/ThirdParty/Assimp/include
+        C:/Users/admin/Documents/assimp-6.0.5/include
+        C:/Users/admin/Documents/assimp-6.0.5/build/include
 )
-target_link_directories(base PRIVATE
-        ${CMAKE_SOURCE_DIR}/ThirdParty/Assimp/lib
-)
+
 target_link_libraries(base PRIVATE
-        assimp-vc143-mt
+        C:/Users/admin/Documents/assimp-6.0.5/build/lib/Release/assimp-vc143-mt.lib
 )
 
 target_link_libraries(base PRIVATE

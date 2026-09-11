@@ -11,7 +11,11 @@
 
 #include "Core/Graphic.h"
 
-void CModel::Load(std::string _path) {
+void CModel::Load(std::string _path)
+{
+    m_vertices.clear();
+    m_indices.clear();
+
     Assimp::Importer importer;
 
     const aiScene* scene = importer.ReadFile(
@@ -34,47 +38,38 @@ void CModel::Load(std::string _path) {
     ProcessNode(scene->mRootNode, scene);
 }
 
+
 void CModel::Draw() {
 }
 
-void CModel::ProcessNode(aiNode* _node, const aiScene* _scene)
+void CModel::ProcessNode(aiNode* _node,const aiScene* _scene)
 {
-    // 处理当前节点包含的 Mesh
-    for (unsigned int i = 0; i < _node->mNumMeshes; ++i)
+    for (unsigned int i = 0;i < _node->mNumMeshes;++i)
     {
         aiMesh* mesh = _scene->mMeshes[_node->mMeshes[i]];
-
         ProcessMesh(mesh, _scene);
     }
 
-    // 递归处理子节点
-    for (unsigned int i = 0; i < _node->mNumChildren; ++i)
+    for (unsigned int i = 0;i < _node->mNumChildren;++i)
     {
         ProcessNode(_node->mChildren[i], _scene);
     }
 }
 
-void CModel::ProcessMesh(aiMesh* _mesh, const aiScene* _scene)
+void CModel::ProcessMesh(aiMesh* _mesh,const aiScene* _scene)
 {
-    // 当前 Mesh 的顶点在总顶点数组中的起始位置
-    uint32_t vertexOffset =
-        static_cast<uint32_t>(m_vertices.size());
+    uint32_t vertexOffset = static_cast<uint32_t>(m_vertices.size());
 
-    // =========================
-    // 顶点
-    // =========================
-    for (unsigned int i = 0; i < _mesh->mNumVertices; ++i)
+    for (unsigned int i = 0;i < _mesh->mNumVertices;++i)
     {
         Vertex3fbx vertex{};
 
-        // Position
         vertex.position = {
             _mesh->mVertices[i].x,
             _mesh->mVertices[i].y,
             _mesh->mVertices[i].z
         };
 
-        // Normal
         if (_mesh->HasNormals())
         {
             vertex.normal = {
@@ -84,7 +79,6 @@ void CModel::ProcessMesh(aiMesh* _mesh, const aiScene* _scene)
             };
         }
 
-        // UV
         if (_mesh->HasTextureCoords(0))
         {
             vertex.texCoord = {
@@ -96,14 +90,11 @@ void CModel::ProcessMesh(aiMesh* _mesh, const aiScene* _scene)
         m_vertices.push_back(vertex);
     }
 
-    // =========================
-    // 索引
-    // =========================
-    for (unsigned int i = 0; i < _mesh->mNumFaces; ++i)
+    for (unsigned int i = 0;i < _mesh->mNumFaces;++i)
     {
         const aiFace& face = _mesh->mFaces[i];
 
-        for (unsigned int j = 0; j < face.mNumIndices; ++j)
+        for (unsigned int j = 0;j < face.mNumIndices;++j)
         {
             m_indices.push_back(
                 vertexOffset + face.mIndices[j]
@@ -111,3 +102,4 @@ void CModel::ProcessMesh(aiMesh* _mesh, const aiScene* _scene)
         }
     }
 }
+
