@@ -7,6 +7,7 @@ add_definitions(
     -DNTDDI_VERSION=0x06010000
 )
 
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -55,8 +56,19 @@ add_executable(base WIN32
         test/Mesh/Mesh_pillar.h
         test/Core/CameraTPS.cpp
         test/Core/CameraTPS.h
+        test/Mesh/CModel.cpp
+        test/Mesh/CModel.h
 )
 
+target_include_directories(base PRIVATE
+        ${CMAKE_SOURCE_DIR}/ThirdParty/Assimp/include
+)
+target_link_directories(base PRIVATE
+        ${CMAKE_SOURCE_DIR}/ThirdParty/Assimp/lib
+)
+target_link_libraries(base PRIVATE
+        assimp-vc143-mt
+)
 
 target_link_libraries(base PRIVATE
         d3d11

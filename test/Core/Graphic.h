@@ -37,7 +37,7 @@ struct MatrixBuffer
     DirectX::XMMATRIX view;
     DirectX::XMMATRIX projection;
 };
-struct Vertex3obj
+struct Vertex3fbx
 {
     DirectX::XMFLOAT3 position;
     DirectX::XMFLOAT3 normal;
