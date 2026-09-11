@@ -9,6 +9,11 @@
 
 #pragma comment(lib,"d3d11.lib")
 #pragma comment(lib,"dxgi.lib")
+namespace DirectX::DX11 {
+    class SpriteBatch;
+    class SpriteFont;
+}
+
 using namespace DirectX;
 
 struct Vertex
@@ -53,7 +58,7 @@ public:
     void DrawPrimitiveUP(D3D11_PRIMITIVE_TOPOLOGY topology,const void* vertices,UINT vertexCount,UINT vertexStride);
     void DrawPrimitive3D(D3D11_PRIMITIVE_TOPOLOGY topology,std::vector<Vertex3> vertices,UINT vertexCount,UINT vertexStride);
     void DrawPrimitiveIndexed(D3D11_PRIMITIVE_TOPOLOGY topology,const void* vertices,UINT vertexCount,UINT vertexStride,const void* indices,UINT indexCount,DXGI_FORMAT indexFormat);
-
+    void DrawText2(std::string _text,float _x,float _y);
 
     Microsoft::WRL::ComPtr<ID3D11Buffer> m_dynamicVertexBuffer;
     UINT m_dynamicVertexBufferSize = 0;
@@ -85,4 +90,8 @@ public:
     //
     Microsoft::WRL::ComPtr<ID3D11Buffer> m_dynamicIndexBuffer;
     UINT m_dynamicIndexBufferSize = 0;
+
+    //文字
+    SpriteBatch* m_spriteBatch;
+    SpriteFont* m_font;
 };

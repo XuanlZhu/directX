@@ -5,6 +5,7 @@
 
 #include "Camera.h"
 #include "Game.h"
+#include "SpriteFont.h"
 #include "../Global.h"
 #include "Mesh/Mesh.h"
 
@@ -185,6 +186,14 @@ bool Graphic::Initialize(HWND hWnd)
         1,
         &m_matrixBuffer
     );
+    //文字初始化--------------------------------------------------------
+    m_spriteBatch = new SpriteBatch(m_context);
+
+    m_font = new SpriteFont(
+        m_device,
+        L"font.spritefont"
+    );
+
 
 
     return true;
@@ -193,19 +202,20 @@ bool Graphic::Initialize(HWND hWnd)
 std::vector<Vertex3> vertices =
 {
     // 第一个三角形
-    {{-5.0f, 0.0f, -5.0f}, {0.5f, 0.5f, 0.5f}},
-    {{-5.0f, 0.0f,  5.0f}, {0.5f, 0.5f, 0.5f}},
-    {{ 5.0f, 0.0f,  5.0f}, {0.5f, 0.5f, 0.5f}},
+    {{-50.0f, 0.0f, -50.0f}, {0.5f, 0.5f, 0.5f}},
+    {{-50.0f, 0.0f,  50.0f}, {0.5f, 0.5f, 0.5f}},
+    {{ 50.0f, 0.0f,  50.0f}, {0.5f, 0.5f, 0.5f}},
 
     // 第二个三角形
-    {{-5.0f, 0.0f, -5.0f}, {0.5f, 0.5f, 0.5f}},
-    {{ 5.0f, 0.0f,  5.0f}, {0.5f, 0.5f, 0.5f}},
-    {{ 5.0f, 0.0f, -5.0f}, {0.5f, 0.5f, 0.5f}},
+    {{-50.0f, 0.0f, -50.0f}, {0.5f, 0.5f, 0.5f}},
+    {{ 50.0f, 0.0f,  50.0f}, {0.5f, 0.5f, 0.5f}},
+    {{ 50.0f, 0.0f, -50.0f}, {0.5f, 0.5f, 0.5f}},
 };
 
 
 void Graphic::BeginFrame()
 {
+    m_spriteBatch->Begin();
     //设置渲染目标视图
     m_context->OMSetRenderTargets(
         1,
@@ -232,7 +242,7 @@ void Graphic::BeginFrame()
         0
     );
 
-    Global::game->Draw();
+    Global::game->Draw();//调用game
     //绘制地板----------------------------------------------------
     MatrixBuffer matrixData;
     matrixData.world = XMMatrixTranspose(XMMatrixIdentity());
@@ -254,6 +264,10 @@ void Graphic::BeginFrame()
         std::size(vertices),
         sizeof(Vertex3)
     );
+    //绘制文字
+    // DrawText2("asdj", 100, 100);
+
+
     //-----------------------------------------------------------
     // 世界矩阵
     // XMMATRIX world = Global::mesh->GetWorldMatrix();
@@ -508,6 +522,14 @@ void Graphic::DrawPrimitiveIndexed(D3D11_PRIMITIVE_TOPOLOGY topology,const void*
         indexCount,
         0,
         0
+    );
+}
+
+void Graphic::DrawText2(std::string _text, float _x, float _y) {
+    m_font->DrawString(
+        m_spriteBatch,
+        _text.c_str(),
+        DirectX::XMFLOAT2(_x, _y)
     );
 }
 
@@ -1142,6 +1164,7 @@ void Graphic::InitVertex3()
 
 void Graphic::EndFrame()
 {
+    m_spriteBatch->End();
     assert(m_swapChain);
     //将缓冲区显示到屏幕
     m_swapChain->Present(
