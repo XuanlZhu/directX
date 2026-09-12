@@ -66,6 +66,7 @@ public:
     void DrawPrimitive3D(D3D11_PRIMITIVE_TOPOLOGY topology,std::vector<Vertex3> vertices,UINT vertexCount,UINT vertexStride);
     void DrawPrimitiveIndexed(D3D11_PRIMITIVE_TOPOLOGY _topology,const std::vector<Vertex3fbx>& _vertices,const std::vector<uint32_t>& _indices);
     void DrawText2(std::string _text,float _x,float _y);
+    void LoadFBXTexture(std::wstring _path);//加载贴图
 
     Microsoft::WRL::ComPtr<ID3D11Buffer> m_dynamicVertexBuffer;
     UINT m_dynamicVertexBufferSize = 0;
@@ -105,4 +106,6 @@ public:
     ID3D11InputLayout* m_inputLayoutFBX = nullptr;
     ID3D11VertexShader* m_vertexShaderFBX = nullptr;//顶点着色器
     ID3D11PixelShader* m_pixelShaderFBX = nullptr;//像素着色器
+    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_textureFBX;//贴图
+    Microsoft::WRL::ComPtr<ID3D11SamplerState> m_samplerStateFBX;//取样
 };

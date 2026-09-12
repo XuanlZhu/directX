@@ -570,6 +570,33 @@ void Graphic::InitVertexFBX() {
 
     if (FAILED(hr))
         return;
+
+    //取样器初始化
+    D3D11_SAMPLER_DESC samplerDesc = {};
+
+    samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+
+    samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+    samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+    samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+
+    samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+
+    samplerDesc.MinLOD = 0;
+    samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+    m_device->CreateSamplerState(
+        &samplerDesc,
+        m_samplerStateFBX.GetAddressOf()
+    );
+
+    //样式贴图
+    DirectX::CreateWICTextureFromFile(
+        m_device,
+        L"FBX/096-V_Dif_001.png",
+        nullptr,
+        m_textureFBX.GetAddressOf()
+    );
 }
 
 void Graphic::DrawPrimitiveIndexed(D3D11_PRIMITIVE_TOPOLOGY _topology, const std::vector<Vertex3fbx> &_vertices,const std::vector<uint32_t> &_indices) {
@@ -745,10 +772,25 @@ void Graphic::DrawPrimitiveIndexed(D3D11_PRIMITIVE_TOPOLOGY _topology, const std
     // 10. Pixel Shader
     // ========================================
     m_context->PSSetShader(
-        m_pixelShader3,
+        m_pixelShaderFBX,
         nullptr,
         0
     );
+    //取样器
+    ID3D11ShaderResourceView* texture = m_textureFBX.Get();//贴图
+    m_context->PSSetShaderResources(
+        0,
+        1,
+        &texture
+    );
+    ID3D11SamplerState* sampler = m_samplerStateFBX.Get();
+    m_context->PSSetSamplers(
+        0,
+        1,
+        &sampler
+    );
+
+
     // ========================================
     // 12. Indexed Draw
     // ========================================
@@ -758,7 +800,6 @@ void Graphic::DrawPrimitiveIndexed(D3D11_PRIMITIVE_TOPOLOGY _topology, const std
         0
     );
 }
-
 
 
 void Graphic::DrawPrimitiveUP(D3D11_PRIMITIVE_TOPOLOGY topology,const void* vertices,UINT vertexCount,UINT vertexStride) {
@@ -1592,5 +1633,20 @@ Graphic::LoadTexture(std::string _path)
         return nullptr;
     }
     return texture;
+}
+
+void Graphic::LoadFBXTexture(std::wstring _path)
+{
+    HRESULT hr = DirectX::CreateWICTextureFromFile(
+        m_device,
+        _path.c_str(),
+        nullptr,
+        m_textureFBX.GetAddressOf()
+    );
+
+    if (FAILED(hr))
+    {
+        std::cout << "FBX纹理加载失败" << std::endl;
+    }
 }
 
