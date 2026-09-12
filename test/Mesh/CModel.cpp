@@ -11,6 +11,13 @@
 
 #include "Core/Graphic.h"
 
+CModel::CModel() {
+}
+
+CModel::CModel(std::string _path) {
+    Load( _path);
+}
+
 void CModel::Load(std::string _path)
 {
     m_vertices.clear();
@@ -40,6 +47,54 @@ void CModel::Load(std::string _path)
 
 
 void CModel::Draw() {
+}
+
+void CModel::Print() {
+    std::cout << "========== CModel ==========" << std::endl;
+
+    std::cout << "Vertex Count: " << m_vertices.size() << std::endl;
+    std::cout << "Index Count : " << m_indices.size() << std::endl;
+
+    std::cout << "\n---------- Vertices ----------" << std::endl;
+
+    size_t vertexCount = std::min<size_t>(20, m_vertices.size());
+
+    for (size_t i = 0; i < vertexCount; ++i)
+    {
+        const auto& v = m_vertices[i];
+
+        std::cout
+            << "Vertex[" << i << "] "
+            << "Pos("
+            << v.position.x << ", "
+            << v.position.y << ", "
+            << v.position.z << ") "
+
+            << "Normal("
+            << v.normal.x << ", "
+            << v.normal.y << ", "
+            << v.normal.z << ") "
+
+            << "UV("
+            << v.texCoord.x << ", "
+            << v.texCoord.y << ")"
+
+            << std::endl;
+    }
+
+    std::cout << "\n---------- Indices ----------" << std::endl;
+
+    size_t indexCount = std::min<size_t>(20, m_indices.size());
+
+    for (size_t i = 0; i < indexCount; ++i)
+    {
+        std::cout
+            << "Index[" << i << "] = "
+            << m_indices[i]
+            << std::endl;
+    }
+
+    std::cout << "==============================" << std::endl;
 }
 
 void CModel::ProcessNode(aiNode* _node,const aiScene* _scene)

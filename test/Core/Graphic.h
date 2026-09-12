@@ -61,9 +61,10 @@ public:
     void CreateBlendState();
     void InitlineVertex();
     void InitVertex3();
+    void InitVertexFBX();
     void DrawPrimitiveUP(D3D11_PRIMITIVE_TOPOLOGY topology,const void* vertices,UINT vertexCount,UINT vertexStride);
     void DrawPrimitive3D(D3D11_PRIMITIVE_TOPOLOGY topology,std::vector<Vertex3> vertices,UINT vertexCount,UINT vertexStride);
-    void DrawPrimitiveIndexed(D3D11_PRIMITIVE_TOPOLOGY topology,const void* vertices,UINT vertexCount,UINT vertexStride,const void* indices,UINT indexCount,DXGI_FORMAT indexFormat);
+    void DrawPrimitiveIndexed(D3D11_PRIMITIVE_TOPOLOGY _topology,const std::vector<Vertex3fbx>& _vertices,const std::vector<uint32_t>& _indices);
     void DrawText2(std::string _text,float _x,float _y);
 
     Microsoft::WRL::ComPtr<ID3D11Buffer> m_dynamicVertexBuffer;
@@ -100,4 +101,8 @@ public:
     //文字
     SpriteBatch* m_spriteBatch;
     SpriteFont* m_font;
+    //新布局
+    ID3D11InputLayout* m_inputLayoutFBX = nullptr;
+    ID3D11VertexShader* m_vertexShaderFBX = nullptr;//顶点着色器
+    ID3D11PixelShader* m_pixelShaderFBX = nullptr;//像素着色器
 };

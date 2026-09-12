@@ -193,8 +193,8 @@ bool Graphic::Initialize(HWND hWnd)
         m_device,
         L"font.spritefont"
     );
-
-
+    //初始化FBX
+    InitVertexFBX();
 
     return true;
 }
@@ -301,230 +301,6 @@ void Graphic::BeginFrame()
     //     sizeof(Vertex3)
     // );
 }
-void Graphic::DrawPrimitiveIndexed(D3D11_PRIMITIVE_TOPOLOGY topology,const void* vertices,UINT vertexCount,UINT vertexStride,const void* indices,UINT indexCount,DXGI_FORMAT indexFormat)
-{
-    if (!vertices || vertexCount == 0 || vertexStride == 0 ||
-        !indices || indexCount == 0)
-        return;
-
-    // =====================================================
-    // 1. Vertex Buffer
-    // =====================================================
-
-    UINT vertexBufferSize = vertexCount * vertexStride;
-
-    if (!m_dynamicVertexBuffer ||
-        m_dynamicVertexBufferSize < vertexBufferSize)
-    {
-        m_dynamicVertexBuffer.Reset();
-
-        D3D11_BUFFER_DESC desc = {};
-        desc.Usage = D3D11_USAGE_DYNAMIC;
-        desc.ByteWidth = vertexBufferSize;
-        desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-        desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-
-        HRESULT hr = m_device->CreateBuffer(
-            &desc,
-            nullptr,
-            m_dynamicVertexBuffer.GetAddressOf()
-        );
-
-        if (FAILED(hr))
-            return;
-
-        m_dynamicVertexBufferSize = vertexBufferSize;
-    }
-
-    // =====================================================
-    // 2. 写入 Vertex Buffer
-    // =====================================================
-
-    D3D11_MAPPED_SUBRESOURCE mapped = {};
-
-    HRESULT hr = m_context->Map(
-        m_dynamicVertexBuffer.Get(),
-        0,
-        D3D11_MAP_WRITE_DISCARD,
-        0,
-        &mapped
-    );
-
-    if (FAILED(hr))
-        return;
-
-    memcpy(
-        mapped.pData,
-        vertices,
-        vertexBufferSize
-    );
-
-    m_context->Unmap(
-        m_dynamicVertexBuffer.Get(),
-        0
-    );
-
-    // =====================================================
-    // 3. 确定 Index 类型
-    // =====================================================
-
-    UINT indexStride = 0;
-
-    if (indexFormat == DXGI_FORMAT_R16_UINT)
-    {
-        indexStride = sizeof(uint16_t);
-    }
-    else if (indexFormat == DXGI_FORMAT_R32_UINT)
-    {
-        indexStride = sizeof(uint32_t);
-    }
-    else
-    {
-        return;
-    }
-
-    UINT indexBufferSize = indexCount * indexStride;
-
-    // =====================================================
-    // 4. 创建 Index Buffer
-    // =====================================================
-
-    if (!m_dynamicIndexBuffer ||
-        m_dynamicIndexBufferSize < indexBufferSize)
-    {
-        m_dynamicIndexBuffer.Reset();
-
-        D3D11_BUFFER_DESC desc = {};
-        desc.Usage = D3D11_USAGE_DYNAMIC;
-        desc.ByteWidth = indexBufferSize;
-        desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-        desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-
-        hr = m_device->CreateBuffer(
-            &desc,
-            nullptr,
-            m_dynamicIndexBuffer.GetAddressOf()
-        );
-
-        if (FAILED(hr))
-            return;
-
-        m_dynamicIndexBufferSize = indexBufferSize;
-    }
-
-    // =====================================================
-    // 5. 写入 Index Buffer
-    // =====================================================
-
-    D3D11_MAPPED_SUBRESOURCE indexMapped = {};
-
-    hr = m_context->Map(
-        m_dynamicIndexBuffer.Get(),
-        0,
-        D3D11_MAP_WRITE_DISCARD,
-        0,
-        &indexMapped
-    );
-
-    if (FAILED(hr))
-        return;
-
-    memcpy(
-        indexMapped.pData,
-        indices,
-        indexBufferSize
-    );
-
-    m_context->Unmap(
-        m_dynamicIndexBuffer.Get(),
-        0
-    );
-
-    // =====================================================
-    // 6. Input Layout
-    // =====================================================
-
-    m_context->IASetInputLayout(
-        m_inputLayout3
-    );
-
-    // =====================================================
-    // 7. Vertex Buffer
-    // =====================================================
-
-    UINT stride = vertexStride;
-    UINT offset = 0;
-
-    ID3D11Buffer* vertexBuffer =
-        m_dynamicVertexBuffer.Get();
-
-    m_context->IASetVertexBuffers(
-        0,
-        1,
-        &vertexBuffer,
-        &stride,
-        &offset
-    );
-
-    // =====================================================
-    // 8. Index Buffer
-    // =====================================================
-
-    m_context->IASetIndexBuffer(
-        m_dynamicIndexBuffer.Get(),
-        indexFormat,
-        0
-    );
-
-    // =====================================================
-    // 9. Primitive Topology
-    // =====================================================
-
-    m_context->IASetPrimitiveTopology(
-        topology
-    );
-
-    // =====================================================
-    // 10. Vertex Shader
-    // =====================================================
-
-    m_context->VSSetShader(
-        m_vertexShader3,
-        nullptr,
-        0
-    );
-
-    // =====================================================
-    // 11. Pixel Shader
-    // =====================================================
-
-    m_context->PSSetShader(
-        m_pixelShader3,
-        nullptr,
-        0
-    );
-
-    // =====================================================
-    // 12. Constant Buffer
-    // =====================================================
-
-    m_context->VSSetConstantBuffers(
-        0,
-        1,
-        &m_matrixBuffer
-    );
-
-    // =====================================================
-    // 13. Indexed Draw
-    // =====================================================
-
-    m_context->DrawIndexed(
-        indexCount,
-        0,
-        0
-    );
-}
-
 void Graphic::DrawText2(std::string _text, float _x, float _y) {
     m_font->DrawString(
         m_spriteBatch,
@@ -660,6 +436,330 @@ void Graphic::DrawPrimitive3D(D3D11_PRIMITIVE_TOPOLOGY topology,std::vector<Vert
         0
     );
 }
+
+void Graphic::InitVertexFBX() {
+    ID3DBlob* vertexShaderBlobFBX = nullptr;
+    ID3DBlob* errorBlobFBX = nullptr;
+
+    HRESULT hr = D3DCompileFromFile(
+        L"VertexShaderFBX.hlsl",
+        nullptr,
+        nullptr,
+        "main",
+        "vs_5_0",
+        0,
+        0,
+        &vertexShaderBlobFBX,
+        &errorBlobFBX
+    );
+
+    if (FAILED(hr))
+    {
+        if (errorBlobFBX)
+        {
+            std::cerr << (char*)errorBlobFBX->GetBufferPointer() << std::endl;
+            errorBlobFBX->Release();
+        }
+
+        return;
+    }
+
+    hr = m_device->CreateVertexShader(
+        vertexShaderBlobFBX->GetBufferPointer(),
+        vertexShaderBlobFBX->GetBufferSize(),
+        nullptr,
+        &m_vertexShaderFBX
+    );
+
+    if (FAILED(hr))
+    {
+        vertexShaderBlobFBX->Release();
+        return;
+    }
+
+
+    // ==============================
+    // FBX Input Layout
+    // ==============================
+
+    D3D11_INPUT_ELEMENT_DESC inputLayoutFBX[] =
+    {
+        {
+            "POSITION",
+            0,
+            DXGI_FORMAT_R32G32B32_FLOAT,
+            0,
+            0,
+            D3D11_INPUT_PER_VERTEX_DATA,
+            0
+        },
+
+        {
+            "NORMAL",
+            0,
+            DXGI_FORMAT_R32G32B32_FLOAT,
+            0,
+            12,
+            D3D11_INPUT_PER_VERTEX_DATA,
+            0
+        },
+
+        {
+            "TEXCOORD",
+            0,
+            DXGI_FORMAT_R32G32_FLOAT,
+            0,
+            24,
+            D3D11_INPUT_PER_VERTEX_DATA,
+            0
+        }
+    };
+
+    hr = m_device->CreateInputLayout(
+        inputLayoutFBX,
+        ARRAYSIZE(inputLayoutFBX),
+        vertexShaderBlobFBX->GetBufferPointer(),
+        vertexShaderBlobFBX->GetBufferSize(),
+        &m_inputLayoutFBX
+    );
+
+    vertexShaderBlobFBX->Release();
+
+    if (FAILED(hr))
+        return;
+
+
+    // ==============================
+    // FBX Pixel Shader
+    // ==============================
+
+    ID3DBlob* pixelShaderBlobFBX = nullptr;
+    ID3DBlob* errorBlobPSFBX = nullptr;
+
+    hr = D3DCompileFromFile(
+        L"PixelShaderFBX.hlsl",
+        nullptr,
+        nullptr,
+        "main",
+        "ps_5_0",
+        0,
+        0,
+        &pixelShaderBlobFBX,
+        &errorBlobPSFBX
+    );
+
+    if (FAILED(hr))
+    {
+        if (errorBlobPSFBX)
+        {
+            std::cerr << (char*)errorBlobPSFBX->GetBufferPointer() << std::endl;
+            errorBlobPSFBX->Release();
+        }
+
+        return;
+    }
+
+    hr = m_device->CreatePixelShader(
+        pixelShaderBlobFBX->GetBufferPointer(),
+        pixelShaderBlobFBX->GetBufferSize(),
+        nullptr,
+        &m_pixelShaderFBX
+    );
+
+    pixelShaderBlobFBX->Release();
+
+    if (FAILED(hr))
+        return;
+}
+
+void Graphic::DrawPrimitiveIndexed(D3D11_PRIMITIVE_TOPOLOGY _topology, const std::vector<Vertex3fbx> &_vertices,const std::vector<uint32_t> &_indices) {
+#pragma region FBX
+    if (_vertices.empty() || _indices.empty())return;
+
+    UINT vertexBufferSize =
+        static_cast<UINT>(
+            _vertices.size() * sizeof(Vertex3fbx)
+        );
+
+    UINT indexBufferSize =
+        static_cast<UINT>(
+            _indices.size() * sizeof(uint32_t)
+        );
+
+    // ========================================
+    // 1. 确保 Dynamic Vertex Buffer 足够大
+    // ========================================
+    if (!m_dynamicVertexBuffer || m_dynamicVertexBufferSize < vertexBufferSize)
+    {
+        m_dynamicVertexBuffer.Reset();
+
+        D3D11_BUFFER_DESC desc = {};
+        desc.Usage = D3D11_USAGE_DYNAMIC;
+        desc.ByteWidth = vertexBufferSize;
+        desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+        desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+        HRESULT hr = m_device->CreateBuffer(
+            &desc,
+            nullptr,
+            m_dynamicVertexBuffer.GetAddressOf()
+        );
+
+        if (FAILED(hr))
+            return;
+
+        m_dynamicVertexBufferSize = vertexBufferSize;
+    }
+
+    // ========================================
+    // 2. 写入 Vertex Buffer
+    // ========================================
+    D3D11_MAPPED_SUBRESOURCE mapped = {};
+
+    HRESULT hr = m_context->Map(
+        m_dynamicVertexBuffer.Get(),
+        0,
+        D3D11_MAP_WRITE_DISCARD,
+        0,
+        &mapped
+    );
+
+    if (FAILED(hr))
+        return;
+
+    memcpy(
+        mapped.pData,
+        _vertices.data(),
+        vertexBufferSize
+    );
+
+    m_context->Unmap(
+        m_dynamicVertexBuffer.Get(),
+        0
+    );
+
+    // ========================================
+    // 3. 确保 Dynamic Index Buffer 足够大
+    // ========================================
+    if (!m_dynamicIndexBuffer || m_dynamicIndexBufferSize < indexBufferSize)
+    {
+        m_dynamicIndexBuffer.Reset();
+
+        D3D11_BUFFER_DESC desc = {};
+        desc.Usage = D3D11_USAGE_DYNAMIC;
+        desc.ByteWidth = indexBufferSize;
+        desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+        desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+        HRESULT hr = m_device->CreateBuffer(
+            &desc,
+            nullptr,
+            m_dynamicIndexBuffer.GetAddressOf()
+        );
+
+        if (FAILED(hr))
+            return;
+
+        m_dynamicIndexBufferSize = indexBufferSize;
+    }
+
+    // ========================================
+    // 4. 写入 Index Buffer
+    // ========================================
+    hr = m_context->Map(
+        m_dynamicIndexBuffer.Get(),
+        0,
+        D3D11_MAP_WRITE_DISCARD,
+        0,
+        &mapped
+    );
+
+    if (FAILED(hr))
+        return;
+
+    memcpy(
+        mapped.pData,
+        _indices.data(),
+        indexBufferSize
+    );
+
+    m_context->Unmap(
+        m_dynamicIndexBuffer.Get(),
+        0
+    );
+    // ========================================
+    // 6. 设置 Vertex Buffer
+    // ========================================
+    UINT stride = sizeof(Vertex3fbx);
+    UINT offset = 0;
+
+    ID3D11Buffer* vertexBuffer = m_dynamicVertexBuffer.Get();
+
+    m_context->IASetVertexBuffers(
+        0,
+        1,
+        &vertexBuffer,
+        &stride,
+        &offset
+    );
+    // ========================================
+    // 11. Constant Buffer
+    // ========================================
+    m_context->VSSetConstantBuffers(
+        0,
+        1,
+        &m_matrixBuffer
+    );
+    // ========================================
+    // 7. 设置 Index Buffer
+    // ========================================
+    m_context->IASetIndexBuffer(
+        m_dynamicIndexBuffer.Get(),
+        DXGI_FORMAT_R32_UINT,
+        0
+    );
+
+    // ========================================
+    // 8. 设置图元类型
+    // ========================================
+    m_context->IASetPrimitiveTopology(
+        _topology
+    );
+
+#pragma endregion
+    // ========================================
+    // 5. 设置 Input Layout
+    // ========================================
+    m_context->IASetInputLayout(
+        m_inputLayoutFBX
+    );
+    // ========================================
+    // 9. Vertex Shader
+    // ========================================
+    m_context->VSSetShader(
+        m_vertexShaderFBX,
+        nullptr,
+        0
+    );
+    // ========================================
+    // 10. Pixel Shader
+    // ========================================
+    m_context->PSSetShader(
+        m_pixelShader3,
+        nullptr,
+        0
+    );
+    // ========================================
+    // 12. Indexed Draw
+    // ========================================
+    m_context->DrawIndexed(
+        static_cast<UINT>(_indices.size()),
+        0,
+        0
+    );
+}
+
+
 
 void Graphic::DrawPrimitiveUP(D3D11_PRIMITIVE_TOPOLOGY topology,const void* vertices,UINT vertexCount,UINT vertexStride) {
     if (!vertices || vertexCount == 0 || vertexStride == 0)return;

@@ -8,6 +8,7 @@
 
 #include "../Mesh/Mesh.h"
 #include "Core/Graphic.h"
+#include "Mesh/CModel.h"
 using namespace DirectX;
 
 class Entity
@@ -24,6 +25,7 @@ public:
     XMFLOAT3 Getfacing();
 
     Mesh mesh;//网格体
+    CModel meshFbx;//网格体
     float mChangeForward = 0;
     float mChangeLeft = 0;
 
