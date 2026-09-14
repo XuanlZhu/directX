@@ -595,11 +595,11 @@ void Graphic::InitVertexFBX() {
         m_device,
         L"FBX/096-V_Dif_001.png",
         nullptr,
-        m_textureFBX.GetAddressOf()
+        &m_textureFBX
     );
 }
 
-void Graphic::DrawPrimitiveIndexed(D3D11_PRIMITIVE_TOPOLOGY _topology, const std::vector<Vertex3fbx> &_vertices,const std::vector<uint32_t> &_indices) {
+void Graphic::DrawPrimitiveIndexed(D3D11_PRIMITIVE_TOPOLOGY _topology, const std::vector<Vertex3fbx> &_vertices,const std::vector<uint32_t> &_indices,ID3D11ShaderResourceView* _texture) {
 #pragma region FBX
     if (_vertices.empty() || _indices.empty())return;
 
@@ -777,7 +777,7 @@ void Graphic::DrawPrimitiveIndexed(D3D11_PRIMITIVE_TOPOLOGY _topology, const std
         0
     );
     //取样器
-    ID3D11ShaderResourceView* texture = m_textureFBX.Get();//贴图
+    ID3D11ShaderResourceView* texture = _texture;//贴图
     m_context->PSSetShaderResources(
         0,
         1,
@@ -1635,18 +1635,20 @@ Graphic::LoadTexture(std::string _path)
     return texture;
 }
 
-void Graphic::LoadFBXTexture(std::wstring _path)
+ID3D11ShaderResourceView* Graphic::LoadFBXTexture(std::wstring _path)
 {
+    ID3D11ShaderResourceView* texture2 = nullptr;
     HRESULT hr = DirectX::CreateWICTextureFromFile(
         m_device,
         _path.c_str(),
         nullptr,
-        m_textureFBX.GetAddressOf()
+        &texture2
     );
 
     if (FAILED(hr))
     {
         std::cout << "FBX纹理加载失败" << std::endl;
     }
+    return texture2;
 }
 

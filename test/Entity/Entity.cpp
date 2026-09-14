@@ -8,6 +8,7 @@
 #include "Core/Camera.h"
 
 Entity::Entity() {
+    m_texture = Global::graphic->LoadFBXTexture(L"FBX/096-V_Dif_001.png");
 }
 
 void Entity::Draw() {

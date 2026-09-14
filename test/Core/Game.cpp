@@ -37,12 +37,14 @@ Game::Game() {
 //初始化
 void Game::Setup()
 {
-    Global::camera = Global::cameraTPS;//切换相机
+    // Global::camera = Global::cameraTPS;//切换相机
     CreateEntity("Entity_pillar",XMFLOAT3{5,0,5});
     CreateEntity("Entity_pillar",XMFLOAT3{-5,0,5});
     CreateEntity("Entity_pillar",XMFLOAT3{5,0,-5});
     CreateEntity("Entity_pillar",XMFLOAT3{-5,0,-5});
-    // CreateEntity("Entity_pillar",XMFLOAT3{5,0,0});
+
+    //天空盒
+    CreateEntity("Entity_skybox",XMFLOAT3{0,0,0});
 
 }
 
@@ -86,32 +88,45 @@ void Game::OnKeyPress(int _key) {
     }
 
 
+    // if (_key == EKey::W) {
+    //     Global::player->mChangeForward = 1;
+    // }
+    // if (_key == EKey::A) {
+    //     Global::player->mChangeLeft = 1;
+    // }
+    // if (_key == EKey::S) {
+    //     Global::player->mChangeForward = -1;
+    // }
+    // if (_key == EKey::D) {
+    //     Global::player->mChangeLeft = -1;
+    // }
+
     //相机移动
-    if (_key == EKey::W) {
-        Global::player->mChangeForward = 1;
-    }
-    if (_key == EKey::A) {
-        Global::player->mChangeLeft = 1;
-    }
-    if (_key == EKey::S) {
-        Global::player->mChangeForward = -1;
-    }
-    if (_key == EKey::D) {
-        Global::player->mChangeLeft = -1;
-    }
+    // if (_key == EKey::W) {
+    //     Global::player->mChangeForward = 1;
+    // }
+    // if (_key == EKey::A) {
+    //     Global::player->mChangeLeft = 1;
+    // }
+    // if (_key == EKey::S) {
+    //     Global::player->mChangeForward = -1;
+    // }
+    // if (_key == EKey::D) {
+    //     Global::player->mChangeLeft = -1;
+    // }
 }
 void Game::OnKeyRelease(int _key) {
-    if (_key == EKey::W) {
-        Global::player->mChangeForward = 0;
-    }
-    if (_key == EKey::A) {
-        Global::player->mChangeLeft = 0;
-    }
-    if (_key == EKey::S) {
-        Global::player->mChangeForward = 0;
-    }
-    if (_key == EKey::D) {
-        Global::player->mChangeLeft = 0;
-    }
+    // if (_key == EKey::W) {
+    //     Global::player->mChangeForward = 0;
+    // }
+    // if (_key == EKey::A) {
+    //     Global::player->mChangeLeft = 0;
+    // }
+    // if (_key == EKey::S) {
+    //     Global::player->mChangeForward = 0;
+    // }
+    // if (_key == EKey::D) {
+    //     Global::player->mChangeLeft = 0;
+    // }
 
 }

@@ -33,6 +33,8 @@ public:
     XMFLOAT3 rotation = {0, 0, 0};
     XMFLOAT3 scale    = {1, 1, 1};
     bool isdraw = false;
+
+    ID3D11ShaderResourceView* m_texture = nullptr;
 private:
     XMFLOAT3 facing    = {1, 0, 0};
 };

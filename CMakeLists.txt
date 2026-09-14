@@ -58,6 +58,8 @@ add_executable(base WIN32
         test/Core/CameraTPS.h
         test/Mesh/CModel.cpp
         test/Mesh/CModel.h
+        test/Entity/Entity_skybox.cpp
+        test/Entity/Entity_skybox.h
 )
 
 target_include_directories(base PRIVATE

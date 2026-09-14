@@ -42,7 +42,8 @@ void Entity_pillar::Draw() {
     Global::graphic->DrawPrimitiveIndexed(
         D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
         meshFbx.m_vertices,
-        meshFbx.m_indices
+        meshFbx.m_indices,
+        m_texture
     );
 
     // 绘制立方体
