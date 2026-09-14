@@ -88,18 +88,19 @@ void Game::OnKeyPress(int _key) {
     }
 
 
-    // if (_key == EKey::W) {
-    //     Global::player->mChangeForward = 1;
-    // }
-    // if (_key == EKey::A) {
-    //     Global::player->mChangeLeft = 1;
-    // }
-    // if (_key == EKey::S) {
-    //     Global::player->mChangeForward = -1;
-    // }
-    // if (_key == EKey::D) {
-    //     Global::player->mChangeLeft = -1;
-    // }
+    //自由相机
+    if (_key == EKey::Up) {
+        Global::camera->mChangeY = 1;
+    }
+    if (_key == EKey::Left) {
+        Global::camera->mChangeX = -1;
+    }
+    if (_key == EKey::Down) {
+        Global::camera->mChangeY = -1;
+    }
+    if (_key == EKey::Right) {
+        Global::camera->mChangeX = 1;
+    }
 
     //相机移动
     // if (_key == EKey::W) {
@@ -128,5 +129,19 @@ void Game::OnKeyRelease(int _key) {
     // if (_key == EKey::D) {
     //     Global::player->mChangeLeft = 0;
     // }
+    //自由相机
+    if (_key == EKey::Up) {
+        Global::camera->mChangeY = 0;
+    }
+    if (_key == EKey::Left) {
+        Global::camera->mChangeX = -0;
+    }
+    if (_key == EKey::Down) {
+        Global::camera->mChangeY = -0;
+    }
+    if (_key == EKey::Right) {
+        Global::camera->mChangeX = 0;
+    }
+
 
 }

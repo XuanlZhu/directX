@@ -15,6 +15,7 @@ using namespace DirectX;
 Camera::Camera() {
     facing = DirectX::XMFLOAT3( 1, 0,  0);
     position = DirectX::XMFLOAT3{ -2, 2, -5.0f };
+    mSpeed = 10;
 }
 
 DirectX::XMMATRIX Camera::GetViewMatrix() {

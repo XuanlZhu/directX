@@ -30,7 +30,7 @@ public:
     float pitch = 0.0f;
     float mChangeX = 0.0f;
     float mChangeY = 0.0f;
-    float mSpeed = 1;
+    float mSpeed = 10;
     float mYaw = 0.0f;
     float mPitch = 0.0f;
 };
