@@ -54,7 +54,7 @@ XMFLOAT3 Entity::GetPosition() {
     return position;
 }
 
-XMMATRIX Entity::GetWorldMatrix() {
+XMMATRIX Entity::GetLocalMatrix() {
     // 缩放
     XMMATRIX scaleX = XMMatrixScaling(
         scale.x,
@@ -88,4 +88,26 @@ XMFLOAT3 Entity::Getfacing() {
     XMStoreFloat3(&resultFloat, XMVector3Normalize(result));
 
     return resultFloat;
+}
+//设置父节点
+void Entity::SetFather(Entity *entity) {
+    RemoveFather();
+    father = entity;
+    entity->children.push_back(this);
+}
+
+//移除父节点
+void Entity::RemoveFather() {
+    if (father) {
+        auto it = std::find(father->children.begin(),father->children.end(),this);
+        if (it != father->children.end())father->children.erase(it);
+    }
+}
+
+XMMATRIX Entity::GetWorldMatrix() {
+    XMMATRIX it = GetLocalMatrix();//先求自己的矩阵
+    if (father) {
+        it = it*father->GetWorldMatrix();
+    }
+    return it;
 }

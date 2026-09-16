@@ -15,6 +15,7 @@
 #include "Core/SpriteList.h"
 #include "Entity/EntityManager.h"
 #include "Entity/Entity_pillar.h"
+#include "Entity/Entity_plane.h"
 #include "Entity/Entity_skybox.h"
 #include "Sprites/Sprite_claw.h"
 #include "Sprites/Sprite_gold.h"
@@ -102,6 +103,8 @@ std::shared_ptr<Entity> CreateEntity(std::string name,XMFLOAT3 pos) {
         entity = std::make_shared<Entity_pillar>();
     }else if(name == "Entity_skybox"){
         entity = std::make_shared<Entity_skybox>();
+    }else if(name == "Entity_plane"){
+        entity = std::make_shared<Entity_plane>();
 
 
     }else {

@@ -60,6 +60,8 @@ add_executable(base WIN32
         test/Mesh/CModel.h
         test/Entity/Entity_skybox.cpp
         test/Entity/Entity_skybox.h
+        test/Entity/Entity_plane.cpp
+        test/Entity/Entity_plane.h
 )
 
 target_include_directories(base PRIVATE

@@ -243,27 +243,27 @@ void Graphic::BeginFrame()
     );
 
     Global::game->Draw();//调用game
-    //绘制地板----------------------------------------------------
-    MatrixBuffer matrixData;
-    matrixData.world = XMMatrixTranspose(XMMatrixIdentity());
-    matrixData.view =  XMMatrixTranspose(Global::camera->GetViewMatrix());
-    matrixData.projection = XMMatrixTranspose(m_projection);
-    //把矩阵传给 GPU
-    m_context->UpdateSubresource(
-        m_matrixBuffer,
-        0,
-        nullptr,
-        &matrixData,
-        0,
-        0
-    );
-    //绘制地板
-    DrawPrimitive3D(
-        D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
-        vertices,
-        std::size(vertices),
-        sizeof(Vertex3)
-    );
+    // //绘制地板----------------------------------------------------
+    // MatrixBuffer matrixData;
+    // matrixData.world = XMMatrixTranspose(XMMatrixIdentity());
+    // matrixData.view =  XMMatrixTranspose(Global::camera->GetViewMatrix());
+    // matrixData.projection = XMMatrixTranspose(m_projection);
+    // //把矩阵传给 GPU
+    // m_context->UpdateSubresource(
+    //     m_matrixBuffer,
+    //     0,
+    //     nullptr,
+    //     &matrixData,
+    //     0,
+    //     0
+    // );
+    // //绘制地板
+    // DrawPrimitive3D(
+    //     D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
+    //     vertices,
+    //     std::size(vertices),
+    //     sizeof(Vertex3)
+    // );
     //绘制文字
     DrawText2("Press F", 0, 500);
 
