@@ -13,7 +13,8 @@ public:
     void Update(float deltaTime) override;
     virtual void Draw() override;// 绘制
     void GetLocalAABB();
+    void GetOBBvertex();
 
-    std::vector<Vertex3> VerticesLocalBox;//本地包围盒
-    std::vector<Vertex3> WorldAABB;//世界AABB
+    std::vector<Vertex3> VerticesLocalBox;//本地包围盒,使用本地坐标
+    std::vector<Vertex3> WorldAABB;//世界AABB，使用世界坐标
 };

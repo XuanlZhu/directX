@@ -13,6 +13,7 @@
 class CSprite;
 class CScene;
 
+
 class Game
 {
 public:

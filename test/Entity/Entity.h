@@ -30,10 +30,16 @@ public:
     float mChangeForward = 0;
     float mChangeLeft = 0;
 
+
     XMFLOAT3 position = {0, 0, 0};
     XMFLOAT3 rotation = {0, 0, 0};
     XMFLOAT3 scale    = {1, 1, 1};
     bool isdraw = false;
+
+
+    bool isDrawBox = true;
+    std::vector<XMFLOAT3> WorldOBBvertex;//OBB顶点
+
 
     std::vector<Entity*> children;//孩子节点
     Entity* father = nullptr;//父节点

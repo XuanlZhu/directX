@@ -574,8 +574,8 @@ void Graphic::InitVertexFBX() {
     //取样器初始化
     D3D11_SAMPLER_DESC samplerDesc = {};
 
-    // samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-    samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+    samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+    // samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
 
     samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
     samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -1027,8 +1027,7 @@ void Graphic::CreateSampler()
 
 
     // 纹理缩放时使用线性过滤
-    desc.Filter =
-        D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+    desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 
 
     // UV超过0~1时，使用边缘颜色

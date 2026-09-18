@@ -169,8 +169,64 @@ void Entity_pillar::GetLocalAABB()
     };
 }
 
-void Entity_pillar::Update(float deltaTime) {
+void Entity_pillar::GetOBBvertex() {
+    WorldOBBvertex.clear();
+    if (meshFbx.m_vertices.empty())return;
 
+    // 求局部空间 AABB
+    XMFLOAT3 min = meshFbx.m_vertices[0].position;
+    XMFLOAT3 max = meshFbx.m_vertices[0].position;
+
+    for (const auto& vertex : meshFbx.m_vertices)
+    {
+        const XMFLOAT3& p = vertex.position;
+
+        min.x = std::min(min.x, p.x);
+        min.y = std::min(min.y, p.y);
+        min.z = std::min(min.z, p.z);
+
+        max.x = std::max(max.x, p.x);
+        max.y = std::max(max.y, p.y);
+        max.z = std::max(max.z, p.z);
+    }
+
+
+    // 局部空间8个角点
+    std::vector<XMFLOAT3> localBox =
+    {
+        {min.x, min.y, min.z},
+        {max.x, min.y, min.z},
+        {max.x, max.y, min.z},
+        {min.x, max.y, min.z},
+
+        {min.x, min.y, max.z},
+        {max.x, min.y, max.z},
+        {max.x, max.y, max.z},
+        {min.x, max.y, max.z},
+    };
+
+
+    // 获取世界矩阵
+    XMMATRIX world = GetWorldMatrix();
+
+
+    // 转换到世界空间
+    for (auto& p : localBox)
+    {
+        XMVECTOR pos = XMLoadFloat3(&p);
+
+        pos = XMVector3TransformCoord(pos, world);
+
+        XMFLOAT3 worldPos;
+        XMStoreFloat3(&worldPos, pos);
+
+        WorldOBBvertex.push_back(worldPos);
+    }
+
+}
+
+void Entity_pillar::Update(float deltaTime) {
+    GetOBBvertex();
 }
 
 void Entity_pillar::Draw() {
@@ -199,7 +255,8 @@ void Entity_pillar::Draw() {
         meshFbx.m_indices,
         m_texture
     );
-
+    //是否绘制包围盒
+    if(!isDrawBox)return;
     GetLocalAABB();
     // 绘制AABB包围盒
     Global::graphic->DrawPrimitive3D(

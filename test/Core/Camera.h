@@ -8,6 +8,17 @@
 struct Vertex3;
 using namespace DirectX;
 
+struct Plane
+{
+    XMFLOAT3 normal;
+    float d;
+
+    float Distance(const XMFLOAT3& point)
+    {
+        return normal.x * point.x +normal.y * point.y +normal.z * point.z +d;
+    }
+};
+
 class Camera
 {
 public:
@@ -33,4 +44,7 @@ public:
     float mSpeed = 10;
     float mYaw = 0.0f;
     float mPitch = 0.0f;
+
+    Plane plane1;
+    Plane plane2;
 };

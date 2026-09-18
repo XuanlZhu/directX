@@ -41,6 +41,7 @@ void Game::Setup()
     CreateEntity("Entity_pillar",XMFLOAT3{5,0,5});
     CreateEntity("Entity_pillar",XMFLOAT3{-5,0,5});
     CreateEntity("Entity_pillar",XMFLOAT3{5,0,-5});
+    CreateEntity("Entity_pillar",XMFLOAT3{-5,0,-5});
     CreateEntity("Entity_pillar",XMFLOAT3{0,0,0})->SetFather(Global::player);
 
     //天空盒
@@ -68,7 +69,8 @@ void Game::Update(float deltaTime)
 void Game::Draw()
 {
     Global::entityManager->Draw();//绘制实体
-    Global::camera->Draw();
+
+    Global::camera->Draw();//绘制视锥体
     // DrawTexture("first3",0,0,800,600);
     // DrawLine(XMFLOAT2(0,0), XMFLOAT2(200,200), XMFLOAT3(1,1,1));
 }

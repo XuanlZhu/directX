@@ -9,8 +9,12 @@
 
 #include "Global.h"
 #include "Graphic.h"
+#include "Entity/Entity.h"
+#include "Entity/EntityManager.h"
 using namespace DirectX;
 #include "DirectXMath.h"
+
+extern bool IsOutsidePlane(Plane plane,std::vector<XMFLOAT3>& points);
 
 Camera::Camera() {
     facing = DirectX::XMFLOAT3( 1, 0,  0);
@@ -135,6 +139,26 @@ void Camera::OnMouseMoveLeft(int x, int y, bool isLdown) {
 
 void Camera::SetPosition(XMFLOAT3 pos) {
     position = pos;
+}
+
+Plane CreatePlane(XMVECTOR a,XMVECTOR b,XMVECTOR c)
+{
+    Plane plane;
+
+    XMVECTOR ab = b - a;
+    XMVECTOR ac = c - a;
+
+    // 左手坐标系
+    XMVECTOR normal =XMVector3Normalize(XMVector3Cross(ab, ac));
+    //法线
+    XMStoreFloat3(&plane.normal,normal);
+
+    XMFLOAT3 point;
+    XMStoreFloat3(&point, a);
+    //原点距离
+    plane.d =-(plane.normal.x * point.x+ plane.normal.y * point.y+ plane.normal.z * point.z);
+
+    return plane;
 }
 
 void Camera::DrawFrustum()
@@ -286,6 +310,28 @@ void Camera::DrawFrustum()
     AddLine(nearRB, farRB);
 
 
+    //左面
+    plane1 = CreatePlane(nearLT,farLB,farLT);
+    //右面
+    plane2 = CreatePlane(nearRT,farRT,farRB);
+    // //上面
+    // FrustumPlanes[4] =CreatePlane(nearLT,farRT,farLT);
+    // //下面
+    // FrustumPlanes[5] =CreatePlane(nearLB,farLB,farRB);
+    // //近平面
+    // FrustumPlanes[0] = CreatePlane(nearLT,nearLB,nearRB);
+    // //远平面
+    // FrustumPlanes[1] =CreatePlane(farRT,farRB,farLB);
+
+    //设置视锥体外的物体OBB
+    for(auto& entity : Global::entityManager->mEntity) {
+        //绘制实体时做剔除
+        if (IsOutsidePlane(Global::camera->plane1,entity->WorldOBBvertex) || IsOutsidePlane(Global::camera->plane2,entity->WorldOBBvertex)) {
+            entity->isDrawBox = false;
+        }else {
+            entity->isDrawBox = true;
+        }
+    }
 }
 
 void Camera::Draw() {
