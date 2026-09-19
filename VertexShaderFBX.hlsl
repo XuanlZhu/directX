@@ -1,4 +1,4 @@
-cbuffer MatrixBuffer : register(b0) //从b0槽拿矩阵
+cbuffer MatrixBuffer : register(b0)
 {
     matrix world;
     matrix view;
@@ -18,6 +18,37 @@ struct VSOutput
     float3 normal   : NORMAL;
     float2 texCoord : TEXCOORD0;
 };
+float3x3 Inverse3x3(float3x3 m)
+{
+    float det = determinant(m);
+
+    if (abs(det) < 1e-6f)
+    {
+        return float3x3(
+            1, 0, 0,
+            0, 1, 0,
+            0, 0, 1
+        );
+    }
+
+    float3x3 adj = float3x3(
+         m[1][1] * m[2][2] - m[1][2] * m[2][1],
+        -m[0][1] * m[2][2] + m[0][2] * m[2][1],
+         m[0][1] * m[1][2] - m[0][2] * m[1][1],
+
+        -m[1][0] * m[2][2] + m[1][2] * m[2][0],
+         m[0][0] * m[2][2] - m[0][2] * m[2][0],
+        -m[0][0] * m[1][2] + m[0][2] * m[1][0],
+
+         m[1][0] * m[2][1] - m[1][1] * m[2][0],
+        -m[0][0] * m[2][1] + m[0][1] * m[2][0],
+         m[0][0] * m[1][1] - m[0][1] * m[1][0]
+    );
+
+    return adj / det;
+}
+
+
 
 VSOutput main(VSInput input)
 {
@@ -28,14 +59,11 @@ VSOutput main(VSInput input)
     float4 viewPosition  = mul(worldPosition, view);
     output.position      = mul(viewPosition, projection);
 	
-	// 世界矩阵的逆转置矩阵
-    float3x3 normalMatrix = transpose(inverse((float3x3)world));
-    //法线要乘 世界矩阵的逆转置
-	output.normal = normalize(
-        mul(input.normal, normalMatrix)
-    );
+    // 世界矩阵的逆转置矩阵
+	float3x3 normalMatrix = Inverse3x3(transpose((float3x3)world));
+    // 法线要乘 世界矩阵的逆转置
+	output.normal = normalize(mul(input.normal, normalMatrix));
 	
-	output.normal = input.normal;//原法线
     // 传递 UV
     output.texCoord = input.texCoord;
 
