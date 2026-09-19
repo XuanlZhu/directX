@@ -1,4 +1,4 @@
-cbuffer MatrixBuffer : register(b0)
+cbuffer MatrixBuffer : register(b0) //从b0槽拿矩阵
 {
     matrix world;
     matrix view;
@@ -27,10 +27,15 @@ VSOutput main(VSInput input)
     float4 worldPosition = mul(float4(input.position, 1.0f), world);
     float4 viewPosition  = mul(worldPosition, view);
     output.position      = mul(viewPosition, projection);
-
-    // 暂时直接传递法线
-    output.normal = input.normal;
-
+	
+	// 世界矩阵的逆转置矩阵
+    float3x3 normalMatrix = transpose(inverse((float3x3)world));
+    //法线要乘 世界矩阵的逆转置
+	output.normal = normalize(
+        mul(input.normal, normalMatrix)
+    );
+	
+	output.normal = input.normal;//原法线
     // 传递 UV
     output.texCoord = input.texCoord;
 

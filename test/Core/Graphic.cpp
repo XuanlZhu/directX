@@ -195,7 +195,8 @@ bool Graphic::Initialize(HWND hWnd)
     );
     //初始化FBX
     InitVertexFBX();
-
+    //初始化灯光
+    InitLight();
     return true;
 }
 //地面
@@ -600,6 +601,46 @@ void Graphic::InitVertexFBX() {
     );
 }
 
+void Graphic::InitLight() {
+    D3D11_BUFFER_DESC desc{};
+    desc.Usage = D3D11_USAGE_DYNAMIC;
+    desc.ByteWidth = sizeof(DirectionalLight);
+    desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+    HRESULT hr = m_device->CreateBuffer(
+        &desc,
+        nullptr,
+        &m_lightBuffer
+    );
+
+
+    D3D11_MAPPED_SUBRESOURCE mapped2{};
+    m_context->Map(
+        m_lightBuffer,
+        0,
+        D3D11_MAP_WRITE_DISCARD,
+        0,
+        &mapped2
+    );
+    memcpy(
+        mapped2.pData,
+        &m_directionalLight,//这里应该是灯光对象
+        sizeof(DirectionalLight)
+    );
+    m_context->Unmap(
+        m_lightBuffer,
+        0
+    );
+
+    m_context->PSSetConstantBuffers(
+        1,                  // b1
+        1,
+        &m_lightBuffer
+    );
+
+}
+
 void Graphic::DrawPrimitiveIndexed(D3D11_PRIMITIVE_TOPOLOGY _topology, const std::vector<Vertex3fbx> &_vertices,const std::vector<uint32_t> &_indices,ID3D11ShaderResourceView* _texture) {
 #pragma region FBX
     if (_vertices.empty() || _indices.empty())return;
@@ -755,6 +796,7 @@ void Graphic::DrawPrimitiveIndexed(D3D11_PRIMITIVE_TOPOLOGY _topology, const std
     );
 
 #pragma endregion
+
     // ========================================
     // 5. 设置 Input Layout
     // ========================================

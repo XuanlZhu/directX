@@ -44,6 +44,15 @@ struct Vertex3fbx
     DirectX::XMFLOAT2 texCoord;
 };
 
+struct DirectionalLight
+{
+    XMFLOAT3 direction = XMFLOAT3(-1.0f, -1.0f, 0.0f);
+    float intensity = 1.0f;
+
+    XMFLOAT3 color = XMFLOAT3(1.0f, 1.0f, 1.0f);
+    float padding;
+};
+
 class Graphic
 {
 public:
@@ -62,6 +71,7 @@ public:
     void InitlineVertex();
     void InitVertex3();
     void InitVertexFBX();
+    void InitLight();
     void DrawPrimitiveUP(D3D11_PRIMITIVE_TOPOLOGY topology,const void* vertices,UINT vertexCount,UINT vertexStride);
     void DrawPrimitive3D(D3D11_PRIMITIVE_TOPOLOGY topology,std::vector<Vertex3> vertices,UINT vertexCount,UINT vertexStride);
     void DrawPrimitiveIndexed(D3D11_PRIMITIVE_TOPOLOGY _topology,const std::vector<Vertex3fbx>& _vertices,const std::vector<uint32_t>& _indices,ID3D11ShaderResourceView* _texture);
@@ -108,4 +118,8 @@ public:
     ID3D11PixelShader* m_pixelShaderFBX = nullptr;//像素着色器
     ID3D11ShaderResourceView* m_textureFBX;//贴图
     Microsoft::WRL::ComPtr<ID3D11SamplerState> m_samplerStateFBX;//取样
+    //灯光
+    ID3D11Buffer* m_lightBuffer;
+    DirectionalLight m_directionalLight;//灯光
+
 };
