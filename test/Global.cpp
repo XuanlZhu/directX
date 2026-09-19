@@ -14,6 +14,7 @@
 #include "Core/Graphic.h"
 #include "Core/SpriteList.h"
 #include "Entity/EntityManager.h"
+#include "Entity/Entity_ball.h"
 #include "Entity/Entity_pillar.h"
 #include "Entity/Entity_plane.h"
 #include "Entity/Entity_skybox.h"
@@ -105,6 +106,8 @@ std::shared_ptr<Entity> CreateEntity(std::string name,XMFLOAT3 pos) {
         entity = std::make_shared<Entity_skybox>();
     }else if(name == "Entity_plane"){
         entity = std::make_shared<Entity_plane>();
+    }else if(name == "Entity_ball"){
+        entity = std::make_shared<Entity_ball>();
 
 
     }else {

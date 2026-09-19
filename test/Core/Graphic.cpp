@@ -14,6 +14,10 @@
 //     test_texture = LoadTexture("PNG/first3.png");
 // }
 
+Graphic::Graphic() {
+    m_directionalLight.intensity =0.5;
+}
+
 Graphic::~Graphic()
 {
     if(m_renderTargetView)
@@ -135,7 +139,7 @@ bool Graphic::Initialize(HWND hWnd)
         DirectX::XMConvertToRadians(60.0f),
         800.0f / 600.0f,
         0.1f,
-        100.0f
+        1000.0f
     );
     //创建m_matrixBuffer
     D3D11_BUFFER_DESC desc = {};

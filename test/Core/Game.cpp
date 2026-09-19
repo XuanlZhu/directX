@@ -46,7 +46,9 @@ void Game::Setup()
 
     //天空盒
     CreateEntity("Entity_skybox",XMFLOAT3{0,0,0});
-    CreateEntity("Entity_plane",XMFLOAT3{0,0,0});
+    CreateEntity("Entity_plane",XMFLOAT3{0,0,0});//地板
+    CreateEntity("Entity_ball",XMFLOAT3{0,0,0});//球
+
 }
 
 //主循环

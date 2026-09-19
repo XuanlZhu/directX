@@ -62,6 +62,8 @@ add_executable(base WIN32
         test/Entity/Entity_skybox.h
         test/Entity/Entity_plane.cpp
         test/Entity/Entity_plane.h
+        test/Entity/Entity_ball.cpp
+        test/Entity/Entity_ball.h
 )
 
 target_include_directories(base PRIVATE

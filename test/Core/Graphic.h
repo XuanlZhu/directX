@@ -56,6 +56,7 @@ struct DirectionalLight
 class Graphic
 {
 public:
+    Graphic();
     ~Graphic();
     bool Initialize(HWND hWnd);
     void BeginFrame();

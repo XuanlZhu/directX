@@ -28,9 +28,7 @@ float4 main(PSInput input) : SV_TARGET
 	//基础色
     float4 albedo = diffuseTexture.Sample(samplerState,input.texCoord);
 
-    //return float4(albedo.rgb * diffuse, albedo.a);
+    return float4(albedo.rgb * diffuse, albedo.a);
 	
-	
-	return diffuseTexture.Sample(samplerState, input.texCoord);
     //return diffuseTexture.Sample(samplerState, input.texCoord);
 }
