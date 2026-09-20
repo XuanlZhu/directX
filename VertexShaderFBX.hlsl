@@ -17,6 +17,8 @@ struct VSOutput
     float4 position : SV_POSITION;
     float3 normal   : NORMAL;
     float2 texCoord : TEXCOORD0;
+	
+	float3 worldPosition : TEXCOORD1;// 世界空间位置，给光照计算使用
 };
 float3x3 Inverse3x3(float3x3 m)
 {
@@ -66,6 +68,8 @@ VSOutput main(VSInput input)
 	
     // 传递 UV
     output.texCoord = input.texCoord;
+    //
+    output.worldPosition = input.position;
 
     return output;
 }
