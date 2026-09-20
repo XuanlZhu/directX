@@ -43,6 +43,11 @@ struct Vertex3fbx
     DirectX::XMFLOAT3 normal;
     DirectX::XMFLOAT2 texCoord;
 };
+struct CameraBuffer
+{
+    XMFLOAT3 cameraPosition;
+    float padding;
+};
 
 struct DirectionalLight
 {
