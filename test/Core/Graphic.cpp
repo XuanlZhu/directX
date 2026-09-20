@@ -246,6 +246,15 @@ void Graphic::BeginFrame()
         1.0f,
         0
     );
+    //相机-------------------------------
+    D3D11_BUFFER_DESC desc2{};
+    desc2.Usage = D3D11_USAGE_DYNAMIC;
+    desc2.ByteWidth = sizeof(CameraBuffer);
+    desc2.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    desc2.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+
+
 
     Global::game->Draw();//调用game
     // //绘制地板----------------------------------------------------
