@@ -247,12 +247,21 @@ void Graphic::BeginFrame()
         0
     );
     //相机-------------------------------
-    D3D11_BUFFER_DESC desc2{};
-    desc2.Usage = D3D11_USAGE_DYNAMIC;
-    desc2.ByteWidth = sizeof(CameraBuffer);
-    desc2.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-    desc2.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+    CameraBuffer data;
+    data.cameraPosition = Global::camera->position;
 
+    D3D11_MAPPED_SUBRESOURCE mapped{};
+    m_context->Map(
+        m_cameraBuffer,
+        0,
+        D3D11_MAP_WRITE_DISCARD,
+        0,
+        &mapped
+    );
+    memcpy(mapped.pData, &data, sizeof(data));
+    m_context->Unmap(m_cameraBuffer, 0);
+    m_context->PSSetConstantBuffers(2, 1, &m_cameraBuffer);
+    //--------------------------------------------------------------------------
 
 
 
@@ -650,6 +659,20 @@ void Graphic::InitLight() {
         1,                  // b1
         1,
         &m_lightBuffer
+    );
+    //----------------------------------------
+    D3D11_BUFFER_DESC bufferDesc{};
+    bufferDesc.ByteWidth = sizeof(CameraBuffer);
+    bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+    bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+    bufferDesc.MiscFlags = 0;
+    bufferDesc.StructureByteStride = 0;
+
+    hr = m_device->CreateBuffer(
+        &bufferDesc,
+        nullptr,
+        &m_cameraBuffer
     );
 
 }
