@@ -15,7 +15,7 @@
 // }
 
 Graphic::Graphic() {
-    m_directionalLight.intensity =0.5;
+    m_directionalLight.intensity =0.7;
 }
 
 Graphic::~Graphic()
@@ -246,6 +246,29 @@ void Graphic::BeginFrame()
         1.0f,
         0
     );
+    //相机位置------------------------------------
+    CameraBuffer data;
+    data.cameraPosition = Global::camera->position;
+
+    D3D11_MAPPED_SUBRESOURCE mapped{};
+    m_context->Map(
+        m_cameraBuffer,
+        0,
+        D3D11_MAP_WRITE_DISCARD,
+        0,
+        &mapped
+    );
+    memcpy(mapped.pData, &data, sizeof(data));
+    m_context->Unmap(m_cameraBuffer, 0);
+
+    m_context->PSSetConstantBuffers(2, 1, &m_cameraBuffer);
+
+
+
+
+
+
+
 
     Global::game->Draw();//调用game
     // //绘制地板----------------------------------------------------
@@ -643,6 +666,12 @@ void Graphic::InitLight() {
         &m_lightBuffer
     );
 
+    //相机-------------------------------
+    D3D11_BUFFER_DESC desc2{};
+    desc2.Usage = D3D11_USAGE_DYNAMIC;
+    desc2.ByteWidth = sizeof(CameraBuffer);
+    desc2.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    desc2.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 }
 
 void Graphic::DrawPrimitiveIndexed(D3D11_PRIMITIVE_TOPOLOGY _topology, const std::vector<Vertex3fbx> &_vertices,const std::vector<uint32_t> &_indices,ID3D11ShaderResourceView* _texture) {

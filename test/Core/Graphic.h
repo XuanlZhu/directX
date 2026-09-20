@@ -52,6 +52,12 @@ struct DirectionalLight
     XMFLOAT3 color = XMFLOAT3(1.0f, 1.0f, 1.0f);
     float padding;
 };
+struct CameraBuffer
+{
+    XMFLOAT3 cameraPosition;
+    float padding;
+};
+
 
 class Graphic
 {
@@ -122,5 +128,6 @@ public:
     //灯光
     ID3D11Buffer* m_lightBuffer;
     DirectionalLight m_directionalLight;//灯光
+    ID3D11Buffer* m_cameraBuffer;//相机
 
 };
