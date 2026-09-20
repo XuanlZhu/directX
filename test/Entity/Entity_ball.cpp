@@ -13,8 +13,10 @@
 
 Entity_ball::Entity_ball() {
     mesh = Mesh_pillar();
-    meshFbx = CModel("FBX/SCP-096.fbx");
-    scale= {500, 500, 500};
+    meshFbx = CModel("FBX/beachBall.fbx");
+    m_texture = Global::graphic->LoadFBXTexture(L"FBX/internal_ground_ao_texture.jpeg");
+
+    scale= {1, 1, 1};
     rotation = {-90, 45, 90};
 
 }
