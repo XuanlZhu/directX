@@ -127,5 +127,5 @@ public:
     //灯光
     ID3D11Buffer* m_lightBuffer;
     DirectionalLight m_directionalLight;//灯光
-
+    ID3D11Buffer* m_cameraBuffer;//相机
 };
