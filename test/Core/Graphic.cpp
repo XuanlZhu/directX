@@ -251,16 +251,18 @@ void Graphic::BeginFrame()
     data.cameraPosition = Global::camera->position;
 
     D3D11_MAPPED_SUBRESOURCE mapped{};
-    m_context->Map(
+    HRESULT hr = m_context->Map(
         m_cameraBuffer,
         0,
         D3D11_MAP_WRITE_DISCARD,
         0,
         &mapped
     );
-    memcpy(mapped.pData, &data, sizeof(data));
+    memcpy(mapped.pData, &data, sizeof(CameraBuffer));
     m_context->Unmap(m_cameraBuffer, 0);
     m_context->PSSetConstantBuffers(2, 1, &m_cameraBuffer);
+
+
     //--------------------------------------------------------------------------
 
 
@@ -662,19 +664,12 @@ void Graphic::InitLight() {
     );
     //----------------------------------------
     D3D11_BUFFER_DESC bufferDesc{};
-    bufferDesc.ByteWidth = sizeof(CameraBuffer);
     bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+    bufferDesc.ByteWidth = sizeof(CameraBuffer);
     bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
     bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-    bufferDesc.MiscFlags = 0;
-    bufferDesc.StructureByteStride = 0;
 
-    hr = m_device->CreateBuffer(
-        &bufferDesc,
-        nullptr,
-        &m_cameraBuffer
-    );
-
+    m_device->CreateBuffer(&bufferDesc, nullptr, &m_cameraBuffer);
 }
 
 void Graphic::DrawPrimitiveIndexed(D3D11_PRIMITIVE_TOPOLOGY _topology, const std::vector<Vertex3fbx> &_vertices,const std::vector<uint32_t> &_indices,ID3D11ShaderResourceView* _texture) {

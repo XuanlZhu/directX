@@ -10,6 +10,12 @@ cbuffer LightBuffer : register(b1)
     float padding;
 };
 
+cbuffer CameraBuffer : register(b2)
+{
+    float3 cameraPosition;//世界坐标
+    float padding2;
+};
+
 struct PSInput
 {
     float4 position : SV_POSITION;
@@ -21,9 +27,11 @@ float4 main(PSInput input) : SV_TARGET
 {
 	float3 N = normalize(input.normal);
     float3 L = normalize(-lightDirection);
-
     float NdotL = max(dot(N, L), 0.0f);//物体表面法线 N 和光线方向 L 的夹角余弦值
 
+
+
+	
     float3 diffuse = lightColor * intensity * NdotL;//漫反射
 	//基础色
     float4 albedo = diffuseTexture.Sample(samplerState,input.texCoord);
