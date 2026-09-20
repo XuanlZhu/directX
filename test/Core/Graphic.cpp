@@ -15,7 +15,7 @@
 // }
 
 Graphic::Graphic() {
-    m_directionalLight.intensity =0.5;
+    m_directionalLight.intensity =0.7;
 }
 
 Graphic::~Graphic()

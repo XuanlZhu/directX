@@ -17,7 +17,7 @@ Entity_plane::Entity_plane() {
     meshFbx = CModel();
     m_texture = Global::graphic->LoadFBXTexture(L"PNG/map.jpg");
     readHightMap("PNG/high2.jpg");//加载高度图
-
+    scale= {2, 2, 2};
 
     const int size = 50;       // 20 × 20 个格子
     const float length = 50;
