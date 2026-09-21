@@ -32,9 +32,9 @@ public:
     std::vector<Vertex3> VerticesFrustum;//视锥体顶点
     virtual void Draw();// 绘制
 
-    XMFLOAT3 position = { 0.5, 0.0f, -5.0f };
-    XMFLOAT3 facing = { 0.0f, 0.0f, 1 };
-    XMFLOAT3 uping = { 0, 1, 0 };
+    XMFLOAT3 position = { 0.5, 0.0f, -5.0f };//世界坐标
+    XMFLOAT3 facing = { 0.0f, 0.0f, 1 };//世界坐标
+    XMFLOAT3 uping = { 0, 1, 0 };//世界坐标
 
     float roll = 0;
     float yaw = 0.0f;

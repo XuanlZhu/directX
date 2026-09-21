@@ -17,9 +17,13 @@
 #include "Entity/Entity_ball.h"
 #include "Entity/Entity_pillar.h"
 #include "Entity/Entity_plane.h"
+#include "Entity/Entity_player.h"
 #include "Entity/Entity_skybox.h"
+#include "Entity/Entity_water.h"
 #include "Sprites/Sprite_claw.h"
 #include "Sprites/Sprite_gold.h"
+#undef min
+#undef max
 
 int RandomInt(int _min, int _max) {
     static std::random_device rd;
@@ -108,6 +112,10 @@ std::shared_ptr<Entity> CreateEntity(std::string name,XMFLOAT3 pos) {
         entity = std::make_shared<Entity_plane>();
     }else if(name == "Entity_ball"){
         entity = std::make_shared<Entity_ball>();
+    }else if(name == "Entity_water"){
+        entity = std::make_shared<Entity_water>();
+    }else if(name == "Entity_player"){
+        entity = std::make_shared<Entity_player>();
 
 
     }else {
@@ -134,4 +142,87 @@ XMFLOAT2 WorldToScreen(XMFLOAT3 _pos) {
     XMStoreFloat3(&result, screenPos);
 
     return {result.x,result.y};
+}
+
+float RayIntersectAABB(XMFLOAT3 &rayPos, XMFLOAT3 &rayDir, XMFLOAT3 &boxMin, XMFLOAT3 &boxMax) {
+    float tMin = 0.0f;
+    float tMax = FLT_MAX;
+
+    // X 轴
+    if (std::abs(rayDir.x) < 1e-6f)
+    {
+        // 射线平行于 X 轴
+        if (rayPos.x < boxMin.x || rayPos.x > boxMax.x)
+            return false;
+    }
+    else
+    {
+        float t1 = (boxMin.x - rayPos.x) / rayDir.x;
+        float t2 = (boxMax.x - rayPos.x) / rayDir.x;
+
+        if (t1 > t2)
+            std::swap(t1, t2);
+
+        tMin = std::max(tMin, t1);
+        tMax = std::min(tMax, t2);
+
+        if (tMin > tMax)
+            return false;
+    }
+
+    // Y 轴
+    if (std::abs(rayDir.y) < 1e-6f)
+    {
+        if (rayPos.y < boxMin.y || rayPos.y > boxMax.y)
+            return false;
+    }
+    else
+    {
+        float t1 = (boxMin.y - rayPos.y) / rayDir.y;
+        float t2 = (boxMax.y - rayPos.y) / rayDir.y;
+
+        if (t1 > t2)
+            std::swap(t1, t2);
+
+        tMin = std::max(tMin, t1);
+        tMax = std::min(tMax, t2);
+
+        if (tMin > tMax)
+            return false;
+    }
+
+    // Z 轴
+    if (std::abs(rayDir.z) < 1e-6f)
+    {
+        if (rayPos.z < boxMin.z || rayPos.z > boxMax.z)
+            return false;
+    }
+    else
+    {
+        float t1 = (boxMin.z - rayPos.z) / rayDir.z;
+        float t2 = (boxMax.z - rayPos.z) / rayDir.z;
+
+        if (t1 > t2)
+            std::swap(t1, t2);
+
+        tMin = std::max(tMin, t1);
+        tMax = std::min(tMax, t2);
+
+        if (tMin > tMax)
+            return false;
+    }
+
+    return true;
+}
+
+bool RayIntersectTriangle(XMFLOAT3 pos, XMFLOAT3 dir) {
+    //先做AABB粗略检测
+    for (auto x:Global::entityManager->mEntity) {
+        if (true) {//AABB检测
+            //加速结构BVH
+            if (true) {//精确检测
+                return true;
+            }
+        }
+    }
 }

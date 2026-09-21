@@ -8,6 +8,8 @@
 #include <memory>
 #include <string>
 
+#include "Entity/EntityManager.h"
+
 class Entity;
 class EntityManager;
 class Mesh;
@@ -31,6 +33,7 @@ public:
     inline static UIManager* uiManager = nullptr;//ui管理器
     inline static CSprite* claw = nullptr;//钩爪
     inline static Camera* camera = nullptr;//相机
+    inline static Camera* camera2 = nullptr;//相机
     inline static Mesh* mesh = nullptr;//网格体
     inline static EntityManager* entityManager = nullptr;//实体管理器
     inline static Entity* player = nullptr;//玩家
@@ -49,3 +52,5 @@ void DrawLine(CVector2 startPos,CVector2 endPos,XMFLOAT3 color);
 void DrawLine(XMFLOAT2 startPos,XMFLOAT2 endPos,XMFLOAT3 color);
 std::shared_ptr<Entity> CreateEntity(std::string name,XMFLOAT3 pos);
 XMFLOAT2 WorldToScreen(XMFLOAT3 pos);
+float RayIntersectAABB(XMFLOAT3& rayPos,XMFLOAT3& rayDir,XMFLOAT3& boxMin,XMFLOAT3& boxMax);
+bool RayIntersectTriangle(XMFLOAT3 pos,XMFLOAT3 dir);

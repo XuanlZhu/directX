@@ -27,9 +27,10 @@ Game::Game() {
     Global::imageManager = new CImageManager();
     Global::uiManager = new UIManager();
     Global::camera = new Camera();//相机
+    Global::camera2 = new Camera();//相机2
     Global::mesh = new Mesh();//网格体
     Global::entityManager = new EntityManager();//实体管理器
-    Global::player = CreateEntity("Entity",XMFLOAT3{0,0,0}).get();//玩家
+    Global::player = CreateEntity("Entity_player",XMFLOAT3{0,0,0}).get();//玩家
 
     Global::cameraFPS = new CameraFPS();//FPS相机
     Global::cameraTPS = new CameraTPS();//TPS相机
@@ -45,10 +46,10 @@ void Game::Setup()
     CreateEntity("Entity_pillar",XMFLOAT3{0,0,0})->SetFather(Global::player);
 
     //天空盒
-    CreateEntity("Entity_skybox",XMFLOAT3{0,0,0});
-    CreateEntity("Entity_plane",XMFLOAT3{0,0,0});//地板
     CreateEntity("Entity_ball",XMFLOAT3{0,4,0});//球
-
+    CreateEntity("Entity_skybox",XMFLOAT3{0,0,0});
+    CreateEntity("Entity_plane",XMFLOAT3{0,-4,0});//地板
+    CreateEntity("Entity_water",XMFLOAT3{0,0,0});//水
 }
 
 //主循环

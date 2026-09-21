@@ -24,6 +24,8 @@ public:
     XMMATRIX GetLocalMatrix();
     virtual void Rotate(float x,float y,float z);//欧拉旋转
     XMFLOAT3 Getfacing();
+    virtual std::string GetName();
+    std::array<XMFLOAT3,2> GetAABBbox();
 
     Mesh mesh;//网格体
     CModel meshFbx;//网格体

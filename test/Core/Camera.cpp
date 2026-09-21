@@ -5,6 +5,7 @@
 #include "Camera.h"
 
 #include <algorithm>
+#include <array>
 #include <iostream>
 
 #include "Global.h"
@@ -357,5 +358,13 @@ void Camera::Draw() {
         VerticesFrustum.size(),
         sizeof(Vertex3)
     );
+    //绘制射线命中物
+    for (auto x:  Global::entityManager->mEntity) {
+        auto aabb = x->GetAABBbox();
+        if (RayIntersectAABB(position,facing,aabb[0],aabb[1])) {
+            std::string name = x->GetName();
+            Global::graphic->DrawText2(name,0,0);
+            break;
+        }
+    }
 }
-

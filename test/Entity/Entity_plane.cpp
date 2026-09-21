@@ -16,7 +16,7 @@
 Entity_plane::Entity_plane() {
     meshFbx = CModel();
     m_texture = Global::graphic->LoadFBXTexture(L"PNG/map.jpg");
-    readHightMap("PNG/high2.jpg");//加载高度图
+    readHightMap("PNG/high3.bmp");//加载高度图
     scale= {2, 2, 2};
 
     const int size = 50;       // 20 × 20 个格子
@@ -128,7 +128,7 @@ void Entity_plane::readHightMap(std::string path)
         return;
     }
 
-    // 获取图片信息
+    // 图片信息
     const DirectX::TexMetadata& metadata = image.GetMetadata();
 
     const size_t width = metadata.width;
@@ -137,7 +137,7 @@ void Entity_plane::readHightMap(std::string path)
     std::cout << "HeightMap: "
               << width << " x " << height << '\n';
 
-    // 重新分配二维高度数据
+    // 分配高度数据
     m_heightData.resize(height);
 
     for (size_t y = 0; y < height; ++y)
@@ -154,7 +154,7 @@ void Entity_plane::readHightMap(std::string path)
         return;
     }
 
-    // 读取每一个像素
+    // 读取高度
     for (size_t y = 0; y < height; ++y)
     {
         const uint8_t* row =
@@ -162,19 +162,28 @@ void Entity_plane::readHightMap(std::string path)
 
         for (size_t x = 0; x < width; ++x)
         {
-            // FORCE_RGB 后一般为 RGB，每个像素 3 byte
+            // 一个像素 4 byte：R G B A
             const uint8_t* pixel =
-                row + x * 3;
+                row + x * 4;
 
-            // 读取 R 通道
-            float value =
-                pixel[0] / 255.0f;
+            // 只使用 R 通道作为高度
+            float heightValue =
+                static_cast<float>(pixel[0]) / 255.0f;
 
-            m_heightData[y][x] = value;
+            m_heightData[y][x] = heightValue;
         }
     }
-
     std::cout << "Height map loaded\n";
+
+    // for (const auto& row : m_heightData)
+    // {
+    //     for (float height : row)
+    //     {
+    //         std::cout << height << ' ';
+    //     }
+    //
+    //     std::cout << '\n';
+    // }
 }
 
 void Entity_plane::ApplyHeightMap()
@@ -182,14 +191,14 @@ void Entity_plane::ApplyHeightMap()
     if (m_heightData.empty())
         return;
 
-    const int meshWidth = 21;
-    const int meshHeight = 21;
+    const int meshWidth = 51;
+    const int meshHeight = 51;
 
     const int heightMapWidth = m_heightData[0].size();
     const int heightMapHeight = m_heightData.size();
 
     // 最大高度
-    const float heightScale = 3.0f;
+    const float heightScale = 5.0f;
 
     for (int z = 0; z < meshHeight; ++z)
     {

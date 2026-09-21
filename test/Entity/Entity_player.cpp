@@ -1,17 +1,14 @@
 //
-// Created by admin on 2026/9/19.
+// Created by admin on 2026/9/21.
 //
 
-#include "Entity_ball.h"
-#include <iostream>
+#include "Entity_player.h"
 
 #include "Global.h"
 #include "Core/Camera.h"
-#include "Mesh/Mesh_pillar.h"
-#undef min
-#undef max
 
-Entity_ball::Entity_ball() {
+
+Entity_player::Entity_player() {
     meshFbx = CModel("FBX/beachBall.fbx");
     m_texture = Global::graphic->LoadFBXTexture(L"FBX/internal_ground_ao_texture.jpeg");
 
@@ -19,10 +16,17 @@ Entity_ball::Entity_ball() {
     rotation = {-90, 45, 90};
 
 }
-void Entity_ball::Update(float deltaTime) {
+void Entity_player::Update(float deltaTime) {
+    XMFLOAT3 dir = {mChangeForward, 0, mChangeLeft};
+
+    XMVECTOR pos = XMLoadFloat3(&position);
+    XMVECTOR direction = XMVector3Normalize(XMLoadFloat3(&dir));//归一化方向
+
+    pos += direction * 0.1;
+    XMStoreFloat3(&position, pos);
 }
 
-void Entity_ball::Draw() {
+void Entity_player::Draw() {
     // 矩阵数据
     MatrixBuffer matrixData;
     matrixData.world = XMMatrixTranspose(GetWorldMatrix());

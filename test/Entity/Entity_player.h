@@ -1,15 +1,15 @@
 //
-// Created by admin on 2026/9/19.
+// Created by admin on 2026/9/21.
 //
 
 #pragma once
 #include "Entity.h"
 
 
-class Entity_ball :public Entity
+class Entity_player :public Entity
 {
 public:
-    Entity_ball();
+    Entity_player();
     void Update(float deltaTime) override;
     virtual void Draw() override;// 绘制
 };
