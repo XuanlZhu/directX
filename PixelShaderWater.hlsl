@@ -1,4 +1,5 @@
 Texture2D diffuseTexture : register(t0);//从t0槽拿贴图
+Texture2D reflectionTexture : register(t1);//从t1槽拿反射贴图
 SamplerState samplerState : register(s0);//从s0拿取样器
 
 cbuffer LightBuffer : register(b1)
@@ -18,7 +19,7 @@ cbuffer CameraBuffer : register(b2)
 
 struct PSInput
 {
-    float4 position : SV_POSITION;
+    float4 position : SV_POSITION;//SV_POSITION到了PS就已经是屏幕坐标
     float3 normal   : NORMAL;
     float2 texCoord : TEXCOORD0;
 	
@@ -45,6 +46,8 @@ float4 main(PSInput input) : SV_TARGET
 	
 	
 	
+	
+	//--------------------------------------------------------------------
 	//环境光
 	float3 ambientColor = float3(1.0f, 1.0f, 1.0f);
 	float ambientIntensity = 0.2f;

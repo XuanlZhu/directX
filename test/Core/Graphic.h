@@ -131,7 +131,8 @@ public:
     ID3D11Buffer* m_cameraBuffer;//相机
 
     ID3D11Texture2D* m_reflectionTexture;//反射纹理
-    ID3D11RenderTargetView* m_reflectionRTV;//RTV
-    ID3D11ShaderResourceView* m_reflectionSRV;//SRV
-    void CreateReflectionTexture(int width, int height);
+    ID3D11RenderTargetView* m_reflectionRTV;//反射渲染视图
+    ID3D11ShaderResourceView* m_reflectionSRV;//反射贴图
+    void CreateReflectionTexture();
+    void DrawPrimitiveIndexed2(D3D11_PRIMITIVE_TOPOLOGY _topology,std::vector<Vertex3fbx>& _vertices,std::vector<uint32_t>& _indices,ID3D11ShaderResourceView* _texture);
 };

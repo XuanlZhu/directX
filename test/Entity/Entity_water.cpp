@@ -106,11 +106,15 @@ XMFLOAT3 ReflectDirection(const Plane& plane, const XMFLOAT3& direction)
 }
 
 void Entity_water::Draw() {
+    //相机对称位置
+    Global::camera2->position = ReflectPoint(plane1,Global::camera->position);
+    Global::camera2->facing = ReflectDirection(plane1, Global::camera->facing);
+    Global::camera2->uping = ReflectDirection(plane1, Global::camera->uping);
 
     // 矩阵数据
     MatrixBuffer matrixData;
     matrixData.world = XMMatrixTranspose(GetWorldMatrix());
-    matrixData.view =  XMMatrixTranspose(Global::camera->GetViewMatrix());
+    matrixData.view =  XMMatrixTranspose(Global::camera2->GetViewMatrix());//改为相机2
     matrixData.projection = XMMatrixTranspose(Global::graphic->m_projection);
 
     // 把矩阵传给 GPU
@@ -122,22 +126,52 @@ void Entity_water::Draw() {
         0,
         0
     );
-    // 绘制立方体
-    Global::graphic->DrawPrimitiveIndexed(
-        D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
-        meshFbx.m_vertices,
-        meshFbx.m_indices,
-        m_texture
-    );
-    //-------------------------------------------
-    //相机对称位置
-    Global::camera2->position = ReflectPoint(plane1,Global::camera->position);
-    Global::camera2->facing = ReflectDirection(plane1, Global::camera->facing);
-    Global::camera2->uping = ReflectDirection(plane1, Global::camera->uping);
+    //修改渲染视图
+    // Global::graphic->m_context->OMSetRenderTargets(1,&Global::graphic->m_reflectionRTV,Global::graphic->m_depthStencilView);
+    // for(auto& entity : Global::entityManager->mEntity) {
+    //     if (entity.get()!=this) {
+    //         entity->DrawReflection();
+    //     }
+    // }
+    // //恢复渲染视图
+    // Global::graphic->m_context->OMSetRenderTargets(1,&Global::graphic->m_renderTargetView,Global::graphic->m_depthStencilView);
+    // //写入t1纹理槽
+    // Global::graphic->m_context->PSSetShaderResources(
+    //     1,      // 对应 t1
+    //     1,
+    //     &Global::graphic->m_reflectionSRV
+    // );
 
-    // ID3D11Texture2D* m_reflectionTexture;
-    // ID3D11RenderTargetView* m_reflectionRTV;
-    // ID3D11ShaderResourceView* m_reflectionSRV;
+
+
+    //-------------------------------------------
+    // 矩阵数据
+    // MatrixBuffer matrixData;
+    // matrixData.world = XMMatrixTranspose(GetWorldMatrix());
+    // matrixData.view =  XMMatrixTranspose(Global::camera->GetViewMatrix());
+    // matrixData.projection = XMMatrixTranspose(Global::graphic->m_projection);
+    //
+    // // 把矩阵传给 GPU
+    // Global::graphic->m_context->UpdateSubresource(
+    //     Global::graphic->m_matrixBuffer,
+    //     0,
+    //     nullptr,
+    //     &matrixData,
+    //     0,
+    //     0
+    // );
+    // // 绘制立方体
+    // Global::graphic->DrawPrimitiveIndexed(
+    //     D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
+    //     meshFbx.m_vertices,
+    //     meshFbx.m_indices,
+    //     m_texture
+    // );
+
+
+
+    //渲染反射视图
+
 
     // 2. 水面写入 Stencil
     // DrawWaterToStencil();

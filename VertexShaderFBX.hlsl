@@ -14,7 +14,7 @@ struct VSInput
 
 struct VSOutput
 {
-    float4 position : SV_POSITION;
+    float4 position : SV_POSITION;//VS 输出的 SV_POSITION：裁剪空间坐标
     float3 normal   : NORMAL;
     float2 texCoord : TEXCOORD0;
 	
