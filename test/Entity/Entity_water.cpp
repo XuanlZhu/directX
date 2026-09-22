@@ -135,6 +135,10 @@ void Entity_water::Draw() {
     Global::camera2->facing = ReflectDirection(plane1, Global::camera->facing);
     Global::camera2->uping = ReflectDirection(plane1, Global::camera->uping);
 
+    // ID3D11Texture2D* m_reflectionTexture;
+    // ID3D11RenderTargetView* m_reflectionRTV;
+    // ID3D11ShaderResourceView* m_reflectionSRV;
+
     // 2. 水面写入 Stencil
     // DrawWaterToStencil();
     // 3. 使用镜像相机

@@ -10,6 +10,7 @@
 
 #include "Entity/EntityManager.h"
 
+class CModel;
 class Entity;
 class EntityManager;
 class Mesh;
@@ -53,4 +54,5 @@ void DrawLine(XMFLOAT2 startPos,XMFLOAT2 endPos,XMFLOAT3 color);
 std::shared_ptr<Entity> CreateEntity(std::string name,XMFLOAT3 pos);
 XMFLOAT2 WorldToScreen(XMFLOAT3 pos);
 float RayIntersectAABB(XMFLOAT3& rayPos,XMFLOAT3& rayDir,XMFLOAT3& boxMin,XMFLOAT3& boxMax);
-bool RayIntersectTriangle(XMFLOAT3 pos,XMFLOAT3 dir);
+float RayIntersectTriangle(XMFLOAT3& rayOrigin,XMFLOAT3& rayDirection,XMFLOAT3& v0,XMFLOAT3& v1,XMFLOAT3& v2);
+float RayIntersectTriangleModel(XMFLOAT3& rayOrigin,XMFLOAT3& rayDirection,Entity* _entity);

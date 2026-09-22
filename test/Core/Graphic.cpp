@@ -233,7 +233,7 @@ void Graphic::BeginFrame()
     );
 
     // std::cout << "开始绘制" << std::endl;
-    float color[4] ={1,1,1,1};
+    float color[4] ={0, 0, 0, 1};
     //清理渲染目标图
     m_context->ClearRenderTargetView(
         m_renderTargetView,

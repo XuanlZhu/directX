@@ -145,15 +145,17 @@ XMFLOAT2 WorldToScreen(XMFLOAT3 _pos) {
 }
 
 float RayIntersectAABB(XMFLOAT3 &rayPos, XMFLOAT3 &rayDir, XMFLOAT3 &boxMin, XMFLOAT3 &boxMax) {
-    float tMin = 0.0f;
+    float tMin = 0;
     float tMax = FLT_MAX;
 
+    // =========================
     // X 轴
+    // =========================
     if (std::abs(rayDir.x) < 1e-6f)
     {
-        // 射线平行于 X 轴
+        // 射线在 X 方向没有移动
         if (rayPos.x < boxMin.x || rayPos.x > boxMax.x)
-            return false;
+            return -1;
     }
     else
     {
@@ -167,14 +169,16 @@ float RayIntersectAABB(XMFLOAT3 &rayPos, XMFLOAT3 &rayDir, XMFLOAT3 &boxMin, XMF
         tMax = std::min(tMax, t2);
 
         if (tMin > tMax)
-            return false;
+            return -1;
     }
 
+    // =========================
     // Y 轴
+    // =========================
     if (std::abs(rayDir.y) < 1e-6f)
     {
         if (rayPos.y < boxMin.y || rayPos.y > boxMax.y)
-            return false;
+            return -1;
     }
     else
     {
@@ -188,14 +192,16 @@ float RayIntersectAABB(XMFLOAT3 &rayPos, XMFLOAT3 &rayDir, XMFLOAT3 &boxMin, XMF
         tMax = std::min(tMax, t2);
 
         if (tMin > tMax)
-            return false;
+            return -1;
     }
 
+    // =========================
     // Z 轴
+    // =========================
     if (std::abs(rayDir.z) < 1e-6f)
     {
         if (rayPos.z < boxMin.z || rayPos.z > boxMax.z)
-            return false;
+            return -1;
     }
     else
     {
@@ -209,20 +215,158 @@ float RayIntersectAABB(XMFLOAT3 &rayPos, XMFLOAT3 &rayDir, XMFLOAT3 &boxMin, XMF
         tMax = std::min(tMax, t2);
 
         if (tMin > tMax)
-            return false;
+            return -1;
     }
 
-    return true;
+    // tMin = 射线进入 AABB 的位置
+    return tMin;
 }
 
-bool RayIntersectTriangle(XMFLOAT3 pos, XMFLOAT3 dir) {
-    //先做AABB粗略检测
-    for (auto x:Global::entityManager->mEntity) {
-        if (true) {//AABB检测
-            //加速结构BVH
-            if (true) {//精确检测
-                return true;
-            }
+float RayIntersectTriangle(XMFLOAT3& rayOrigin,XMFLOAT3& rayDirection,XMFLOAT3& v0,XMFLOAT3& v1,XMFLOAT3& v2)
+{
+    XMVECTOR O = XMLoadFloat3(&rayOrigin);
+    XMVECTOR D = XMVector3Normalize(XMLoadFloat3(&rayDirection));
+
+    XMVECTOR V0 = XMLoadFloat3(&v0);
+    XMVECTOR V1 = XMLoadFloat3(&v1);
+    XMVECTOR V2 = XMLoadFloat3(&v2);
+
+    XMVECTOR edge1 = V1 - V0;
+    XMVECTOR edge2 = V2 - V0;
+
+    XMVECTOR pvec = XMVector3Cross(D, edge2);//垂直于edge2和射线D的向量
+
+    float det = XMVectorGetX(XMVector3Dot(edge1, pvec));//pvec方向分量
+
+    const float EPSILON = 1e-6f;
+
+    // 射线与三角形平行
+    if (fabs(det) < EPSILON)return -1;
+
+    float invDet = 1.0f / det;
+
+    // 计算 u
+    XMVECTOR tvec = O - V0;
+
+    float u = XMVectorGetX(XMVector3Dot(tvec, pvec)) * invDet;
+
+    if (u < -EPSILON || u > 1.0f+ EPSILON)return -1;
+
+    // 计算 v
+    XMVECTOR qvec = XMVector3Cross(tvec, edge1);
+
+    float v = XMVectorGetX(XMVector3Dot(D, qvec)) * invDet;
+
+    if (v < -EPSILON || u + v > 1.0f+ EPSILON)return -1;
+
+    // 计算射线参数 t
+    float t = XMVectorGetX(XMVector3Dot(edge2, qvec)) * invDet;
+
+    // 交点在射线起点后方
+    if (t < 0.0f)return -1;
+
+    return t;
+}
+
+float RayIntersectTriangleModel(XMFLOAT3 &rayOrigin, XMFLOAT3 &rayDirection, Entity* _entity) {
+    float closestDistance = FLT_MAX;
+
+    XMMATRIX worldMatrix = _entity->GetWorldMatrix();
+
+    XMVECTOR O = XMLoadFloat3(&rayOrigin);
+    XMVECTOR D = XMVector3Normalize(
+        XMLoadFloat3(&rayDirection)
+    );
+
+    for (size_t i = 0;
+         i + 2 < _entity->meshFbx.m_indices.size();
+         i += 3)
+    {
+        uint32_t index0 = _entity->meshFbx.m_indices[i];
+        uint32_t index1 = _entity->meshFbx.m_indices[i + 1];
+        uint32_t index2 = _entity->meshFbx.m_indices[i + 2];
+
+        XMVECTOR V0 = XMLoadFloat3(
+            &_entity->meshFbx.m_vertices[index0].position);
+
+        XMVECTOR V1 = XMLoadFloat3(
+            &_entity->meshFbx.m_vertices[index1].position);
+
+        XMVECTOR V2 = XMLoadFloat3(
+            &_entity->meshFbx.m_vertices[index2].position);
+
+        // Local → World
+        V0 = XMVector3TransformCoord(V0, worldMatrix);
+        V1 = XMVector3TransformCoord(V1, worldMatrix);
+        V2 = XMVector3TransformCoord(V2, worldMatrix);
+
+        XMFLOAT3 v0, v1, v2;
+
+        XMStoreFloat3(&v0, V0);
+        XMStoreFloat3(&v1, V1);
+        XMStoreFloat3(&v2, V2);
+
+        float distance = RayIntersectTriangle(
+            rayOrigin,
+            rayDirection,
+            v0,
+            v1,
+            v2
+        );
+
+        if (distance >= 0.0f &&
+            distance < closestDistance)
+        {
+            closestDistance = distance;
         }
     }
+
+    if (closestDistance == FLT_MAX)
+        return -1;
+
+    return closestDistance;
 }
+
+
+
+
+// float RayIntersectTriangleModel(XMFLOAT3 &rayOrigin, XMFLOAT3 &rayDirection, Entity* _entity) {
+//     float closestDistance = FLT_MAX;
+//
+//
+//
+//     // 每 3 个 index 构成一个三角形
+//     for (int i = 0; i + 2 < _mesh->m_indices.size(); i += 3)
+//     {
+//         uint32_t index0 = _mesh->m_indices[i];
+//         uint32_t index1 = _mesh->m_indices[i + 1];
+//         uint32_t index2 = _mesh->m_indices[i + 2];
+//
+//         XMFLOAT3& v0 = _mesh->m_vertices[index0].position;
+//         XMFLOAT3& v1 = _mesh->m_vertices[index1].position;
+//         XMFLOAT3& v2 = _mesh->m_vertices[index2].position;
+//
+//         float distance = RayIntersectTriangle(
+//             rayOrigin,
+//             rayDirection,
+//             v0,
+//             v1,
+//             v2
+//         );
+//
+//         // RayIntersectTriangle 约定：
+//         // < 0 表示没有相交
+//         // >= 0 表示相交距离
+//         if (distance > 0 && distance < closestDistance)
+//         {
+//             closestDistance = distance;
+//         }
+//     }
+//
+//     if (closestDistance == FLT_MAX)
+//     {
+//         return 0;
+//     }
+//
+//     return closestDistance;
+// }

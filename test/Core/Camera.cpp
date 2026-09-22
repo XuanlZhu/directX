@@ -359,12 +359,18 @@ void Camera::Draw() {
         sizeof(Vertex3)
     );
     //绘制射线命中物
-    for (auto x:  Global::entityManager->mEntity) {
-        auto aabb = x->GetAABBbox();
-        if (RayIntersectAABB(position,facing,aabb[0],aabb[1])) {
-            std::string name = x->GetName();
-            Global::graphic->DrawText2(name,0,0);
-            break;
-        }
-    }
+    // for (auto x:  Global::entityManager->mEntity) {
+    //     auto aabb = x->GetAABBbox();
+    //     if (RayIntersectAABB(position,facing,aabb[0],aabb[1])>=0) {
+    //         std::string name = x->GetName();
+    //         // Global::graphic->DrawText2(name,0,0);
+    //         //计算命中距离
+    //         float d = RayIntersectTriangleModel(position,facing,x.get());
+    //         if (d>=0) {
+    //             Global::graphic->DrawText2(name,0,0);
+    //             Global::graphic->DrawText2(std::to_string(d),0,100);
+    //             break;
+    //         }
+    //     }
+    // }
 }
