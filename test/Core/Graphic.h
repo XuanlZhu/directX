@@ -129,4 +129,9 @@ public:
     ID3D11Buffer* m_lightBuffer;
     DirectionalLight m_directionalLight;//灯光
     ID3D11Buffer* m_cameraBuffer;//相机
+
+    ID3D11Texture2D* m_reflectionTexture;//反射纹理
+    ID3D11RenderTargetView* m_reflectionRTV;//RTV
+    ID3D11ShaderResourceView* m_reflectionSRV;//SRV
+    void CreateReflectionTexture(int width, int height);
 };

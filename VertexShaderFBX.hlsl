@@ -68,8 +68,8 @@ VSOutput main(VSInput input)
 	
     // 传递 UV
     output.texCoord = input.texCoord;
-    //
-    output.worldPosition = input.position;
+    //世界坐标
+    output.worldPosition = mul(float4(input.position, 1.0f), world);
 
     return output;
 }
