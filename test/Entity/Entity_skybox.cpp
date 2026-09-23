@@ -10,7 +10,7 @@
 Entity_skybox::Entity_skybox() {
     m_texture = Global::graphic->LoadFBXTexture(L"PNG/images.jpg");
     meshFbx = CModel();
-    scale    = {50, 50, 50};
+    scale    = {200, 200, 200};
     meshFbx.m_vertices =
 {
     // =========================

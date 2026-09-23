@@ -12,7 +12,6 @@ public:
     Entity_water();
     void Update(float deltaTime) override;
     virtual void Draw() override;// 绘制
-    Plane plane1;
 
     std::vector<std::vector<float>> m_heightData;//高度图
 };

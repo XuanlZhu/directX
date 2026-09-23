@@ -36,6 +36,8 @@ struct MatrixBuffer
     DirectX::XMMATRIX world;
     DirectX::XMMATRIX view;
     DirectX::XMMATRIX projection;
+
+    DirectX::XMMATRIX reflectionView = XMMatrixIdentity();
 };
 struct Vertex3fbx
 {
@@ -133,6 +135,16 @@ public:
     ID3D11Texture2D* m_reflectionTexture;//反射纹理
     ID3D11RenderTargetView* m_reflectionRTV;//反射渲染视图
     ID3D11ShaderResourceView* m_reflectionSRV;//反射贴图
+    ID3D11RenderTargetView* m_testRTV;//测试渲染视图
+
+    ID3D11DepthStencilView* m_depthStencilView2;//深度视图
+    ID3D11DepthStencilState* m_depthStencilState2;//深度状态
+    ID3D11Texture2D* depthTexture2;
+    ID3D11VertexShader* m_vertexShaderWater;//顶点着色器
+    ID3D11PixelShader* m_pixelShaderWater;//像素着色器
+
     void CreateReflectionTexture();
     void DrawPrimitiveIndexed2(D3D11_PRIMITIVE_TOPOLOGY _topology,std::vector<Vertex3fbx>& _vertices,std::vector<uint32_t>& _indices,ID3D11ShaderResourceView* _texture);
+    void DrawWater();
+    void SaveWater();
 };

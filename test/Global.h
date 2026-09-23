@@ -38,6 +38,7 @@ public:
     inline static Mesh* mesh = nullptr;//网格体
     inline static EntityManager* entityManager = nullptr;//实体管理器
     inline static Entity* player = nullptr;//玩家
+    inline static Entity* water = nullptr;//水
 
     inline static Camera* cameraFPS = nullptr;//FPS相机
     inline static Camera* cameraTPS = nullptr;//TPS相机

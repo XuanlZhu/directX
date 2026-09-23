@@ -2,11 +2,14 @@
 
 #include <iostream>
 #include <d3dcompiler.h>
+#include <wincodec.h>
 
 #include "Camera.h"
+#include "DirectXTex.h"
 #include "Game.h"
 #include "SpriteFont.h"
 #include "../Global.h"
+#include "Entity/Entity.h"
 #include "Mesh/Mesh.h"
 
 
@@ -220,11 +223,20 @@ std::vector<Vertex3> vertices =
 
 void Graphic::BeginFrame()
 {
+    DrawWater();
+
+
+    // m_context->OMSetRenderTargets(
+    //     1,
+    //     &m_reflectionRTV,//m_renderTargetView
+    //     m_depthStencilView2
+    // );
+
     m_spriteBatch->Begin();
-    //设置渲染目标视图
+
     m_context->OMSetRenderTargets(
         1,
-        &m_renderTargetView,
+        &m_renderTargetView,//m_renderTargetView
         m_depthStencilView
     );
     m_context->OMSetDepthStencilState(
@@ -246,7 +258,7 @@ void Graphic::BeginFrame()
         1.0f,
         0
     );
-    //相机-------------------------------
+    //相机数据，用于光照计算-------------------------------
     CameraBuffer data;
     data.cameraPosition = Global::camera->position;
 
@@ -261,9 +273,9 @@ void Graphic::BeginFrame()
     memcpy(mapped.pData, &data, sizeof(CameraBuffer));
     m_context->Unmap(m_cameraBuffer, 0);
     m_context->PSSetConstantBuffers(2, 1, &m_cameraBuffer);
-
-
     //--------------------------------------------------------------------------
+
+
 
 
 
@@ -670,6 +682,7 @@ void Graphic::InitLight() {
     bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 
     m_device->CreateBuffer(&bufferDesc, nullptr, &m_cameraBuffer);
+    CreateReflectionTexture();
 }
 
 void Graphic::DrawPrimitiveIndexed(D3D11_PRIMITIVE_TOPOLOGY _topology, const std::vector<Vertex3fbx> &_vertices,const std::vector<uint32_t> &_indices,ID3D11ShaderResourceView* _texture) {
@@ -1380,6 +1393,7 @@ void Graphic::EndFrame()
 {
     m_spriteBatch->End();
     assert(m_swapChain);
+
     //将缓冲区显示到屏幕
     m_swapChain->Present(
         1,
@@ -1755,15 +1769,115 @@ void Graphic::CreateReflectionTexture() {
         nullptr,
         &m_reflectionSRV
     );
+    //------------------------------------------------
+    D3D11_TEXTURE2D_DESC depthDesc{};
+
+    depthDesc.Width = 800;
+    depthDesc.Height = 600;
+
+    depthDesc.MipLevels = 1;
+    depthDesc.ArraySize = 1;
+
+    depthDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+
+    depthDesc.SampleDesc.Count = 1;
+    depthDesc.SampleDesc.Quality = 0;
+
+    depthDesc.Usage = D3D11_USAGE_DEFAULT;
+
+    depthDesc.BindFlags =
+        D3D11_BIND_DEPTH_STENCIL;
+
+    depthDesc.CPUAccessFlags = 0;
+    depthDesc.MiscFlags = 0;
+
+
+    m_device->CreateTexture2D(
+        &depthDesc,
+        nullptr,
+        &depthTexture2
+    );
+
+
+    // 创建 DepthStencilView
+    m_device->CreateDepthStencilView(
+        depthTexture2,
+        nullptr,
+        &m_depthStencilView2
+    );
+    //-------------------------------
+    D3D11_DEPTH_STENCIL_DESC depthStateDesc{};
+
+    depthStateDesc.DepthEnable = TRUE;
+
+    depthStateDesc.DepthWriteMask =
+        D3D11_DEPTH_WRITE_MASK_ALL;
+
+    depthStateDesc.DepthFunc =
+        D3D11_COMPARISON_LESS;
+
+    // 如果不用模板
+    depthStateDesc.StencilEnable = FALSE;
+
+    m_device->CreateDepthStencilState(
+        &depthStateDesc,
+        &m_depthStencilState2
+    );
+    //----------------------------------------------------------
+    ID3DBlob* vsBlob = nullptr;
+    ID3DBlob* psBlob = nullptr;
+    ID3DBlob* errorBlob = nullptr;
+    D3DCompileFromFile(
+        L"VSWater.hlsl",
+        nullptr,
+        nullptr,
+        "main",
+        "vs_5_0",
+        0,
+        0,
+        &vsBlob,
+        &errorBlob
+    );
+    D3DCompileFromFile(
+        L"PSWater.hlsl",
+        nullptr,
+        nullptr,
+        "main",
+        "ps_5_0",
+        0,
+        0,
+        &psBlob,
+        &errorBlob
+    );
+    m_device->CreateVertexShader(
+        vsBlob->GetBufferPointer(),
+        vsBlob->GetBufferSize(),
+        nullptr,
+        &m_vertexShaderWater
+    );
+    m_device->CreatePixelShader(
+        psBlob->GetBufferPointer(),
+        psBlob->GetBufferSize(),
+        nullptr,
+        &m_pixelShaderWater
+    );
+
 }
+
 
 void Graphic::DrawPrimitiveIndexed2(D3D11_PRIMITIVE_TOPOLOGY _topology, std::vector<Vertex3fbx> &_vertices,std::vector<uint32_t> &_indices, ID3D11ShaderResourceView *_texture) {
 #pragma region FBX
     if (_vertices.empty() || _indices.empty())return;
-    //缓冲区
-    UINT vertexBufferSize =static_cast<UINT>(_vertices.size() * sizeof(Vertex3fbx));
 
-    UINT indexBufferSize =static_cast<UINT>(_indices.size() * sizeof(uint32_t));
+    UINT vertexBufferSize =
+        static_cast<UINT>(
+            _vertices.size() * sizeof(Vertex3fbx)
+        );
+
+    UINT indexBufferSize =
+        static_cast<UINT>(
+            _indices.size() * sizeof(uint32_t)
+        );
 
     // ========================================
     // 1. 确保 Dynamic Vertex Buffer 足够大
@@ -1917,7 +2031,7 @@ void Graphic::DrawPrimitiveIndexed2(D3D11_PRIMITIVE_TOPOLOGY _topology, std::vec
     // 9. Vertex Shader
     // ========================================
     m_context->VSSetShader(
-        m_vertexShaderFBX,
+        m_vertexShaderWater,
         nullptr,
         0
     );
@@ -1925,12 +2039,12 @@ void Graphic::DrawPrimitiveIndexed2(D3D11_PRIMITIVE_TOPOLOGY _topology, std::vec
     // 10. Pixel Shader
     // ========================================
     m_context->PSSetShader(
-        m_pixelShaderFBX,
+        m_pixelShaderWater,
         nullptr,
         0
     );
     //取样器
-    ID3D11ShaderResourceView* texture = _texture;//贴图
+    ID3D11ShaderResourceView* texture = m_reflectionSRV;//使用反射贴图
     m_context->PSSetShaderResources(
         0,
         1,
@@ -1947,10 +2061,78 @@ void Graphic::DrawPrimitiveIndexed2(D3D11_PRIMITIVE_TOPOLOGY _topology, std::vec
     // ========================================
     // 12. Indexed Draw
     // ========================================
-    //修改渲染视图
-    m_context->OMSetRenderTargets(1,&m_reflectionRTV,m_depthStencilView);
-    m_context->DrawIndexed(static_cast<UINT>(_indices.size()),0,0);
-    //结束后改回
-    m_context->OMSetRenderTargets(1,&m_renderTargetView,m_depthStencilView);
+    m_context->DrawIndexed(
+        static_cast<UINT>(_indices.size()),
+        0,
+        0
+    );
+}
+
+extern XMFLOAT3 ReflectPoint(Plane plane,XMFLOAT3 point);
+extern XMFLOAT3 ReflectDirection(const Plane& plane, const XMFLOAT3& direction);
+
+void Graphic::DrawWater() {
+    m_context->OMSetRenderTargets(1,&m_reflectionRTV,m_depthStencilView2);
+    m_context->OMSetDepthStencilState(m_depthStencilState2,0);
+    // //清理渲染目标图
+    float color[4] ={0, 0, 0, 1};
+    m_context->ClearRenderTargetView(m_reflectionRTV,color);
+    m_context->ClearDepthStencilView(m_depthStencilView2,D3D11_CLEAR_DEPTH,1.0f,0);
+    // //相机对称位置
+    Global::camera2->position = ReflectPoint(Global::water->plane1,Global::camera->position);
+    Global::camera2->facing = ReflectDirection(Global::water->plane1, Global::camera->facing);
+    Global::camera2->uping = ReflectDirection(Global::water->plane1, Global::camera->uping);
+
+
+    for(auto& entity : Global::entityManager->mEntity) {
+        if (entity.get()!=Global::water) {
+            // 矩阵数据
+            MatrixBuffer matrixData;
+            matrixData.world = XMMatrixTranspose(entity->GetWorldMatrix());
+            matrixData.view =  XMMatrixTranspose(Global::camera2->GetViewMatrix());
+            matrixData.projection = XMMatrixTranspose(m_projection);
+            // 把矩阵传给 GPU
+            m_context->UpdateSubresource(
+                m_matrixBuffer,
+                0,
+                nullptr,
+                &matrixData,
+                0,
+                0
+            );
+            // 绘制立方体
+            DrawPrimitiveIndexed(
+                D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
+                entity->meshFbx.m_vertices,
+                entity->meshFbx.m_indices,
+                entity->m_texture
+            );
+        }
+    }
+    // //写入t1纹理槽
+    m_context->PSSetShaderResources(
+        1,      // 对应 t1
+        1,
+        &m_reflectionSRV
+    );
+}
+
+void Graphic::SaveWater() {
+    DirectX::ScratchImage image;
+
+    HRESULT hr = DirectX::CaptureTexture(
+        m_device,
+        m_context,
+        m_reflectionTexture,
+        image
+    );
+
+    DirectX::SaveToWICFile(
+        image.GetImages(),
+        image.GetImageCount(),
+        DirectX::WIC_FLAGS_NONE,
+        GUID_ContainerFormatPng,
+        L"reflection.png"
+    );
 }
 

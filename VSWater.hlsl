@@ -21,6 +21,7 @@ struct VSOutput
     float2 texCoord : TEXCOORD0;
 	
 	float3 worldPosition : TEXCOORD1;// 世界空间位置，给光照计算使用
+	float4 reflectionPosition : TEXCOORD2;//裁剪空间坐标
 };
 float3x3 Inverse3x3(float3x3 m)
 {
@@ -72,6 +73,15 @@ VSOutput main(VSInput input)
     output.texCoord = input.texCoord;
     //世界坐标
     output.worldPosition = mul(float4(input.position, 1.0f), world);
+	//-----------------------------------------------------------------------
+	// 反射相机
+    output.reflectionPosition =
+        mul(
+            mul(worldPosition, reflectionView),//要拿反射相机矩阵
+            projection
+        );
+	
+	
 
     return output;
 }

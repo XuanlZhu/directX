@@ -19,11 +19,12 @@ cbuffer CameraBuffer : register(b2)
 
 struct PSInput
 {
-    float4 position : SV_POSITION;//SV_POSITION到了PS就已经是屏幕坐标
+    float4 position : SV_POSITION;//自动透视除法
     float3 normal   : NORMAL;
     float2 texCoord : TEXCOORD0;
 	
 	float3 worldPosition : TEXCOORD1;//世界空间位置，给光照计算使用
+	float4 reflectionPosition : TEXCOORD2;//
 };
 
 float4 main(PSInput input) : SV_TARGET
@@ -43,8 +44,17 @@ float4 main(PSInput input) : SV_TARGET
 	//高光
 	float3 specular = lightColor * specularStrength * spec;
 	//-------------------------------------------------------------------
+	//镜面反射
+	// Clip Space → NDC
+    float2 uv = input.reflectionPosition.xy / input.reflectionPosition.w;//透视除法
+		
+	// NDC [-1,1] → UV [0,1]
+    uv = uv * 0.5f + 0.5f;
 	
-	
+	// 根据你的纹理坐标方向决定是否翻转 Y
+    //uv.y = 1.0f - uv.y;
+
+    float4 reflection = reflectionTexture.Sample(samplerState,uv);
 	
 	
 	//--------------------------------------------------------------------
@@ -56,6 +66,7 @@ float4 main(PSInput input) : SV_TARGET
     float3 diffuse = lightColor * intensity * NdotL;
 	//基础色
     float4 albedo = diffuseTexture.Sample(samplerState,input.texCoord);
+	albedo = reflection;
 	//最终颜色
 	float3 finalColor = albedo.rgb * (diffuse+ambient) + specular;
 	

@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "../Mesh/Mesh.h"
+#include "Core/Camera.h"
 #include "Core/Graphic.h"
 #include "Mesh/CModel.h"
 using namespace DirectX;
@@ -50,6 +51,7 @@ public:
     XMMATRIX GetWorldMatrix();
 
     ID3D11ShaderResourceView* m_texture = nullptr;//纹理图
+    Plane plane1;
 private:
     XMFLOAT3 facing    = {1, 0, 0};
 };
