@@ -48,7 +48,7 @@ void Game::Setup()
     //天空盒
     CreateEntity("Entity_ball",XMFLOAT3{0,4,0});//球
     CreateEntity("Entity_skybox",XMFLOAT3{0,0,0});//天空盒
-    CreateEntity("Entity_plane",XMFLOAT3{0,-4,0});//地板
+    // CreateEntity("Entity_plane",XMFLOAT3{0,-4,0});//地板
     Global::water = CreateEntity("Entity_water",XMFLOAT3{0,0,0}).get();//水
 }
 
@@ -121,6 +121,13 @@ void Game::OnKeyPress(int _key) {
     if (_key == EKey::D) {
         Global::player->mChangeLeft = -1;
     }
+    if (_key == EKey::Q) {
+        Global::player->mChangeUp = 1;
+    }
+    if (_key == EKey::E) {
+        Global::player->mChangeUp = -1;
+    }
+
 }
 void Game::OnKeyRelease(int _key) {
     if (_key == EKey::W) {
@@ -134,6 +141,12 @@ void Game::OnKeyRelease(int _key) {
     }
     if (_key == EKey::D) {
         Global::player->mChangeLeft = 0;
+    }
+    if (_key == EKey::Q) {
+        Global::player->mChangeUp = 0;
+    }
+    if (_key == EKey::E) {
+        Global::player->mChangeUp = 0;
     }
 
     //自由相机

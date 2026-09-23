@@ -93,6 +93,8 @@ XMFLOAT3 ReflectPoint(Plane plane,XMFLOAT3 point)
 }
 XMFLOAT3 ReflectDirection(const Plane& plane, const XMFLOAT3& direction)
 {
+
+
     float dot =
         direction.x * plane.normal.x +
         direction.y * plane.normal.y +
@@ -112,6 +114,7 @@ void Entity_water::Draw() {
     matrixData.world = XMMatrixTranspose(GetWorldMatrix());
     matrixData.view =  XMMatrixTranspose(Global::camera->GetViewMatrix());
     matrixData.projection = XMMatrixTranspose(Global::graphic->m_projection);
+    matrixData.reflectionView = XMMatrixTranspose(Global::camera2->GetViewMatrix());
 
     // 把矩阵传给 GPU
     Global::graphic->m_context->UpdateSubresource(

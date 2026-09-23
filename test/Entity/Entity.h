@@ -32,6 +32,7 @@ public:
     CModel meshFbx;//网格体
     float mChangeForward = 0;
     float mChangeLeft = 0;
+    float mChangeUp = 0;
 
 
     XMFLOAT3 position = {0, 0, 0};

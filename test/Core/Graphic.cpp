@@ -2044,12 +2044,20 @@ void Graphic::DrawPrimitiveIndexed2(D3D11_PRIMITIVE_TOPOLOGY _topology, std::vec
         0
     );
     //取样器
-    ID3D11ShaderResourceView* texture = m_reflectionSRV;//使用反射贴图
+    ID3D11ShaderResourceView* texture = _texture;//使用反射贴图
     m_context->PSSetShaderResources(
         0,
         1,
         &texture
     );
+    // //写入t1纹理槽
+    m_context->PSSetShaderResources(
+        1,      // 对应 t1
+        1,
+        &m_reflectionSRV
+    );
+
+
     ID3D11SamplerState* sampler = m_samplerStateFBX.Get();
     m_context->PSSetSamplers(
         0,
@@ -2109,12 +2117,12 @@ void Graphic::DrawWater() {
             );
         }
     }
-    // //写入t1纹理槽
-    m_context->PSSetShaderResources(
-        1,      // 对应 t1
-        1,
-        &m_reflectionSRV
-    );
+    // // //写入t1纹理槽
+    // m_context->PSSetShaderResources(
+    //     1,      // 对应 t1
+    //     1,
+    //     &m_reflectionSRV
+    // );
 }
 
 void Graphic::SaveWater() {

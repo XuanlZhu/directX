@@ -19,6 +19,7 @@ Entity_plane::Entity_plane() {
     readHightMap("PNG/high3.bmp");//加载高度图
     scale= {2, 2, 2};
 
+
     const int size = 50;       // 20 × 20 个格子
     const float length = 50;
     const float step = length / size;

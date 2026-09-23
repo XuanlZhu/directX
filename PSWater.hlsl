@@ -19,7 +19,7 @@ cbuffer CameraBuffer : register(b2)
 
 struct PSInput
 {
-    float4 position : SV_POSITION;//自动透视除法
+    float4 position : SV_POSITION;
     float3 normal   : NORMAL;
     float2 texCoord : TEXCOORD0;
 	
@@ -52,13 +52,13 @@ float4 main(PSInput input) : SV_TARGET
     uv = uv * 0.5f + 0.5f;
 	
 	// 根据你的纹理坐标方向决定是否翻转 Y
-    //uv.y = 1.0f - uv.y;
+    uv.y = 1.0f - uv.y;
 
     float4 reflection = reflectionTexture.Sample(samplerState,uv);
 	
 	
-	//--------------------------------------------------------------------
-	//环境光
+	
+	//环境光---------------------------------------------------
 	float3 ambientColor = float3(1.0f, 1.0f, 1.0f);
 	float ambientIntensity = 0.2f;
 	float3 ambient = ambientColor *ambientIntensity;
@@ -67,6 +67,7 @@ float4 main(PSInput input) : SV_TARGET
 	//基础色
     float4 albedo = diffuseTexture.Sample(samplerState,input.texCoord);
 	albedo = reflection;
+	
 	//最终颜色
 	float3 finalColor = albedo.rgb * (diffuse+ambient) + specular;
 	

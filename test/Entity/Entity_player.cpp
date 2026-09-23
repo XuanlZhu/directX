@@ -17,7 +17,7 @@ Entity_player::Entity_player() {
 
 }
 void Entity_player::Update(float deltaTime) {
-    XMFLOAT3 dir = {mChangeForward, 0, mChangeLeft};
+    XMFLOAT3 dir = {mChangeForward, mChangeUp, mChangeLeft};
 
     XMVECTOR pos = XMLoadFloat3(&position);
     XMVECTOR direction = XMVector3Normalize(XMLoadFloat3(&dir));//归一化方向
