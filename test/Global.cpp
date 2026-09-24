@@ -4,6 +4,7 @@
 
 #include "Global.h"
 
+#include <array>
 #include <chrono>
 #include <iostream>
 #include <random>
@@ -278,9 +279,7 @@ float RayIntersectTriangleModel(XMFLOAT3 &rayOrigin, XMFLOAT3 &rayDirection, Ent
         XMLoadFloat3(&rayDirection)
     );
 
-    for (size_t i = 0;
-         i + 2 < _entity->meshFbx.m_indices.size();
-         i += 3)
+    for (size_t i = 0;i + 2 < _entity->meshFbx.m_indices.size();i += 3)
     {
         uint32_t index0 = _entity->meshFbx.m_indices[i];
         uint32_t index1 = _entity->meshFbx.m_indices[i + 1];
@@ -327,7 +326,26 @@ float RayIntersectTriangleModel(XMFLOAT3 &rayOrigin, XMFLOAT3 &rayDirection, Ent
     return closestDistance;
 }
 
-
+float RayIntersect(XMFLOAT3& rayPos, XMFLOAT3& rayDir) {
+    //绘制射线命中物
+    for (auto x:  Global::entityManager->mEntity) {
+        if (x.get()==Global::player)continue;//忽略玩家
+        auto aabb = x->GetAABBbox();
+        //如果AABB命中
+        if (RayIntersectAABB(rayPos,rayDir,aabb[0],aabb[1])>=0) {
+            //计算命中距离
+            float d = RayIntersectTriangleModel(rayPos,rayDir,x.get());
+            if (d>=0) {
+                std::cout << x->GetName() << std::endl;
+                std::cout << d << std::endl;
+                // Global::graphic->DrawText2(x->GetName(),0,0);
+                // Global::graphic->DrawText2(std::to_string(d),0,100);
+                return d;
+            }
+        }
+    }
+    return -1;
+}
 
 
 // float RayIntersectTriangleModel(XMFLOAT3 &rayOrigin, XMFLOAT3 &rayDirection, Entity* _entity) {

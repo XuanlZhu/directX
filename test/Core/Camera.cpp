@@ -24,7 +24,6 @@ Camera::Camera() {
 }
 
 DirectX::XMMATRIX Camera::GetViewMatrix() {
-    using namespace DirectX;
 
     XMVECTOR pos = XMLoadFloat3(&position);
     XMVECTOR dir = XMLoadFloat3(&facing);

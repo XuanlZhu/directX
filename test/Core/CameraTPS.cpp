@@ -11,13 +11,14 @@
 
 CameraTPS::CameraTPS() {
     dir = XMFLOAT3{-1, 0, 0};
+    mSpeed = 100;
 }
 
 void CameraTPS::Update(float deltaTime) {
     XMVECTOR va = XMLoadFloat3(&Global::player->GetPosition());
     XMVECTOR vb = XMVector3Normalize(XMLoadFloat3(&dir));
 
-    XMVECTOR vc = va + vb*3.5;
+    XMVECTOR vc = va + vb*10;
 
     XMFLOAT3 c;
     XMStoreFloat3(&c, vc);

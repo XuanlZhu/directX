@@ -16,14 +16,25 @@ Entity_player::Entity_player() {
     rotation = {-90, 45, 90};
 
 }
+extern XMFLOAT3 ReflectPoint(Plane plane,XMFLOAT3 point);
+extern XMFLOAT3 ReflectDirection(const Plane& plane, const XMFLOAT3& direction);
+
 void Entity_player::Update(float deltaTime) {
     XMFLOAT3 dir = {mChangeForward, mChangeUp, mChangeLeft};
 
     XMVECTOR pos = XMLoadFloat3(&position);
     XMVECTOR direction = XMVector3Normalize(XMLoadFloat3(&dir));//归一化方向
 
-    pos += direction * 0.1;
+    pos += direction * 0.5;
     XMStoreFloat3(&position, pos);
+    //-------------------------------
+    // Global::ball->position = ReflectPoint(Global::water->plane1,position);
+    //碰撞检测
+    auto face = XMFLOAT3{0,-1,0};
+    auto d = RayIntersect(position,face);
+    if (d>=0) {
+        position.y -= 0.01;
+    }
 }
 
 void Entity_player::Draw() {

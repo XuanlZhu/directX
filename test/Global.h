@@ -39,6 +39,7 @@ public:
     inline static EntityManager* entityManager = nullptr;//实体管理器
     inline static Entity* player = nullptr;//玩家
     inline static Entity* water = nullptr;//水
+    inline static Entity* ball = nullptr;//球
 
     inline static Camera* cameraFPS = nullptr;//FPS相机
     inline static Camera* cameraTPS = nullptr;//TPS相机
@@ -57,3 +58,4 @@ XMFLOAT2 WorldToScreen(XMFLOAT3 pos);
 float RayIntersectAABB(XMFLOAT3& rayPos,XMFLOAT3& rayDir,XMFLOAT3& boxMin,XMFLOAT3& boxMax);
 float RayIntersectTriangle(XMFLOAT3& rayOrigin,XMFLOAT3& rayDirection,XMFLOAT3& v0,XMFLOAT3& v1,XMFLOAT3& v2);
 float RayIntersectTriangleModel(XMFLOAT3& rayOrigin,XMFLOAT3& rayDirection,Entity* _entity);
+float RayIntersect(XMFLOAT3& rayPos,XMFLOAT3& rayDir);//射线检测

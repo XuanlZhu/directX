@@ -20,7 +20,7 @@ Entity_plane::Entity_plane() {
     scale= {2, 2, 2};
 
 
-    const int size = 50;       // 20 × 20 个格子
+    const int size = 50;
     const float length = 50;
     const float step = length / size;
 
@@ -199,7 +199,7 @@ void Entity_plane::ApplyHeightMap()
     const int heightMapHeight = m_heightData.size();
 
     // 最大高度
-    const float heightScale = 5.0f;
+    const float heightScale = 10.0f;
 
     for (int z = 0; z < meshHeight; ++z)
     {

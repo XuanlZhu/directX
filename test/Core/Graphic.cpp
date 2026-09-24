@@ -60,6 +60,9 @@ bool Graphic::Initialize(HWND hWnd)
 
     DXGI_SWAP_CHAIN_DESC swapDesc = {};
 
+    std::cout << "宽度" << width<< std::endl;
+    std::cout << "高度" << height<< std::endl;
+
     swapDesc.BufferCount = 1;
     swapDesc.BufferDesc.Width = width;
     swapDesc.BufferDesc.Height = height;
@@ -1741,8 +1744,8 @@ ID3D11ShaderResourceView* Graphic::LoadFBXTexture(std::wstring _path)
 
 void Graphic::CreateReflectionTexture() {
     D3D11_TEXTURE2D_DESC desc{};
-    desc.Width = 800;
-    desc.Height = 600;
+    desc.Width = 784;
+    desc.Height = 561;
     desc.MipLevels = 1;
     desc.ArraySize = 1;
     desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -2082,6 +2085,7 @@ extern XMFLOAT3 ReflectDirection(const Plane& plane, const XMFLOAT3& direction);
 void Graphic::DrawWater() {
     m_context->OMSetRenderTargets(1,&m_reflectionRTV,m_depthStencilView2);
     m_context->OMSetDepthStencilState(m_depthStencilState2,0);
+    m_context->OMSetBlendState(m_alphaBlendState,nullptr,0xffffffff);
     // //清理渲染目标图
     float color[4] ={0, 0, 0, 1};
     m_context->ClearRenderTargetView(m_reflectionRTV,color);
@@ -2117,12 +2121,9 @@ void Graphic::DrawWater() {
             );
         }
     }
-    // // //写入t1纹理槽
-    // m_context->PSSetShaderResources(
-    //     1,      // 对应 t1
-    //     1,
-    //     &m_reflectionSRV
-    // );
+    //切回渲染视图
+    // m_context->OMSetRenderTargets(1,&m_renderTargetView,m_depthStencilView);
+
 }
 
 void Graphic::SaveWater() {

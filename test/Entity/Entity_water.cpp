@@ -15,7 +15,7 @@
 Entity_water::Entity_water() {
     meshFbx = CModel();
     m_texture = Global::graphic->LoadFBXTexture(L"PNG/water.png");
-    scale= {0.3, 0.3, 0.3};
+    scale= {2, 2, 2};
     plane1.normal = XMFLOAT3{0,1,0};
     plane1.d = 0;
 
@@ -42,7 +42,7 @@ Entity_water::Entity_water() {
             meshFbx.m_vertices.push_back(
             {
                 { px, 0.0f, pz },   // position
-                { 1.0f, 1.0f, 1.0f }, // color
+                { 0, 1.0f, 0 }, //法线
         { u, v }
             });
         }

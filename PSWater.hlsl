@@ -55,8 +55,17 @@ float4 main(PSInput input) : SV_TARGET
     uv.y = 1.0f - uv.y;
 
     float4 reflection = reflectionTexture.Sample(samplerState,uv);
+	//--------------------------------------------------------------
+	//基础色
+    float4 albedo = diffuseTexture.Sample(samplerState,input.texCoord);
+	albedo.a = 1;
+	//线性插值
+	albedo.rgb = lerp(albedo.rgb,reflection.rgb,0.9);
+	//Fresnel插值
+	// float fresnel = pow(1.0f - saturate(dot(N,V)),5.0f);
+	// albedo.rgb = lerp(albedo.rgb,reflection.rgb,fresnel);
 	
-	
+	// albedo = reflection;
 	
 	//环境光---------------------------------------------------
 	float3 ambientColor = float3(1.0f, 1.0f, 1.0f);
@@ -64,10 +73,8 @@ float4 main(PSInput input) : SV_TARGET
 	float3 ambient = ambientColor *ambientIntensity;
 	//漫反射
     float3 diffuse = lightColor * intensity * NdotL;
-	//基础色
-    float4 albedo = diffuseTexture.Sample(samplerState,input.texCoord);
-	albedo = reflection;
 	
+	// albedo = reflection;
 	//最终颜色
 	float3 finalColor = albedo.rgb * (diffuse+ambient) + specular;
 	
