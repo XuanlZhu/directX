@@ -226,7 +226,7 @@ std::vector<Vertex3> vertices =
 
 void Graphic::BeginFrame()
 {
-    DrawWater();
+    // DrawWater();
 
 
     // m_context->OMSetRenderTargets(

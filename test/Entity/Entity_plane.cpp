@@ -19,10 +19,11 @@ Entity_plane::Entity_plane() {
     readHightMap("PNG/high3.bmp");//加载高度图
     scale= {2, 2, 2};
 
+    m_size = 100;
 
-    const int size = 50;
-    const float length = 50;
-    const float step = length / size;
+    const int size = m_size;
+    const float length = m_size;
+    const float step = m_size/m_size;
 
     meshFbx.m_vertices.clear();
     meshFbx.m_indices.clear();
@@ -102,7 +103,8 @@ void Entity_plane::Draw() {
     );
     // 绘制立方体
     Global::graphic->DrawPrimitiveIndexed(
-        D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
+        // D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
+        D3D11_PRIMITIVE_TOPOLOGY_LINELIST,
         meshFbx.m_vertices,
         meshFbx.m_indices,
         m_texture
@@ -192,8 +194,8 @@ void Entity_plane::ApplyHeightMap()
     if (m_heightData.empty())
         return;
 
-    const int meshWidth = 51;
-    const int meshHeight = 51;
+    const int meshWidth = m_size+1;
+    const int meshHeight = m_size+1;
 
     const int heightMapWidth = m_heightData[0].size();
     const int heightMapHeight = m_heightData.size();

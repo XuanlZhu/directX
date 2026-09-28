@@ -15,6 +15,7 @@ public:
     void readHightMap(std::string path);
     void ApplyHeightMap();
 
+    int m_size = 50;
     // ID3D11ShaderResourceView* m_hightMap = nullptr;//高度图
     std::vector<std::vector<float>> m_heightData;//高度图
 };

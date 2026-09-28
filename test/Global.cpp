@@ -336,8 +336,8 @@ float RayIntersect(XMFLOAT3& rayPos, XMFLOAT3& rayDir) {
             //计算命中距离
             float d = RayIntersectTriangleModel(rayPos,rayDir,x.get());
             if (d>=0) {
-                std::cout << x->GetName() << std::endl;
-                std::cout << d << std::endl;
+                // std::cout << x->GetName() << std::endl;
+                // std::cout << d << std::endl;
                 // Global::graphic->DrawText2(x->GetName(),0,0);
                 // Global::graphic->DrawText2(std::to_string(d),0,100);
                 return d;
