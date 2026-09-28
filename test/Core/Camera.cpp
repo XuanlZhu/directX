@@ -78,30 +78,23 @@ void Camera::OnMouseMove(int x, int y,bool isRdown){
     using namespace DirectX;
 
     // 当前朝向
-    XMVECTOR dir = XMVector3Normalize(
-        XMLoadFloat3(&facing)
-    );
+    XMVECTOR dir = XMVector3Normalize(XMLoadFloat3(&facing));
 
     // 世界 Y 轴
-    XMVECTOR worldUp = XMVector3Normalize(
-        XMLoadFloat3(&uping)
-    );
+    XMVECTOR worldUp = XMVector3Normalize(XMLoadFloat3(&uping));
 
     // =========================
     // 1. 左右旋转：绕世界 Y 轴
     // =========================
 
-    XMMATRIX yawMatrix = XMMatrixRotationAxis(
-        worldUp,
-        yaw
-    );
+    XMMATRIX yawMatrix = XMMatrixRotationAxis(worldUp,yaw);
 
-    dir = XMVector3TransformNormal(
-        dir,
-        yawMatrix
-    );
-
+    dir = XMVector3TransformNormal(dir,yawMatrix);
     dir = XMVector3Normalize(dir);
+    //人物也要旋转
+    // float yawDegree = yaw * 180.0f / XM_PI;
+    // Global::player->rotation.y += yawDegree;
+
 
     // =========================
     // 2. 计算当前摄像机的右方向
@@ -128,10 +121,9 @@ void Camera::OnMouseMove(int x, int y,bool isRdown){
     dir = XMVector3Normalize(dir);
 
     // 保存新的朝向
-    XMStoreFloat3(
-        &facing,
-        dir
-    );
+    XMStoreFloat3(&facing,dir);
+    //设置人物朝向
+
 }
 
 void Camera::OnMouseMoveLeft(int x, int y, bool isLdown) {

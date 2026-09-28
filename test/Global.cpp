@@ -144,7 +144,7 @@ XMFLOAT2 WorldToScreen(XMFLOAT3 _pos) {
 
     return {result.x,result.y};
 }
-
+//AABB碰撞
 float RayIntersectAABB(XMFLOAT3 &rayPos, XMFLOAT3 &rayDir, XMFLOAT3 &boxMin, XMFLOAT3 &boxMax) {
     float tMin = 0;
     float tMax = FLT_MAX;
@@ -222,7 +222,7 @@ float RayIntersectAABB(XMFLOAT3 &rayPos, XMFLOAT3 &rayDir, XMFLOAT3 &boxMin, XMF
     // tMin = 射线进入 AABB 的位置
     return tMin;
 }
-
+//射线三角形碰撞
 float RayIntersectTriangle(XMFLOAT3& rayOrigin,XMFLOAT3& rayDirection,XMFLOAT3& v0,XMFLOAT3& v1,XMFLOAT3& v2)
 {
     XMVECTOR O = XMLoadFloat3(&rayOrigin);
@@ -336,12 +336,76 @@ float RayIntersect(XMFLOAT3& rayPos, XMFLOAT3& rayDir) {
             //计算命中距离
             float d = RayIntersectTriangleModel(rayPos,rayDir,x.get());
             if (d>=0) {
-                std::cout << x->GetName() << std::endl;
-                std::cout << d << std::endl;
+                // std::cout << x->GetName() << std::endl;
+                // std::cout << d << std::endl;
                 // Global::graphic->DrawText2(x->GetName(),0,0);
                 // Global::graphic->DrawText2(std::to_string(d),0,100);
                 return d;
             }
+        }
+    }
+    return -1;
+}
+//还要修改
+float RayOBBModel(XMFLOAT3 &rayOrigin, XMFLOAT3 &rayDirection, Entity* _entity) {
+    float closestDistance = FLT_MAX;
+
+    XMMATRIX worldMatrix = _entity->GetWorldMatrix();
+
+    for (size_t i = 0;i + 2 < _entity->meshFbx.m_indices.size();i += 3)
+    {
+        uint32_t index0 = _entity->meshFbx.m_indices[i];
+        uint32_t index1 = _entity->meshFbx.m_indices[i + 1];
+        uint32_t index2 = _entity->meshFbx.m_indices[i + 2];
+
+        XMVECTOR V0 = XMLoadFloat3(&_entity->meshFbx.m_vertices[index0].position);
+
+        XMVECTOR V1 = XMLoadFloat3(&_entity->meshFbx.m_vertices[index1].position);
+
+        XMVECTOR V2 = XMLoadFloat3(&_entity->meshFbx.m_vertices[index2].position);
+
+        // Local → World
+        V0 = XMVector3TransformCoord(V0, worldMatrix);
+        V1 = XMVector3TransformCoord(V1, worldMatrix);
+        V2 = XMVector3TransformCoord(V2, worldMatrix);
+
+        XMFLOAT3 v0, v1, v2;
+
+        XMStoreFloat3(&v0, V0);
+        XMStoreFloat3(&v1, V1);
+        XMStoreFloat3(&v2, V2);
+
+        float distance = RayIntersectTriangle(
+            rayOrigin,
+            rayDirection,
+            v0,
+            v1,
+            v2
+        );
+
+        if (distance >= 0.0f &&
+            distance < closestDistance)
+        {
+            closestDistance = distance;
+        }
+    }
+
+    if (closestDistance == FLT_MAX)
+        return -1;
+
+    return closestDistance;
+}
+
+
+float RayIntersectOBB(XMFLOAT3 &rayPos, XMFLOAT3 &rayDir) {
+    //绘制射线命中物
+    for (auto x:  Global::entityManager->mEntity) {
+        if (x.get()==Global::player)continue;//忽略玩家
+        auto aabb = x->GetAABBbox();
+        //如果AABB命中
+        auto d = RayIntersectAABB(rayPos,rayDir,aabb[0],aabb[1]);
+        if (d>0) {
+            return d;
         }
     }
     return -1;

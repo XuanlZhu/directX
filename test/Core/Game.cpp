@@ -30,7 +30,7 @@ Game::Game() {
     Global::camera2 = new Camera();//相机2
     Global::mesh = new Mesh();//网格体
     Global::entityManager = new EntityManager();//实体管理器
-    Global::player = CreateEntity("Entity_player",XMFLOAT3{0,3,0}).get();//玩家
+
 
     Global::cameraFPS = new CameraFPS();//FPS相机
     Global::cameraTPS = new CameraTPS();//TPS相机
@@ -38,17 +38,19 @@ Game::Game() {
 //初始化
 void Game::Setup()
 {
-    // Global::camera = Global::cameraTPS;//切换相机
+    Global::camera = Global::cameraFPS;//切换相机
+    Global::player = CreateEntity("Entity_player",XMFLOAT3{0,0.3,0}).get();//玩家
+
     CreateEntity("Entity_pillar",XMFLOAT3{5,0,5});
     CreateEntity("Entity_pillar",XMFLOAT3{-5,0,5});
     CreateEntity("Entity_pillar",XMFLOAT3{5,0,-5});
     CreateEntity("Entity_pillar",XMFLOAT3{-5,0,-5});
-    CreateEntity("Entity_pillar",XMFLOAT3{0,0,0})->SetFather(Global::player);
+    // CreateEntity("Entity_pillar",XMFLOAT3{0,0,0})->SetFather(Global::player);
 
     //天空盒
     // Global::ball = CreateEntity("Entity_ball",XMFLOAT3{0,10,0}).get();//球
     CreateEntity("Entity_plane",XMFLOAT3{0,-6.5,0});//地板
-    // CreateEntity("Entity_skybox",XMFLOAT3{0,0,0});//天空盒
+    CreateEntity("Entity_skybox",XMFLOAT3{0,0,0});//天空盒
     Global::water = CreateEntity("Entity_water",XMFLOAT3{0,-0.5,0}).get();//水
 }
 
@@ -73,7 +75,7 @@ void Game::Draw()
 {
     Global::entityManager->Draw();//绘制实体
 
-    Global::camera->Draw();//绘制视锥体
+    // Global::camera->Draw();//绘制视锥体
     // DrawTexture("first3",0,0,800,600);
     // DrawLine(XMFLOAT2(0,0), XMFLOAT2(200,200), XMFLOAT3(1,1,1));
 }
@@ -82,6 +84,8 @@ void Game::ProcessInput()
 {
     // mInput.Update();//输入更新
 }
+
+int cameraState = 1;
 //当键盘按下
 void Game::OnKeyPress(int _key) {
     if (_key == EKey::Space) {
@@ -91,6 +95,15 @@ void Game::OnKeyPress(int _key) {
     if (_key == EKey::F) {
         // Global::camera->DrawFrustum();
         Global::graphic->SaveWater();
+    }
+    if (_key == EKey::C) {
+        if (cameraState==1) {
+            Global::camera = Global::cameraTPS;//切换相机
+            cameraState = 2;
+        }else {
+            Global::camera = Global::cameraFPS;//切换相机
+            cameraState = 1;
+        }
     }
 
 

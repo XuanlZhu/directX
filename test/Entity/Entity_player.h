@@ -11,5 +11,5 @@ class Entity_player :public Entity
 public:
     Entity_player();
     void Update(float deltaTime) override;
-    virtual void Draw() override;// 绘制
+    void Draw() override;// 绘制
 };

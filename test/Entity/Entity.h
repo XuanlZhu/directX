@@ -38,6 +38,7 @@ public:
     XMFLOAT3 position = {0, 0, 0};
     XMFLOAT3 rotation = {0, 0, 0};
     XMFLOAT3 scale    = {1, 1, 1};
+    XMFLOAT3 facing = { 1, 0,  0 };//世界坐标
     bool isdraw = false;
 
 
@@ -53,6 +54,5 @@ public:
 
     ID3D11ShaderResourceView* m_texture = nullptr;//纹理图
     Plane plane1;
-private:
-    XMFLOAT3 facing    = {1, 0, 0};
+    float velocityY = 0;
 };

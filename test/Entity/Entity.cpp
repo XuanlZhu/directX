@@ -18,27 +18,27 @@ Entity::Entity() {
 
 void Entity::Draw() {
     // 矩阵数据
-    MatrixBuffer matrixData;
-    matrixData.world = XMMatrixTranspose(GetWorldMatrix());
-    matrixData.view =  XMMatrixTranspose(Global::camera->GetViewMatrix());
-    matrixData.projection = XMMatrixTranspose(Global::graphic->m_projection);
-
-    // 把矩阵传给 GPU
-    Global::graphic->m_context->UpdateSubresource(
-        Global::graphic->m_matrixBuffer,
-        0,
-        nullptr,
-        &matrixData,
-        0,
-        0
-    );
-    // 绘制立方体
-    Global::graphic->DrawPrimitive3D(
-        D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
-        mesh.vertices,
-        std::size(mesh.vertices),
-        sizeof(Vertex3)
-    );
+    // MatrixBuffer matrixData;
+    // matrixData.world = XMMatrixTranspose(GetWorldMatrix());
+    // matrixData.view =  XMMatrixTranspose(Global::camera->GetViewMatrix());
+    // matrixData.projection = XMMatrixTranspose(Global::graphic->m_projection);
+    //
+    // // 把矩阵传给 GPU
+    // Global::graphic->m_context->UpdateSubresource(
+    //     Global::graphic->m_matrixBuffer,
+    //     0,
+    //     nullptr,
+    //     &matrixData,
+    //     0,
+    //     0
+    // );
+    // // 绘制立方体
+    // Global::graphic->DrawPrimitive3D(
+    //     D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
+    //     mesh.vertices,
+    //     std::size(mesh.vertices),
+    //     sizeof(Vertex3)
+    // );
 }
 
 void Entity::Update(float deltaTime) {

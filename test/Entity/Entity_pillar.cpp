@@ -259,12 +259,12 @@ void Entity_pillar::Draw() {
     if(!isDrawBox)return;
     GetLocalAABB();
     // 绘制AABB包围盒
-    // Global::graphic->DrawPrimitive3D(
-    //     D3D11_PRIMITIVE_TOPOLOGY_LINELIST,
-    //     VerticesLocalBox,
-    //     VerticesLocalBox.size(),
-    //     sizeof(Vertex3)
-    // );
+    Global::graphic->DrawPrimitive3D(
+        D3D11_PRIMITIVE_TOPOLOGY_LINELIST,
+        VerticesLocalBox,
+        VerticesLocalBox.size(),
+        sizeof(Vertex3)
+    );
     // 把矩阵传给 GPU
     matrixData.world = XMMatrixIdentity();
     Global::graphic->m_context->UpdateSubresource(

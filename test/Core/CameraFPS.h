@@ -10,4 +10,5 @@ class CameraFPS :public Camera
 {
 public:
     void Update(float deltaTime) override;
+    void OnMouseMove(int x, int y,bool isRdown) override;
 };

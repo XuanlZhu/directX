@@ -305,7 +305,8 @@ void Graphic::BeginFrame()
     //     sizeof(Vertex3)
     // );
     //绘制文字
-    DrawText2("Press F", 0, 500);
+    DrawText2("Press F to draw the view frustum", 0, 500);
+    DrawText2("Press C to switch cameras", 0, 530);
 
 
     //-----------------------------------------------------------

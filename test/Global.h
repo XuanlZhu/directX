@@ -59,3 +59,5 @@ float RayIntersectAABB(XMFLOAT3& rayPos,XMFLOAT3& rayDir,XMFLOAT3& boxMin,XMFLOA
 float RayIntersectTriangle(XMFLOAT3& rayOrigin,XMFLOAT3& rayDirection,XMFLOAT3& v0,XMFLOAT3& v1,XMFLOAT3& v2);
 float RayIntersectTriangleModel(XMFLOAT3& rayOrigin,XMFLOAT3& rayDirection,Entity* _entity);
 float RayIntersect(XMFLOAT3& rayPos,XMFLOAT3& rayDir);//射线检测
+float RayIntersectOBB(XMFLOAT3& rayPos,XMFLOAT3& rayDir);//OBB检测
+float RayOBBModel(XMFLOAT3& rayPos,XMFLOAT3& rayDir, Entity* _entity);//OBB模型检测
