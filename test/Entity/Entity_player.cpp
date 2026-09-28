@@ -32,9 +32,16 @@ void Entity_player::Update(float deltaTime) {
     //碰撞检测
     auto face = XMFLOAT3{0,-1,0};
     auto d = RayIntersect(position,face);
-    if (d>=0) {
-        position.y -= 0.01;
+    if (d>=0 && d<=1) {
+        position.y += 1-d;
     }
+    if (d>1.1) {
+        position.y -= 0.5;//重力
+    }
+    // if(d>=0) {
+    //     position.y += 1-d;//爬坡
+    // }
+
 }
 
 void Entity_player::Draw() {
