@@ -92,10 +92,13 @@ void Game::OnKeyPress(int _key) {
     if (_key == EKey::F) {
         // Global::camera->DrawFrustum();
         // Global::graphic->SaveWater();
+        // Global::plane->root.UpdateLOD();
         Global::plane->root.UpdateLOD();
+        Global::plane->ExecutionQueue();
     }
     if (_key == EKey::C) {
         Global::plane->root.PrintNodes();
+
     }
 
 

@@ -87,6 +87,7 @@ Entity_plane::Entity_plane() {
 
 void Entity_plane::Update(float deltaTime) {
     root.UpdateLOD();
+    ExecutionQueue();
 }
 
 void Entity_plane::Draw() {
@@ -234,5 +235,14 @@ void Entity_plane::ApplyHeightMap()
             // 修改 Y
             meshFbx.m_vertices[index].position.y = height;
         }
+    }
+}
+
+void Entity_plane::ExecutionQueue() {
+    while (!queue.empty())
+    {
+        TerrainNode* node = queue.front();queue.pop();
+        std::cout << "队列循环" << std::endl;
+        node->UpdateLOD();//可能会增加任务
     }
 }

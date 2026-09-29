@@ -6,13 +6,14 @@
 #include <DirectXMath.h>
 
 #include "Entity/Entity.h"
+class Entity_plane;
 class CModel;
 using namespace DirectX;
 
 class TerrainNode
 {
 public:
-    Entity* entity = nullptr;
+    Entity_plane* entity = nullptr;
     // 世界空间范围
     XMFLOAT2 min; // 左下角(x,z)
     XMFLOAT2 max; // 右上角(x,z)
@@ -34,4 +35,5 @@ public:
     float GetMinDistance();
     float GetMaxDistance();
     void PrintNodes();
+    int GetLOD(float distance);
 };

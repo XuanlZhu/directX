@@ -9,6 +9,7 @@
 #include "Global.h"
 #include "Core/Camera.h"
 #include "Core/Graphic.h"
+#include "Entity/Entity_plane.h"
 #undef max
 
 void TerrainNode::Separate(int level) {
@@ -74,8 +75,8 @@ void TerrainNode::Draw() {
         );
         // 绘制立方体
         Global::graphic->DrawPrimitiveIndexed(
-            // D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
-            D3D11_PRIMITIVE_TOPOLOGY_LINELIST,
+            D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
+            // D3D11_PRIMITIVE_TOPOLOGY_LINELIST,
             mesh.m_vertices,
             mesh.m_indices,
             entity->m_texture
@@ -157,23 +158,19 @@ void TerrainNode::SetLeaf() {
     }
 }
 int count = 0;
-//根据摄像机距离判断,太近 → 细分,太远 → 合并
-void TerrainNode::UpdateLOD() {
-    //先算平面到相机的最近与最远距离，然后决定是否细分
-    float minDistance = GetMinDistance();
-    // float maxDistance = GetMaxDistance(cameraPos);
 
+int TerrainNode::GetLOD(float distance)
+{
     int targetLOD;
-
-    if (minDistance < 10)
+    if (distance < 10)
     {
         targetLOD = 0;
     }
-    else if (minDistance < 20)
+    else if (distance < 20)
     {
         targetLOD = 1;
     }
-    else if (minDistance < 30)
+    else if (distance < 30)
     {
         targetLOD = 2;
     }
@@ -181,9 +178,21 @@ void TerrainNode::UpdateLOD() {
     {
         targetLOD = 3;
     }
+    return targetLOD;
+}
+
+
+//根据摄像机距离判断,太近 → 细分,太远 → 合并
+void TerrainNode::UpdateLOD() {
+    //先算平面到相机的最近与最远距离，然后决定是否细分
+
+    int targetLOD = GetLOD(GetMinDistance());//目标层级
+    // std::cout << "最近层级"<< targetLOD << std::endl;
+    // std::cout << "最远层级"<< GetLOD(GetMaxDistance()) << std::endl;
     //---------------------------------
-    //细分逻辑1.未达目标层级 2.层级不统一
-    if (targetLOD < lodLevel)
+    //细分逻辑：层级不统一
+    if (GetLOD(GetMaxDistance())-targetLOD>1)
+    // if (targetLOD < lodLevel)
     {
         isLeaf = false;
         // 需要更加精细
@@ -199,6 +208,8 @@ void TerrainNode::UpdateLOD() {
     for (auto& x:children) {
         // std::cout << "开始UpdateLOD" << std::endl;
         if (x)x->UpdateLOD();
+        //递归改为任务队列
+        // if (x)entity->queue.push(x.get());
     }
 }
 

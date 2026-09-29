@@ -3,6 +3,8 @@
 //
 
 #pragma once
+#include <queue>
+
 #include "Entity.h"
 #include "Mesh/TerrainNode.h"
 
@@ -20,5 +22,7 @@ public:
     // ID3D11ShaderResourceView* m_hightMap = nullptr;//高度图
     std::vector<std::vector<float>> m_heightData;//高度图
 
+    void ExecutionQueue();
+    std::queue<TerrainNode*> queue;
     TerrainNode root;
 };
