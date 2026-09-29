@@ -17,13 +17,14 @@ Entity_plane::Entity_plane() {
     meshFbx = CModel();
     m_texture = Global::graphic->LoadFBXTexture(L"PNG/map.jpg");
     readHightMap("PNG/high3.bmp");//加载高度图
-    scale= {2, 2, 2};
+    scale= {1, 1, 1};
 
-    m_size = 100;
+    m_size = 50;
 
-    const int size = m_size;
-    const float length = m_size;
-    const float step = m_size/m_size;
+    const int size = m_size;      // 200×200个格子
+    const float length = 100;
+    const float step = length / size;
+
 
     meshFbx.m_vertices.clear();
     meshFbx.m_indices.clear();
@@ -35,17 +36,17 @@ Entity_plane::Entity_plane() {
     {
         for (int x = 0; x <= size; ++x)
         {
-            float px = -length / 2.0f + x * step;
-            float pz = -length / 2.0f + z * step;
+            float px = -length / 2 + x * step;//-50+
+            float pz = -length / 2 + z * step;
 
             float u = static_cast<float>(x) / size;
             float v = static_cast<float>(z) / size;
 
             meshFbx.m_vertices.push_back(
             {
-                { px, 0.0f, pz },   // position
-                { 1.0f, 1.0f, 1.0f }, // color
-        { u, v }
+                { px, 0.0f, pz },   //位置
+                { 1.0f, 1.0f, 1.0f }, //颜色
+                { u, v }//纹理左边
             });
         }
     }
@@ -75,40 +76,44 @@ Entity_plane::Entity_plane() {
     }
 
     ApplyHeightMap();//使用高度图偏移顶点
+    //-------------------------------------
+
+    // root.entity = this;
+    // root.lodLevel = 3;//lod等级
+    // root.min = {-100,-100};
+    // root.max = {100,100};
 }
 
-
 void Entity_plane::Update(float deltaTime) {
-
+    // root.UpdateLOD();
 }
 
 void Entity_plane::Draw() {
-    auto pos = WorldToScreen(position);
-    // Global::graphic->DrawText2("zhuzi", pos.x, pos.y);
+    root.Draw();
 
-    // 矩阵数据
-    MatrixBuffer matrixData;
-    matrixData.world = XMMatrixTranspose(GetWorldMatrix());
-    matrixData.view =  XMMatrixTranspose(Global::camera->GetViewMatrix());
-    matrixData.projection = XMMatrixTranspose(Global::graphic->m_projection);
-
-    // 把矩阵传给 GPU
-    Global::graphic->m_context->UpdateSubresource(
-        Global::graphic->m_matrixBuffer,
-        0,
-        nullptr,
-        &matrixData,
-        0,
-        0
-    );
-    // 绘制立方体
-    Global::graphic->DrawPrimitiveIndexed(
-        // D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
-        D3D11_PRIMITIVE_TOPOLOGY_LINELIST,
-        meshFbx.m_vertices,
-        meshFbx.m_indices,
-        m_texture
-    );
+    // // 矩阵数据
+    // MatrixBuffer matrixData;
+    // matrixData.world = XMMatrixTranspose(GetWorldMatrix());
+    // matrixData.view =  XMMatrixTranspose(Global::camera->GetViewMatrix());
+    // matrixData.projection = XMMatrixTranspose(Global::graphic->m_projection);
+    //
+    // // 把矩阵传给 GPU
+    // Global::graphic->m_context->UpdateSubresource(
+    //     Global::graphic->m_matrixBuffer,
+    //     0,
+    //     nullptr,
+    //     &matrixData,
+    //     0,
+    //     0
+    // );
+    // // 绘制立方体
+    // Global::graphic->DrawPrimitiveIndexed(
+    //     // D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
+    //     D3D11_PRIMITIVE_TOPOLOGY_LINELIST,
+    //     meshFbx.m_vertices,
+    //     meshFbx.m_indices,
+    //     m_texture
+    // );
 }
 
 void Entity_plane::readHightMap(std::string path)

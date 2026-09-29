@@ -70,6 +70,8 @@ add_executable(base WIN32
         test/Entity/Entity_player.h
         test/Mesh/Quadtree.cpp
         test/Mesh/Quadtree.h
+        test/Mesh/TerrainNode.cpp
+        test/Mesh/TerrainNode.h
 )
 
 target_include_directories(base PRIVATE

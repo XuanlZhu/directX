@@ -4,6 +4,7 @@
 
 #pragma once
 #include "Entity.h"
+#include "Mesh/TerrainNode.h"
 
 
 class Entity_plane :public Entity
@@ -11,11 +12,13 @@ class Entity_plane :public Entity
 public:
     Entity_plane();
     void Update(float deltaTime) override;
-    virtual void Draw() override;// 绘制
+    void Draw() override;// 绘制
     void readHightMap(std::string path);
     void ApplyHeightMap();
 
     int m_size = 50;
     // ID3D11ShaderResourceView* m_hightMap = nullptr;//高度图
     std::vector<std::vector<float>> m_heightData;//高度图
+
+    TerrainNode root;
 };
