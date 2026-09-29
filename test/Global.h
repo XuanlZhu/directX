@@ -10,6 +10,7 @@
 
 #include "Entity/EntityManager.h"
 
+class Entity_plane;
 class CModel;
 class Entity;
 class EntityManager;
@@ -40,6 +41,7 @@ public:
     inline static Entity* player = nullptr;//玩家
     inline static Entity* water = nullptr;//水
     inline static Entity* ball = nullptr;//球
+    inline static Entity_plane* plane = nullptr;//平面
 
     inline static Camera* cameraFPS = nullptr;//FPS相机
     inline static Camera* cameraTPS = nullptr;//TPS相机

@@ -78,14 +78,15 @@ Entity_plane::Entity_plane() {
     ApplyHeightMap();//使用高度图偏移顶点
     //-------------------------------------
 
-    // root.entity = this;
-    // root.lodLevel = 3;//lod等级
-    // root.min = {-100,-100};
-    // root.max = {100,100};
+    root.entity = this;
+    root.lodLevel = 3;//lod等级
+    root.min = {-100,-100};
+    root.max = {100,100};
+    root.SetLeaf();
 }
 
 void Entity_plane::Update(float deltaTime) {
-    // root.UpdateLOD();
+    root.UpdateLOD();
 }
 
 void Entity_plane::Draw() {

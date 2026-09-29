@@ -18,6 +18,7 @@
 #include "UIManager.h"
 #include "../Entity/Entity.h"
 #include "../Entity/EntityManager.h"
+#include "Entity/Entity_plane.h"
 #include "Mesh/Mesh.h"
 
 
@@ -47,7 +48,7 @@ void Game::Setup()
 
     //天空盒
     // Global::ball = CreateEntity("Entity_ball",XMFLOAT3{0,10,0}).get();//球
-    CreateEntity("Entity_plane",XMFLOAT3{0,-6.5,0});//地板
+    Global::plane = static_cast<Entity_plane*>(CreateEntity("Entity_plane",XMFLOAT3{0,-6.5,0}).get());//地板
     CreateEntity("Entity_skybox",XMFLOAT3{0,0,0});//天空盒
     // Global::water = CreateEntity("Entity_water",XMFLOAT3{0,-0.5,0}).get();//水
 }
@@ -90,7 +91,11 @@ void Game::OnKeyPress(int _key) {
     //按F画视锥体
     if (_key == EKey::F) {
         // Global::camera->DrawFrustum();
-        Global::graphic->SaveWater();
+        // Global::graphic->SaveWater();
+        Global::plane->root.UpdateLOD();
+    }
+    if (_key == EKey::C) {
+        Global::plane->root.PrintNodes();
     }
 
 

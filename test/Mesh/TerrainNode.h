@@ -31,6 +31,7 @@ public:
     void Draw();
     void SetLeaf();
     void UpdateLOD();
-    float GetMinDistance(XMFLOAT3 cameraPos);
-    float GetMaxDistance(XMFLOAT3 cameraPos);
+    float GetMinDistance();
+    float GetMaxDistance();
+    void PrintNodes();
 };

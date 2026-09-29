@@ -4,6 +4,8 @@
 
 #include "TerrainNode.h"
 
+#include <iostream>
+
 #include "Global.h"
 #include "Core/Camera.h"
 #include "Core/Graphic.h"
@@ -94,6 +96,19 @@ void TerrainNode::SetLeaf() {
     float width = max.x - min.x;float depth = max.y - min.y;
     // 根据LOD决定网格密度
     float length = 2;
+
+    if (lodLevel==3) {
+        length = 16;
+    }else if (lodLevel==2) {
+        length = 8;
+    }else if (lodLevel==1) {
+        length = 2;
+    }else if (lodLevel==0) {
+        length = 0.5;
+    }
+
+
+
     int gridSize = width/length;//多少个方块
 
     float stepX = width / gridSize;
@@ -141,11 +156,11 @@ void TerrainNode::SetLeaf() {
         }
     }
 }
+int count = 0;
 //根据摄像机距离判断,太近 → 细分,太远 → 合并
 void TerrainNode::UpdateLOD() {
-    XMFLOAT3 cameraPos = Global::camera->position;
     //先算平面到相机的最近与最远距离，然后决定是否细分
-    float minDistance = GetMinDistance(cameraPos);
+    float minDistance = GetMinDistance();
     // float maxDistance = GetMaxDistance(cameraPos);
 
     int targetLOD;
@@ -167,8 +182,10 @@ void TerrainNode::UpdateLOD() {
         targetLOD = 3;
     }
     //---------------------------------
+    //细分逻辑1.未达目标层级 2.层级不统一
     if (targetLOD < lodLevel)
     {
+        isLeaf = false;
         // 需要更加精细
         Separate(targetLOD);
     }
@@ -179,37 +196,49 @@ void TerrainNode::UpdateLOD() {
         SetLeaf();
     }
     //递归
-    // for (auto& x:children) {
-    //     x->UpdateLOD();
-    // }
+    for (auto& x:children) {
+        // std::cout << "开始UpdateLOD" << std::endl;
+        if (x)x->UpdateLOD();
+    }
 }
 
-float TerrainNode::GetMinDistance(XMFLOAT3 cameraPos) {
-    float dx = 0;
-    float dz = 0;
-    if(cameraPos.x < min.x)
+float TerrainNode::GetMinDistance() {
+    XMFLOAT3 cameraPos = Global::camera->position;
+    // 计算相机到矩形平面在 XZ 方向上的最近距离
+    float dx = 0.0f;
+    float dz = 0.0f;
+
+    if (cameraPos.x < min.x)
         dx = min.x - cameraPos.x;
-    else if(cameraPos.x > max.x)
+    else if (cameraPos.x > max.x)
         dx = cameraPos.x - max.x;
-    if(cameraPos.z < min.y)
+
+    if (cameraPos.z < min.y)
         dz = min.y - cameraPos.z;
-    else if(cameraPos.z > max.y)
+    else if (cameraPos.z > max.y)
         dz = cameraPos.z - max.y;
-    return sqrt(dx*dx + dz*dz);
+
+    // Y方向：相机到平面的垂直距离
+    float dy = cameraPos.y;
+
+    return sqrt(dx * dx + dy * dy + dz * dz);
 }
 
-float TerrainNode::GetMaxDistance(XMFLOAT3 cameraPos) {
-    float dx1 = cameraPos.x - min.x;
-    float dz1 = cameraPos.z - min.y;
-    float dx2 = cameraPos.x - max.x;
-    float dz2 = cameraPos.z - min.y;
-    float dx3 = cameraPos.x - min.x;
-    float dz3 = cameraPos.z - max.y;
-    float dx4 = cameraPos.x - max.x;
-    float dz4 = cameraPos.z - max.y;
-    float d1 = sqrt(dx1 * dx1 + dz1 * dz1);
-    float d2 = sqrt(dx2 * dx2 + dz2 * dz2);
-    float d3 = sqrt(dx3 * dx3 + dz3 * dz3);
-    float d4 = sqrt(dx4 * dx4 + dz4 * dz4);
-    return std::max({d1, d2, d3, d4});
+float TerrainNode::GetMaxDistance() {
+    XMFLOAT3 cameraPos = Global::camera->position;
+    // X方向：取距离相机最远的边界
+    float dx = std::max(std::abs(cameraPos.x - min.x),std::abs(cameraPos.x - max.x));
+    // Z方向：取距离相机最远的边界
+    float dz = std::max(std::abs(cameraPos.z - min.y),std::abs(cameraPos.z - max.y));
+    // Y方向：整个平面都是 Y = 0
+    float dy = std::abs(cameraPos.y);
+    return std::sqrt(dx * dx + dy * dy + dz * dz);
+}
+
+void TerrainNode::PrintNodes() {
+    std::cout << "节点" << isLeaf<< std::endl;
+
+    for (auto& x:children) {
+        if (x)x->PrintNodes();
+    }
 }
