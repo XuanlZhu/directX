@@ -23,6 +23,7 @@ void TerrainNode::Separate(int level) {
     children[0]->entity = entity;
     children[0]->lodLevel = level;
     children[0]->father = this;
+    children[0]->depth = depth+1;
     // 右下
     children[1] = std::make_unique<TerrainNode>();
     children[1]->min = {centerX,min.y};
@@ -30,6 +31,7 @@ void TerrainNode::Separate(int level) {
     children[1]->entity = entity;
     children[1]->lodLevel = level;
     children[1]->father = this;
+    children[1]->depth = depth+1;
     // 左上
     children[2] = std::make_unique<TerrainNode>();
     children[2]->min = {min.x,centerZ};
@@ -37,6 +39,7 @@ void TerrainNode::Separate(int level) {
     children[2]->entity = entity;
     children[2]->lodLevel = level;
     children[2]->father = this;
+    children[2]->depth = depth+1;
     // 右上
     children[3] = std::make_unique<TerrainNode>();
     children[3]->min = {centerX,centerZ};
@@ -44,6 +47,7 @@ void TerrainNode::Separate(int level) {
     children[3]->entity = entity;
     children[3]->lodLevel = level;
     children[3]->father = this;
+    children[3]->depth = depth+1;
 }
 
 void TerrainNode::Merge(int level) {
@@ -75,7 +79,7 @@ void TerrainNode::Draw() {
         );
         // 绘制立方体
         Global::graphic->DrawPrimitiveIndexed(
-            D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
+            entity->priType,
             // D3D11_PRIMITIVE_TOPOLOGY_LINELIST,
             mesh.m_vertices,
             mesh.m_indices,
@@ -110,7 +114,7 @@ void TerrainNode::SetLeaf() {
 
 
 
-    int gridSize = width/length;//多少个方块
+    int gridSize = std::max(1, static_cast<int>(width/length));//多少个方块
 
     float stepX = width / gridSize;
     float stepZ = depth / gridSize;
@@ -157,7 +161,6 @@ void TerrainNode::SetLeaf() {
         }
     }
 }
-int count = 0;
 
 int TerrainNode::GetLOD(float distance)
 {
@@ -207,7 +210,12 @@ void TerrainNode::UpdateLOD() {
     //递归
     for (auto& x:children) {
         // std::cout << "开始UpdateLOD" << std::endl;
-        if (x)x->UpdateLOD();
+
+        if (x) {
+            // x->depth += 1;
+            // std::cout << "深度"<< depth << std::endl;
+            x->UpdateLOD();
+        };
         //递归改为任务队列
         // if (x)entity->queue.push(x.get());
     }
@@ -247,9 +255,14 @@ float TerrainNode::GetMaxDistance() {
 }
 
 void TerrainNode::PrintNodes() {
-    std::cout << "节点" << isLeaf<< std::endl;
-
-    for (auto& x:children) {
-        if (x)x->PrintNodes();
+    // std::cout << "节点" << isLeaf<< std::endl;
+    //
+    // for (auto& x:children) {
+    //     if (x)x->PrintNodes();
+    // }
+    if (priType==D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST) {
+        priType = D3D11_PRIMITIVE_TOPOLOGY_LINELIST;
+    }else {
+        priType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
     }
 }

@@ -246,3 +246,11 @@ void Entity_plane::ExecutionQueue() {
         node->UpdateLOD();//可能会增加任务
     }
 }
+
+void Entity_plane::SwitchPri() {
+    if (priType==D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST) {
+        priType = D3D11_PRIMITIVE_TOPOLOGY_LINELIST;
+    }else {
+        priType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+    }
+}

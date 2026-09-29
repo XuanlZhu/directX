@@ -19,10 +19,13 @@ public:
     void ApplyHeightMap();
 
     int m_size = 50;
+
     // ID3D11ShaderResourceView* m_hightMap = nullptr;//高度图
     std::vector<std::vector<float>> m_heightData;//高度图
 
     void ExecutionQueue();
     std::queue<TerrainNode*> queue;
     TerrainNode root;
+    D3D11_PRIMITIVE_TOPOLOGY priType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+    void SwitchPri();
 };

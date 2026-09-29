@@ -97,7 +97,7 @@ void Game::OnKeyPress(int _key) {
         Global::plane->ExecutionQueue();
     }
     if (_key == EKey::C) {
-        Global::plane->root.PrintNodes();
+        Global::plane->SwitchPri();
 
     }
 

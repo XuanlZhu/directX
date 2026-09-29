@@ -26,6 +26,8 @@ public:
     bool isLeaf = false;
     // 这个区域对应的mesh
     CModel mesh;
+    int depth = 1;
+    D3D11_PRIMITIVE_TOPOLOGY priType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
     //分割
     void Separate(int level);
     void Merge(int level);
