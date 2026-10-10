@@ -1,4 +1,4 @@
-cbuffer MatrixBuffer : register(b0)
+cbuffer MatrixBuffer : register(b0)//Constant Buffer（常量缓冲区）槽位
 {
     matrix world;
     matrix view;
