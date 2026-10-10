@@ -18,7 +18,7 @@ Entity_water::Entity_water() {
     scale= {2, 2, 2};
     plane1.normal = XMFLOAT3{0,1,0};
     plane1.d = 0;
-    m_normalTexture = Global::graphic->LoadFBXTexture(L"PNG/wave0.dds");
+    m_normalTexture = Global::graphic->LoadFBXTexture(L"PNG/wave0.png");
 
 
 
@@ -39,14 +39,15 @@ Entity_water::Entity_water() {
             float px = -length / 2.0f + x * step;
             float pz = -length / 2.0f + z * step;
 
-            float u = static_cast<float>(x) / size;
-            float v = static_cast<float>(z) / size;
+            float u = static_cast<float>(x) / size * 100;
+            float v = static_cast<float>(z) / size * 100;
 
             meshFbx.m_vertices.push_back(
             {
-                { px, 0.0f, pz },   // position
-                { 0, 1.0f, 0 }, //法线
-        { u, v }
+            { px, 0.0f, pz },   // position
+            { 0, 1.0f, 0 }, //法线
+    { u, v },
+            { 1.0f, 0.0f, 0.0f } //切线
             });
         }
     }
@@ -130,6 +131,11 @@ void Entity_water::Draw() {
     );
     // //法线贴图写入t2纹理槽
     Global::graphic->m_context->PSSetShaderResources(
+        2,      // 对应 t2
+        1,
+        &m_normalTexture
+    );
+    Global::graphic->m_context->VSSetShaderResources(
         2,      // 对应 t2
         1,
         &m_normalTexture

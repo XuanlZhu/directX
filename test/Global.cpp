@@ -66,6 +66,30 @@ std::wstring StringToWString(std::string str) {
     return wstr;
 }
 
+std::string WStringToString(std::wstring str) {
+    if (str.empty())
+        return {};
+
+    int size = WideCharToMultiByte(
+        CP_UTF8, 0,
+        str.c_str(), -1,
+        nullptr, 0,
+        nullptr, nullptr
+    );
+
+    std::string result(size, '\0');
+
+    WideCharToMultiByte(
+        CP_UTF8, 0,
+        str.c_str(), -1,
+        result.data(), size,
+        nullptr, nullptr
+    );
+
+    result.pop_back(); // 删除末尾的 '\0'
+    return result;
+}
+
 float GetNowTime() {
     auto ts = std::chrono::high_resolution_clock::now();
     return std::chrono::duration<float>(ts-Global::game->mStartTime).count();

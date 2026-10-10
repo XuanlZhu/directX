@@ -6,6 +6,7 @@
 #include <vector>
 #include <WICTextureLoader.h>
 #include <wrl/client.h>
+#include <DDSTextureLoader.h>
 
 #pragma comment(lib,"d3d11.lib")
 #pragma comment(lib,"dxgi.lib")
@@ -41,9 +42,11 @@ struct MatrixBuffer
 };
 struct Vertex3fbx
 {
-    DirectX::XMFLOAT3 position;
-    DirectX::XMFLOAT3 normal;
-    DirectX::XMFLOAT2 texCoord;
+    XMFLOAT3 position;
+    XMFLOAT3 normal;
+    XMFLOAT2 texCoord;
+
+    XMFLOAT3 tangent;// 切线
 };
 
 struct DirectionalLight

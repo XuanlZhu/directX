@@ -7,13 +7,13 @@ cbuffer MatrixBuffer : register(b0)
 	matrix reflectionView;
 };
 
-Texture2D normalTexture : register(t2);//从t2槽拿法线贴图
-
 struct VSInput
 {
     float3 position : POSITION;
     float3 normal   : NORMAL;
     float2 texCoord : TEXCOORD0;
+	
+	float3 tangent  : TANGENT;
 };
 
 struct VSOutput
@@ -24,6 +24,8 @@ struct VSOutput
 	
 	float3 worldPosition : TEXCOORD1;// 世界空间位置，给光照计算使用
 	float4 reflectionPosition : TEXCOORD2;//裁剪空间坐标
+	
+	float3x3 TBN : TEXCOORD3;//TBN矩阵
 };
 float3x3 Inverse3x3(float3x3 m)
 {
@@ -83,6 +85,16 @@ VSOutput main(VSInput input)
             projection
         );
 	//-------------------------------------------------------------------------
+	// 法线：模型空间 -> 世界空间
+	float3 N = normalize(mul(input.normal, normalMatrix));
+	// 切线：模型空间 -> 世界空间
+	float3 T = normalize(mul(input.tangent, (float3x3)world));
+	// 正交化切线，保证 T 与 N 垂直
+	T = normalize(T - dot(T, N) * N);
+	// 副切线
+	float3 B = normalize(cross(N, T));
+	// 构建 TBN 矩阵
+	output.TBN = float3x3(T, B, N);
 	
 
     return output;

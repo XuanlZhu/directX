@@ -264,6 +264,7 @@ void Graphic::BeginFrame()
     //相机数据，用于光照计算-------------------------------
     CameraBuffer data;
     data.cameraPosition = Global::camera->position;
+    data.padding = GetNowTime();
 
     D3D11_MAPPED_SUBRESOURCE mapped{};
     HRESULT hr = m_context->Map(
@@ -553,7 +554,16 @@ void Graphic::InitVertexFBX() {
             24,
             D3D11_INPUT_PER_VERTEX_DATA,
             0
+        },
+        { "TANGENT",
+            0,
+            DXGI_FORMAT_R32G32B32_FLOAT,
+            0,
+            32,
+            D3D11_INPUT_PER_VERTEX_DATA,
+            0
         }
+
     };
 
     hr = m_device->CreateInputLayout(
@@ -1725,16 +1735,38 @@ Graphic::LoadTexture(std::string _path)
 ID3D11ShaderResourceView* Graphic::LoadFBXTexture(std::wstring _path)
 {
     ID3D11ShaderResourceView* texture2 = nullptr;
-    HRESULT hr = DirectX::CreateWICTextureFromFile(
-        m_device,
-        _path.c_str(),
-        nullptr,
-        &texture2
-    );
+    // HRESULT hr = DirectX::CreateWICTextureFromFile(
+    //     m_device,
+    //     _path.c_str(),
+    //     nullptr,
+    //     &texture2
+    // );
+    // std::string str = WStringToString(_path);
+
+    HRESULT hr;
+    if (_path.find(L".dds") != std::wstring::npos)
+    {
+        hr = DirectX::CreateDDSTextureFromFile(
+            m_device,
+            _path.c_str(),
+            nullptr,
+            &texture2
+        );
+        std::cout<<WStringToString(_path) << "使用CreateDDSTextureFromFile" << std::endl;
+    }
+    else
+    {
+        hr = DirectX::CreateWICTextureFromFile(
+            m_device,
+            _path.c_str(),
+            nullptr,
+            &texture2
+        );
+    }
 
     if (FAILED(hr))
     {
-        std::cout << "FBX纹理加载失败" << std::endl;
+        std::cout<< WStringToString(_path) << "FBX纹理加载失败" << std::endl;
     }
     return texture2;
 }
