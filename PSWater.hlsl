@@ -34,13 +34,6 @@ float4 main(PSInput input) : SV_TARGET
 {
 	
 	//改为使用法线贴图
-	// 采样法线贴图
-	// float3 normalTS = normalTexture.Sample(samplerState,input.texCoord).rgb;
-	// 从 [0, 1] 映射到 [-1, 1]
-	// normalTS = normalTS * 2.0f - 1.0f;
-	// 切线空间 -> 世界空间
-	// float3 N = normalize(mul(normalTS, input.TBN));
-	
 	
 	float2 uv2 = input.texCoord;
 	// 随时间沿 U 方向移动
@@ -49,7 +42,8 @@ float4 main(PSInput input) : SV_TARGET
 	float3 normalTS = normalTexture.Sample(samplerState,uv2).rgb;
 	normalTS = normalize(normalTS * 2.0f - 1.0f);
 	// 临时测试：直接把切线空间法线当作世界空间法线
-	float3 N = normalTS;
+	//float3 N = normalize(normalTS);
+	float3 N = normalize(mul(normalTS, input.TBN));
 	 
 	//float3 N = normalize(input.normal);
 	
@@ -61,10 +55,10 @@ float4 main(PSInput input) : SV_TARGET
 	float3 V = normalize(cameraPosition - input.worldPosition);//指向摄像机
 	float3 R = reflect(-L, N);//反射光方向
 
-	float shininess = 32;//32为常见塑料
+	float shininess = 128;//32为常见塑料,水128
 	float spec = pow(max(dot(V, R), 0.0f), shininess);//shininess为高光集中度
 
-	float specularStrength = 1;//高光强度
+	float specularStrength = 0.8;//高光强度
 	//高光
 	float3 specular = lightColor * specularStrength * spec;
 	//-------------------------------------------------------------------
@@ -82,32 +76,27 @@ float4 main(PSInput input) : SV_TARGET
 	//--------------------------------------------------------------
 	//基础色
 	float4 albedo = float4(0.45f, 0.78f, 0.88f, 1.0f);
-	//albedo = normalTexture.Sample(samplerState,input.texCoord);
-	//albedo.a = 1;
 	
-    //float4 albedo = diffuseTexture.Sample(samplerState,input.texCoord);
-	//albedo.a = 1;
+    // float4 albedo = diffuseTexture.Sample(samplerState,input.texCoord);
+	// albedo.a = 1;
 	//线性插值
-	//albedo.rgb = lerp(albedo.rgb,reflection.rgb,0.9);
+	// albedo.rgb = lerp(albedo.rgb,reflection.rgb,0.5);
 	
 	
 	
 	//Fresnel插值
-	// float fresnel = pow(1.0f - saturate(dot(N,V)),5.0f);
-	// albedo.rgb = lerp(albedo.rgb,reflection.rgb,fresnel);
-	
-	// albedo = reflection;
-	
+	float fresnel = pow(1.0f - saturate(dot(N,V)),5.0f);
+	albedo.rgb = lerp(albedo.rgb,reflection.rgb,fresnel);
 	//环境光---------------------------------------------------
 	float3 ambientColor = float3(1.0f, 1.0f, 1.0f);
-	float ambientIntensity = 0.5;
-	float3 ambient = ambientColor *ambientIntensity;
+	float ambientIntensity = 0.3;
+	float3 ambient = ambientColor * ambientIntensity;
 	//漫反射
-    float3 diffuse = lightColor * intensity * NdotL;
+    float3 diffuse = lightColor * intensity * NdotL *1;
 	
 	// albedo = reflection;
 	//最终颜色
-	float3 finalColor = albedo.rgb * (diffuse+ambient) + specular;
+	float3 finalColor = albedo.rgb * (diffuse + ambient)+ specular;
 	
     return float4(finalColor, albedo.a);
 }

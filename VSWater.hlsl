@@ -88,7 +88,7 @@ VSOutput main(VSInput input)
 	// 法线：模型空间 -> 世界空间
 	float3 N = normalize(mul(input.normal, normalMatrix));
 	// 切线：模型空间 -> 世界空间
-	float3 T = normalize(mul(input.tangent, (float3x3)world));
+	float3 T = normalize(mul(float3(1, 0, 0), (float3x3)world));
 	// 正交化切线，保证 T 与 N 垂直
 	T = normalize(T - dot(T, N) * N);
 	// 副切线

@@ -49,7 +49,7 @@ void Game::Setup()
 
     //天空盒
     // Global::ball = CreateEntity("Entity_ball",XMFLOAT3{0,10,0}).get();//球
-    CreateEntity("Entity_plane",XMFLOAT3{0,-6.5,0});//地板
+    //CreateEntity("Entity_plane",XMFLOAT3{0,-6.5,0});//地板
     CreateEntity("Entity_skybox",XMFLOAT3{0,0,0});//天空盒
     Global::water = CreateEntity("Entity_water",XMFLOAT3{0,-0.5,0}).get();//水
 }
