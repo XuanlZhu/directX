@@ -34,7 +34,7 @@ void Entity_player::Update(float deltaTime) {
     auto position2 = position;
     position2.y += 0.8;
     auto d2 = RayIntersectOBB(position2,dir3);
-    std::cout << d2 << std::endl;
+    // std::cout << d2 << std::endl;
     XMVECTOR pos = XMLoadFloat3(&position);
 
     pos += dir2 * 0.1;

@@ -38,7 +38,7 @@ Game::Game() {
 //初始化
 void Game::Setup()
 {
-    Global::camera = Global::cameraFPS;//切换相机
+    //Global::camera = Global::cameraFPS;//切换相机
     Global::player = CreateEntity("Entity_player",XMFLOAT3{0,0.3,0}).get();//玩家
 
     CreateEntity("Entity_pillar",XMFLOAT3{5,0,5});

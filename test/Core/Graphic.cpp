@@ -60,8 +60,8 @@ bool Graphic::Initialize(HWND hWnd)
 
     DXGI_SWAP_CHAIN_DESC swapDesc = {};
 
-    std::cout << "宽度" << width<< std::endl;
-    std::cout << "高度" << height<< std::endl;
+    // std::cout << "宽度" << width<< std::endl;
+    // std::cout << "高度" << height<< std::endl;
 
     swapDesc.BufferCount = 1;
     swapDesc.BufferDesc.Width = width;
@@ -1149,15 +1149,11 @@ void Graphic::CreateSampler()
 
     if(FAILED(hr))
     {
-        std::cout
-            << "Sampler创建失败"
-            << std::endl;
+        std::cout<< "Sampler创建失败"<< std::endl;
     }
     else
     {
-        std::cout
-            << "Sampler创建成功"
-            << std::endl;
+        std::cout<< "Sampler创建成功"<< std::endl;
     }
 }
 void Graphic::CreateBlendState()
