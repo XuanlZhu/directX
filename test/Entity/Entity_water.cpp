@@ -18,6 +18,9 @@ Entity_water::Entity_water() {
     scale= {2, 2, 2};
     plane1.normal = XMFLOAT3{0,1,0};
     plane1.d = 0;
+    m_normalTexture = Global::graphic->LoadFBXTexture(L"PNG/wave0.dds");
+
+
 
     const int size = 50;       // 20 × 20 个格子
     const float length = 50;
@@ -124,6 +127,12 @@ void Entity_water::Draw() {
         &matrixData,
         0,
         0
+    );
+    // //法线贴图写入t2纹理槽
+    Global::graphic->m_context->PSSetShaderResources(
+        2,      // 对应 t2
+        1,
+        &m_normalTexture
     );
     // 绘制立方体
     Global::graphic->DrawPrimitiveIndexed2(

@@ -7,6 +7,8 @@ cbuffer MatrixBuffer : register(b0)
 	matrix reflectionView;
 };
 
+Texture2D normalTexture : register(t2);//从t2槽拿法线贴图
+
 struct VSInput
 {
     float3 position : POSITION;
@@ -80,7 +82,7 @@ VSOutput main(VSInput input)
             mul(worldPosition, reflectionView),//要拿反射相机矩阵
             projection
         );
-	
+	//-------------------------------------------------------------------------
 	
 
     return output;

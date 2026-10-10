@@ -53,6 +53,7 @@ public:
     XMMATRIX GetWorldMatrix();
 
     ID3D11ShaderResourceView* m_texture = nullptr;//纹理图
+    ID3D11ShaderResourceView* m_normalTexture = nullptr;//法线贴图
     Plane plane1;
     float velocityY = 0;
 };
