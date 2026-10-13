@@ -27,6 +27,8 @@ struct PSInput
 
 float4 main(PSInput input) : SV_TARGET
 {
+	//clip(input.worldPosition.y);
+
 	float3 N = normalize(input.normal);
     float3 L = normalize(-lightDirection);
     float NdotL = max(dot(N, L), 0.0f);//物体表面法线 N 和光线方向 L 的夹角余弦值

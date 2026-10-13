@@ -1,6 +1,7 @@
 Texture2D diffuseTexture : register(t0);//从t0槽拿贴图
 Texture2D reflectionTexture : register(t1);//从t1槽拿反射贴图
 Texture2D normalTexture : register(t2);//从t2槽拿法线贴图
+Texture2D noiseTexture : register(t3);//从t3槽拿噪波图
 SamplerState samplerState : register(s0);//从s0拿取样器
 
 cbuffer LightBuffer : register(b1)
@@ -32,9 +33,7 @@ struct PSInput
 
 float4 main(PSInput input) : SV_TARGET
 {
-	
 	//改为使用法线贴图
-	
 	float2 uv2 = input.texCoord;
 	// 随时间沿 U 方向移动
 	uv2.x += t1 * 0.1f;
@@ -50,6 +49,18 @@ float4 main(PSInput input) : SV_TARGET
 	
     float3 L = normalize(-lightDirection);
     float NdotL = max(dot(N, L), 0.0f);//物体表面法线 N 和光线方向 L 的夹角余弦值
+	//-----------------------------------------------------------------------
+	//噪波图
+	// 2. 采样噪波图
+	float2 noiseUV = input.texCoord + float2(t1 * 0.03,-t1 * 0.02);
+	float noise = noiseTexture.Sample(samplerState, noiseUV).r;
+	//3. 噪波控制扰动强度
+	float noiseStrength = noise * 2.0 - 1.0;
+	//4. 法线决定扰动方向，噪波决定扰动强弱
+	float2 distortion = N.xz * noiseStrength;
+	//5. 扰动反射纹理
+	float2 reflectionUV = input.texCoord + distortion * 0.01;
+	// float3 reflectionColor = reflectionTexture.Sample(samplerState, reflectionUV).rgb;
 	
 	//-------------------------------------------------------------------
 	float3 V = normalize(cameraPosition - input.worldPosition);//指向摄像机
@@ -73,6 +84,7 @@ float4 main(PSInput input) : SV_TARGET
     uv.y = 1.0f - uv.y;
 
     float4 reflection = reflectionTexture.Sample(samplerState,uv);
+	float4 reflection2 = reflectionTexture.Sample(samplerState,uv + distortion * 0.1);
 	//--------------------------------------------------------------
 	//基础色
 	float4 albedo = float4(0.45f, 0.78f, 0.88f, 1.0f);
@@ -80,13 +92,13 @@ float4 main(PSInput input) : SV_TARGET
     // float4 albedo = diffuseTexture.Sample(samplerState,input.texCoord);
 	// albedo.a = 1;
 	//线性插值
-	// albedo.rgb = lerp(albedo.rgb,reflection.rgb,0.5);
+	albedo.rgb = lerp(albedo.rgb,reflection2.rgb,0.5);
 	
 	
 	
 	//Fresnel插值
-	float fresnel = pow(1.0f - saturate(dot(N,V)),5.0f);
-	albedo.rgb = lerp(albedo.rgb,reflection.rgb,fresnel);
+	// float fresnel = pow(1.0f - saturate(dot(N,V)),5.0f);
+	// albedo.rgb = lerp(albedo.rgb,reflection2.rgb,fresnel);
 	//环境光---------------------------------------------------
 	float3 ambientColor = float3(1.0f, 1.0f, 1.0f);
 	float ambientIntensity = 0.3;
@@ -99,4 +111,5 @@ float4 main(PSInput input) : SV_TARGET
 	float3 finalColor = albedo.rgb * (diffuse + ambient)+ specular;
 	
     return float4(finalColor, albedo.a);
+	// return float4(reflection2.rgb, 1);
 }

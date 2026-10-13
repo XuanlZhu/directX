@@ -150,4 +150,12 @@ public:
     void DrawPrimitiveIndexed2(D3D11_PRIMITIVE_TOPOLOGY _topology,std::vector<Vertex3fbx>& _vertices,std::vector<uint32_t>& _indices,ID3D11ShaderResourceView* _texture);
     void DrawWater();
     void SaveWater();
+    void DrawPrimitiveIndexed3(D3D11_PRIMITIVE_TOPOLOGY _topology,const std::vector<Vertex3fbx>& _vertices,const std::vector<uint32_t>& _indices,ID3D11ShaderResourceView* _texture);
+    ID3D11VertexShader* m_VS3;//顶点着色器
+    ID3D11PixelShader* m_PS3;//像素着色器
+
+    ID3D11Texture2D* m_shadowMapTexture;//深度纹理
+    ID3D11DepthStencilView* m_shadowMapDSV;
+    ID3D11ShaderResourceView* m_shadowMapSRV;
+    void initShadow();//初始化阴影
 };

@@ -14,5 +14,5 @@ public:
     virtual void Draw() override;// 绘制
 
     std::vector<std::vector<float>> m_heightData;//高度图
-
+    ID3D11ShaderResourceView* m_noiseTexture = nullptr;//噪波图
 };

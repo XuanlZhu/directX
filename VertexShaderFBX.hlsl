@@ -9,7 +9,7 @@ cbuffer MatrixBuffer : register(b0)
 
 struct VSInput
 {
-    float3 position : POSITION;
+    float3 position : POSITION;//模型空间
     float3 normal   : NORMAL;
     float2 texCoord : TEXCOORD0;
 };

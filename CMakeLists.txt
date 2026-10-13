@@ -68,6 +68,10 @@ add_executable(base WIN32
         test/Entity/Entity_water.h
         test/Entity/Entity_player.cpp
         test/Entity/Entity_player.h
+        test/Entity/Entity_cylinder.cpp
+        test/Entity/Entity_cylinder.h
+        test/Entity/Entity_plane2.cpp
+        test/Entity/Entity_plane2.h
 )
 
 target_include_directories(base PRIVATE

@@ -19,6 +19,7 @@ Entity_water::Entity_water() {
     plane1.normal = XMFLOAT3{0,1,0};
     plane1.d = 0;
     m_normalTexture = Global::graphic->LoadFBXTexture(L"PNG/wave0.png");
+    m_noiseTexture = Global::graphic->LoadFBXTexture(L"PNG/waterNoise.jpg");
 
 
 
@@ -135,10 +136,10 @@ void Entity_water::Draw() {
         1,
         &m_normalTexture
     );
-    Global::graphic->m_context->VSSetShaderResources(
-        2,      // 对应 t2
+    Global::graphic->m_context->PSSetShaderResources(
+        3,      // 对应 t3
         1,
-        &m_normalTexture
+        &m_noiseTexture
     );
     // 绘制立方体
     Global::graphic->DrawPrimitiveIndexed2(

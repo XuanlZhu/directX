@@ -207,6 +207,8 @@ bool Graphic::Initialize(HWND hWnd)
     InitVertexFBX();
     //初始化灯光
     InitLight();
+    //初始化阴影
+    initShadow();
     return true;
 }
 //地面
@@ -1893,7 +1895,24 @@ void Graphic::CreateReflectionTexture() {
         nullptr,
         &m_pixelShaderWater
     );
-
+    //-------------------------------------------------
+    D3DCompileFromFile(
+        L"PixelShaderFBX2.hlsl",
+        nullptr,
+        nullptr,
+        "main",
+        "ps_5_0",
+        0,
+        0,
+        &psBlob,
+        &errorBlob
+    );
+    m_device->CreatePixelShader(
+        psBlob->GetBufferPointer(),
+        psBlob->GetBufferSize(),
+        nullptr,
+        &m_PS3
+    );
 }
 
 
@@ -2142,7 +2161,7 @@ void Graphic::DrawWater() {
                 0
             );
             // 绘制立方体
-            DrawPrimitiveIndexed(
+            DrawPrimitiveIndexed3(
                 D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
                 entity->meshFbx.m_vertices,
                 entity->meshFbx.m_indices,
@@ -2172,5 +2191,257 @@ void Graphic::SaveWater() {
         GUID_ContainerFormatPng,
         L"reflection.png"
     );
+}
+
+void Graphic::DrawPrimitiveIndexed3(D3D11_PRIMITIVE_TOPOLOGY _topology, const std::vector<Vertex3fbx> &_vertices,const std::vector<uint32_t> &_indices, ID3D11ShaderResourceView *_texture) {
+#pragma region FBX
+    if (_vertices.empty() || _indices.empty())return;
+
+    UINT vertexBufferSize =
+        static_cast<UINT>(
+            _vertices.size() * sizeof(Vertex3fbx)
+        );
+
+    UINT indexBufferSize =
+        static_cast<UINT>(
+            _indices.size() * sizeof(uint32_t)
+        );
+
+    // ========================================
+    // 1. 确保 Dynamic Vertex Buffer 足够大
+    // ========================================
+    if (!m_dynamicVertexBuffer || m_dynamicVertexBufferSize < vertexBufferSize)
+    {
+        m_dynamicVertexBuffer.Reset();
+
+        D3D11_BUFFER_DESC desc = {};
+        desc.Usage = D3D11_USAGE_DYNAMIC;
+        desc.ByteWidth = vertexBufferSize;
+        desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+        desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+        HRESULT hr = m_device->CreateBuffer(
+            &desc,
+            nullptr,
+            m_dynamicVertexBuffer.GetAddressOf()
+        );
+
+        if (FAILED(hr))
+            return;
+
+        m_dynamicVertexBufferSize = vertexBufferSize;
+    }
+
+    // ========================================
+    // 2. 写入 Vertex Buffer
+    // ========================================
+    D3D11_MAPPED_SUBRESOURCE mapped = {};
+
+    HRESULT hr = m_context->Map(
+        m_dynamicVertexBuffer.Get(),
+        0,
+        D3D11_MAP_WRITE_DISCARD,
+        0,
+        &mapped
+    );
+
+    if (FAILED(hr))
+        return;
+
+    memcpy(
+        mapped.pData,
+        _vertices.data(),
+        vertexBufferSize
+    );
+
+    m_context->Unmap(
+        m_dynamicVertexBuffer.Get(),
+        0
+    );
+
+    // ========================================
+    // 3. 确保 Dynamic Index Buffer 足够大
+    // ========================================
+    if (!m_dynamicIndexBuffer || m_dynamicIndexBufferSize < indexBufferSize)
+    {
+        m_dynamicIndexBuffer.Reset();
+
+        D3D11_BUFFER_DESC desc = {};
+        desc.Usage = D3D11_USAGE_DYNAMIC;
+        desc.ByteWidth = indexBufferSize;
+        desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+        desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+        HRESULT hr = m_device->CreateBuffer(
+            &desc,
+            nullptr,
+            m_dynamicIndexBuffer.GetAddressOf()
+        );
+
+        if (FAILED(hr))
+            return;
+
+        m_dynamicIndexBufferSize = indexBufferSize;
+    }
+
+    // ========================================
+    // 4. 写入 Index Buffer
+    // ========================================
+    hr = m_context->Map(
+        m_dynamicIndexBuffer.Get(),
+        0,
+        D3D11_MAP_WRITE_DISCARD,
+        0,
+        &mapped
+    );
+
+    if (FAILED(hr))
+        return;
+
+    memcpy(
+        mapped.pData,
+        _indices.data(),
+        indexBufferSize
+    );
+
+    m_context->Unmap(
+        m_dynamicIndexBuffer.Get(),
+        0
+    );
+    // ========================================
+    // 6. 设置 Vertex Buffer
+    // ========================================
+    UINT stride = sizeof(Vertex3fbx);
+    UINT offset = 0;
+
+    ID3D11Buffer* vertexBuffer = m_dynamicVertexBuffer.Get();
+
+    m_context->IASetVertexBuffers(
+        0,
+        1,
+        &vertexBuffer,
+        &stride,
+        &offset
+    );
+    // ========================================
+    // 11. Constant Buffer
+    // ========================================
+    m_context->VSSetConstantBuffers(
+        0,
+        1,
+        &m_matrixBuffer
+    );
+    // ========================================
+    // 7. 设置 Index Buffer
+    // ========================================
+    m_context->IASetIndexBuffer(
+        m_dynamicIndexBuffer.Get(),
+        DXGI_FORMAT_R32_UINT,
+        0
+    );
+
+    // ========================================
+    // 8. 设置图元类型
+    // ========================================
+    m_context->IASetPrimitiveTopology(
+        _topology
+    );
+
+#pragma endregion
+
+    // ========================================
+    // 5. 设置 Input Layout
+    // ========================================
+    m_context->IASetInputLayout(
+        m_inputLayoutFBX
+    );
+    // ========================================
+    // 9. Vertex Shader
+    // ========================================
+    m_context->VSSetShader(
+        m_vertexShaderFBX,
+        nullptr,
+        0
+    );
+    // ========================================
+    // 10. Pixel Shader
+    // ========================================
+    m_context->PSSetShader(
+        m_PS3,
+        nullptr,
+        0
+    );
+    //取样器
+    ID3D11ShaderResourceView* texture = _texture;//贴图
+    m_context->PSSetShaderResources(
+        0,
+        1,
+        &texture
+    );
+    ID3D11SamplerState* sampler = m_samplerStateFBX.Get();
+    m_context->PSSetSamplers(
+        0,
+        1,
+        &sampler
+    );
+
+
+    // ========================================
+    // 12. Indexed Draw
+    // ========================================
+    m_context->DrawIndexed(
+        static_cast<UINT>(_indices.size()),
+        0,
+        0
+    );
+}
+
+void Graphic::initShadow() {
+    D3D11_TEXTURE2D_DESC desc = {};
+    desc.Width = 2048;
+    desc.Height = 2048;
+    desc.MipLevels = 1;
+    desc.ArraySize = 1;
+    desc.Format = DXGI_FORMAT_R32_TYPELESS;
+    desc.SampleDesc.Count = 1;
+    desc.SampleDesc.Quality = 0;
+    desc.Usage = D3D11_USAGE_DEFAULT;
+    desc.BindFlags =D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
+    desc.CPUAccessFlags = 0;
+    desc.MiscFlags = 0;
+
+    m_device->CreateTexture2D(
+        &desc,
+        nullptr,
+        &m_shadowMapTexture
+    );
+
+
+    // 创建深度视图 DSV
+    D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
+    dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
+    dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+    dsvDesc.Texture2D.MipSlice = 0;
+
+    m_device->CreateDepthStencilView(
+        m_shadowMapTexture,
+        &dsvDesc,
+        &m_shadowMapDSV
+    );
+
+
+    // 创建着色器资源视图 SRV
+    D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+    srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
+    srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+    srvDesc.Texture2D.MostDetailedMip = 0;
+    srvDesc.Texture2D.MipLevels = 1;
+
+    m_device->CreateShaderResourceView(
+        m_shadowMapTexture,
+        &srvDesc,
+        &m_shadowMapSRV
+    );
+
 }
 
